@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context="de.kaiserdragon.iconrequest.MainActivity">
+
+    <include layout="@layout/toolbar" />
+
+    <ViewSwitcher
+        android:id="@+id/viewSwitcherLoadingMain"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:inAnimation="@anim/request_fade_in"
+        android:outAnimation="@anim/request_fade_out"
+        tools:context="de.kaiserdragon.iconrequest.RequestActivity">
+
+        <LinearLayout
+            android:id="@+id/view1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="145dp"
+                    android:indeterminateBehavior="repeat" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/loading"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/app_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </ViewSwitcher>
+</LinearLayout>

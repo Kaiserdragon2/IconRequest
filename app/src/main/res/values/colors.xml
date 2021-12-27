@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#33691E</color>
+    <color name="primaryDark">#1B5E20</color>
+    <color name="primaryBlack">#33691E</color>
+    <color name="primaryDarkBlack">#1B5E20</color>
+    <color name="request_card_unpressed">#00FFFFFF</color>
+    <color name="request_card_pressed">#40000000</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
