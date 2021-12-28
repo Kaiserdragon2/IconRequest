@@ -7,3 +7,4 @@ gradle.properties
 gradlew
 gradlew.bat
 settings.gradle
+release/
