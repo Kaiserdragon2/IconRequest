@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 31
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '31.0.0'
 
     defaultConfig {
         applicationId 'de.kaiserdragon.iconrequest'
         minSdkVersion 21
         targetSdkVersion 31
-        versionName "2.1"
-        versionCode 9
+        versionName "1.0"
+        versionCode 1
     }
 
     buildTypes {
