@@ -26,4 +26,5 @@
     <string name="request_toast_no_apps_selected">No apps selected. Select at least one app.</string>
     <string name="request_email_subject">Icon Request</string>
     <string name="request_email_text">Some app icons are missing on my device.\n\n</string>
+    <string name="save">save_file</string>
 </resources>
