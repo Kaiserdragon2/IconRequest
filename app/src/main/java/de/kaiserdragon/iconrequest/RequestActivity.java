@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -51,6 +52,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,12 +62,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -83,6 +90,7 @@ public class RequestActivity extends AppCompatActivity {
 
     private ViewSwitcher switcherLoad;
 
+    private ActivityResultLauncher<Intent> activityResultLauncher;
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
 
@@ -115,7 +123,7 @@ public class RequestActivity extends AppCompatActivity {
                 if (file.isDirectory()) {
                     deleteDirectory(file);
                 } else {
-                   file.delete();
+                    file.delete();
                 }
             }
         }
@@ -216,43 +224,42 @@ public class RequestActivity extends AppCompatActivity {
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
         context = this;
 
-        ImgLocation = context.getFilesDir()+"/Icons/IconRequest";
-        ZipLocation = context.getFilesDir()+"/Icons";
+        ImgLocation = context.getFilesDir() + "/Icons/IconRequest";
+        ZipLocation = context.getFilesDir() + "/Icons";
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState == null) {
 
             ExecutorService executors = Executors.newSingleThreadExecutor();
-            executors.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
+            executors.execute(() -> {
+                try {
                     // get included apps
                     parseXML();
                     // compare list to installed apps
                     prepareData();
-                    } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                       @Override
-                        public void run() {
-                                populateView(appListFilter);
-                                switcherLoad.showNext();
-                        }
-                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    populateView(appListFilter);
+                    switcherLoad.showNext();
+                });
             });
 
         } else {
             populateView(appListFilter);
             switcherLoad.showNext();
         }
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                actionSaveext(actionSave(),result);
+            }
+        });
     }
-
 
     public boolean onCreateOptionsMenu(Menu menu) {
         if (updateOnly) {
@@ -265,30 +272,31 @@ public class RequestActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_share: {
-                actionSend(actionSave());
-                return true;
+        if (DEBUG) Log.e(TAG, String.valueOf(item.getItemId()));
+        if (DEBUG) Log.e(TAG, String.valueOf(R.id.home));
+        if (item.getItemId()==R.id.action_share) {
+            actionSend(actionSave());
+            return true;
+        }else if(item.getItemId()==R.id.action_save) {
+            actionSendSave();
+            return true;
+        }else if(item.getItemId()==R.id.action_sharetext) {
+            actionSendText(actionSave());
+            return true;
+        }else if(item.getItemId()==R.id.action_copy) {
+            actionSave();
+            actionCopy();
+            return true;
+        }else if(item.getItemId()==android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }else  {
+            super.onOptionsItemSelected(item);
+            return true;
             }
-            case R.id.action_sharetext: {
-                actionSendText(actionSave());
-                return true;
-            }
-            case R.id.action_copy: {
-                actionSave();
-                actionCopy();
-                return true;
-            }
-            case android.R.id.home: {
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            }
-            default: {
-                super.onOptionsItemSelected(item);
-                return true;
-            }
-        }
-    }
+       }
+
+
 
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
@@ -305,11 +313,12 @@ public class RequestActivity extends AppCompatActivity {
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("application/zip");
 
-        File file = new File(ZipLocation + "/" + array[0]+".zip");
+        File file = new File(ZipLocation + "/" + array[0] + ".zip");
 
         Uri uri = FileProvider.getUriForFile(
                 context, context.getApplicationContext().getPackageName() + ".provider", file);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.putExtra("android.intent.extra.SUBJECT", getString(R.string.request_email_subject));
         intent.putExtra("android.intent.extra.TEXT", array[1]);
@@ -334,6 +343,35 @@ public class RequestActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    private void actionSaveext(String[] array, ActivityResult result) {
+
+        if (DEBUG) Log.i(TAG, String.valueOf(result));
+        File sourceFile = new File(ZipLocation + "/" + array[0] + ".zip");
+        Intent data =result.getData();
+        try (InputStream is = new FileInputStream(sourceFile); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void actionSendSave() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/zip");
+        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss",Locale.US);
+        String zipName = date.format(new Date());
+        intent.putExtra(Intent.EXTRA_TITLE,"IconRequest_" + zipName);
+        activityResultLauncher.launch(intent);
+
+    }
+
 
     private String[] actionSave() {
         final File imgLocation = new File(ImgLocation);
@@ -381,7 +419,7 @@ public class RequestActivity extends AppCompatActivity {
             }
         }
 
-        SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd_hhmmss");
+        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss",Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
 
@@ -391,7 +429,7 @@ public class RequestActivity extends AppCompatActivity {
         } else {
             // write zip and start email intent
             try {
-                FileWriter fstream = new FileWriter(ImgLocation + "/empty.xml");
+                FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
                 BufferedWriter out = new BufferedWriter(fstream);
                 out.write(stringBuilderXML.toString());
                 out.close();
@@ -498,12 +536,11 @@ public class RequestActivity extends AppCompatActivity {
             return collator.compare(object1.label, object2.label);
         });
         appListFilter = arrayList;
-        return;
     }
 
     private Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
 
-        Drawable icon = null;
+        Drawable icon;
 
         try {
             ComponentName componentName = new ComponentName(
