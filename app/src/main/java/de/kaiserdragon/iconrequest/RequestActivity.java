@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -68,6 +69,10 @@ import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -85,6 +90,7 @@ public class RequestActivity extends AppCompatActivity {
 
     private ViewSwitcher switcherLoad;
 
+    private ActivityResultLauncher<Intent> activityResultLauncher;
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
 
@@ -247,8 +253,13 @@ public class RequestActivity extends AppCompatActivity {
             populateView(appListFilter);
             switcherLoad.showNext();
         }
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                actionSaveext(actionSave(),result);
+            }
+        });
     }
-
 
     public boolean onCreateOptionsMenu(Menu menu) {
         if (updateOnly) {
@@ -261,11 +272,13 @@ public class RequestActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (DEBUG) Log.e(TAG, String.valueOf(item.getItemId()));
+        if (DEBUG) Log.e(TAG, String.valueOf(R.id.home));
         if (item.getItemId()==R.id.action_share) {
             actionSend(actionSave());
             return true;
         }else if(item.getItemId()==R.id.action_save) {
-            actionSendSave(actionSave());
+            actionSendSave();
             return true;
         }else if(item.getItemId()==R.id.action_sharetext) {
             actionSendText(actionSave());
@@ -274,7 +287,7 @@ public class RequestActivity extends AppCompatActivity {
             actionSave();
             actionCopy();
             return true;
-        }else if(item.getItemId()==R.id.home) {
+        }else if(item.getItemId()==android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }else  {
@@ -282,6 +295,7 @@ public class RequestActivity extends AppCompatActivity {
             return true;
             }
        }
+
 
 
     public void makeToast(String text) {
@@ -330,35 +344,33 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    private void actionSendSave(String[] array) {
-        int REQUEST_CODE = 1;
+    private void actionSaveext(String[] array, ActivityResult result) {
+
+        if (DEBUG) Log.i(TAG, String.valueOf(result));
+        File sourceFile = new File(ZipLocation + "/" + array[0] + ".zip");
+        Intent data =result.getData();
+        try (InputStream is = new FileInputStream(sourceFile); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void actionSendSave() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/zip");
-        intent.putExtra(Intent.EXTRA_TITLE, array[0]);
-        startActivityForResult(intent, REQUEST_CODE);
+        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss",Locale.US);
+        String zipName = date.format(new Date());
+        intent.putExtra(Intent.EXTRA_TITLE,"IconRequest_" + zipName);
+        activityResultLauncher.launch(intent);
+
     }
-
-        // Handling result
-        @Override
-        protected void onActivityResult ( int requestCode, int resultCode, Intent data){
-            super.onActivityResult(requestCode, resultCode, data);
-
-            // Example file to copy
-            File sourceFile = new File(ZipLocation + "/" + "blabla" + ".zip");
-
-            try (InputStream is = new FileInputStream(sourceFile); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = is.read(buffer)) > 0) {
-                    os.write(buffer, 0, length);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
 
 
     private String[] actionSave() {
@@ -407,8 +419,8 @@ public class RequestActivity extends AppCompatActivity {
             }
         }
 
-        SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd_hhmmss",Locale.US);
-        String zipName ="blabla";// date.format(new Date());
+        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss",Locale.US);
+        String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
 
         if (amount == 0) {
@@ -417,7 +429,7 @@ public class RequestActivity extends AppCompatActivity {
         } else {
             // write zip and start email intent
             try {
-                FileWriter fstream = new FileWriter(ImgLocation + "/empty.xml");
+                FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
                 BufferedWriter out = new BufferedWriter(fstream);
                 out.write(stringBuilderXML.toString());
                 out.close();
