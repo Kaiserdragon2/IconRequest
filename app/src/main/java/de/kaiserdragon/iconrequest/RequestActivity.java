@@ -272,8 +272,6 @@ public class RequestActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (DEBUG) Log.e(TAG, String.valueOf(item.getItemId()));
-        if (DEBUG) Log.e(TAG, String.valueOf(R.id.home));
         if (item.getItemId()==R.id.action_share) {
             actionSend(actionSave());
             return true;
