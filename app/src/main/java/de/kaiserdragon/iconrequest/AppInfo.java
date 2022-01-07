@@ -4,13 +4,15 @@ import android.graphics.drawable.Drawable;
 
 public class AppInfo {
     public Drawable icon;
+    public Drawable icon2;
     public String label;
     String packageName;
     String className;
     public boolean selected;
 
-    AppInfo(Drawable icon, String label, String packageName, String className, boolean selected) {
+    AppInfo(Drawable icon, Drawable icon2, String label, String packageName, String className, boolean selected) {
         this.icon = icon;
+        this.icon2 = icon2;
         this.label = label;
         this.packageName = packageName;
         this.className = className;
