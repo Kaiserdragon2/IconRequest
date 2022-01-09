@@ -15,6 +15,8 @@
     <string name="ThemeDevice">Device Default</string>
 
     <string name="Other">Other</string>
+    <string name="notes">The following options might not work as intended. These options depend somewhat on the Launcher.
+    It works with the OnePlus-Launcher but not with KissLauncher. If it doesn\'t work please disable it.</string>
     <string name="ShowSecondRow">Show second row with currently applied icons</string>
     <string name="ShowOnly">Show only apps that currently doesn\'t have an themed icon</string>
     <string name="savesetting">Save</string>
