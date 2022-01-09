@@ -3,8 +3,6 @@
 .idea/
 build/
 local.properties
-gradle.properties
 gradlew
 gradlew.bat
-settings.gradle
 release/
