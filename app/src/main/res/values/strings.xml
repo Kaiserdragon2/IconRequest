@@ -13,6 +13,10 @@
     <string name="DarkMode">DarkMode</string>
     <string name="LightMode">LightMode</string>
     <string name="ThemeDevice">Device Default</string>
+
+    <string name="Other">Other</string>
+    <string name="ShowSecondRow">Show second row with currently applied icons</string>
+    <string name="ShowOnly">Show only apps that currently doesn\'t have an themed icon</string>
     <string name="savesetting">Save</string>
 
     <string name="IconDescriber">Show Icon</string>

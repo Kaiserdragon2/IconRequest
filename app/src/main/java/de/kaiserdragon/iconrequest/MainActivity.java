@@ -1,11 +1,5 @@
 package de.kaiserdragon.iconrequest;
 
-
-import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
-import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
-
-
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -63,6 +57,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public int loadData() {
         SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        return sharedPreferences.getInt("DarkModeState", 0);
+        return sharedPreferences.getInt("DarkModeState", -1);
     }
 }
