@@ -10,7 +10,6 @@ android {
         targetSdkVersion 31
         versionName "1.5"
         versionCode 4
-
     }
 
     buildTypes {

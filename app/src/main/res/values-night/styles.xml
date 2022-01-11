@@ -14,7 +14,6 @@
     </style>
 
 
-
     <style name="Base_ToolbarStyle" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
         <item name="android:background">?colorPrimary</item>
         <item name="titleTextAppearance">@color/white</item>
@@ -24,4 +23,4 @@
         <!-- Used to color back button and three dots -->
         <item name="android:textColorSecondary">@color/white</item>
     </style>
- </resources>
+</resources>

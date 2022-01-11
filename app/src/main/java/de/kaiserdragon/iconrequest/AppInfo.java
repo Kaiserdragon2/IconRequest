@@ -6,9 +6,9 @@ public class AppInfo {
     public Drawable icon;
     public Drawable icon2;
     public String label;
+    public boolean selected;
     String packageName;
     String className;
-    public boolean selected;
 
     AppInfo(Drawable icon, Drawable icon2, String label, String packageName, String className, boolean selected) {
         this.icon = icon;
