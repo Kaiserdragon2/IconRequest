@@ -1,7 +1,6 @@
 package de.kaiserdragon.iconrequest;
 
 
-
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -16,8 +15,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,17 +27,25 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -66,59 +71,26 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.content.res.ResourcesCompat;
 
 
 public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
-
-    private String ImgLocation;
-    private String ZipLocation;
-
-    private ViewSwitcher switcherLoad;
-
-    private ActivityResultLauncher<Intent> activityResultLauncher;
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
-
+    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static String xmlString;
     private static boolean updateOnly;
-
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
-    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private String ImgLocation;
+    private String ZipLocation;
+    private ViewSwitcher switcherLoad;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
     private Context context;
-
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-        if (DEBUG) Log.v(TAG, "onSaveInstanceState");
-        super.onSaveInstanceState(savedInstanceState);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (DEBUG) Log.v(TAG, "onBackPressed");
-        finish();
-    }
 
     public static void deleteDirectory(File path) {
         if (path.exists()) {
@@ -220,6 +192,19 @@ public class RequestActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        if (DEBUG) Log.v(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (DEBUG) Log.v(TAG, "onBackPressed");
+        finish();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -262,7 +247,7 @@ public class RequestActivity extends AppCompatActivity {
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                actionSaveext(actionSave(),result);
+                actionSaveext(actionSave(), result);
             }
         });
     }
@@ -278,40 +263,40 @@ public class RequestActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId()==R.id.action_share) {
+        if (item.getItemId() == R.id.action_share) {
             actionSend(actionSave());
             return true;
-        }else if(item.getItemId()==R.id.action_save) {
+        } else if (item.getItemId() == R.id.action_save) {
             actionSendSave();
             return true;
-        }else if(item.getItemId()==R.id.action_sharetext) {
+        } else if (item.getItemId() == R.id.action_sharetext) {
             actionSendText(actionSave());
             return true;
-        }else if(item.getItemId()==R.id.action_copy) {
+        } else if (item.getItemId() == R.id.action_copy) {
             actionSave();
             actionCopy();
             return true;
-        }else if(item.getItemId()==android.R.id.home) {
+        } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
-        }else  {
+        } else {
             super.onOptionsItemSelected(item);
             return true;
-            }
-       }
+        }
+    }
 
-       private boolean visible(Drawable one,Drawable two){
-           Bitmap bmp1 = getBitmapFromDrawable(one);
-           Bitmap bmp2 = getBitmapFromDrawable(two);
+    private boolean visible(Drawable one, Drawable two) {
+        Bitmap bmp1 = getBitmapFromDrawable(one);
+        Bitmap bmp2 = getBitmapFromDrawable(two);
 
-           ByteBuffer buffer1 = ByteBuffer.allocate(bmp1.getHeight() * bmp1.getRowBytes());
-           bmp1.copyPixelsToBuffer(buffer1);
+        ByteBuffer buffer1 = ByteBuffer.allocate(bmp1.getHeight() * bmp1.getRowBytes());
+        bmp1.copyPixelsToBuffer(buffer1);
 
-           ByteBuffer buffer2 = ByteBuffer.allocate(bmp2.getHeight() * bmp2.getRowBytes());
-           bmp2.copyPixelsToBuffer(buffer2);
+        ByteBuffer buffer2 = ByteBuffer.allocate(bmp2.getHeight() * bmp2.getRowBytes());
+        bmp2.copyPixelsToBuffer(buffer2);
 
-           return Arrays.equals(buffer1.array(), buffer2.array());
-       }
+        return Arrays.equals(buffer1.array(), buffer2.array());
+    }
 
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
@@ -363,7 +348,7 @@ public class RequestActivity extends AppCompatActivity {
 
         if (DEBUG) Log.i(TAG, String.valueOf(result));
         File sourceFile = new File(ZipLocation + "/" + array[0] + ".zip");
-        Intent data =result.getData();
+        Intent data = result.getData();
         try (InputStream is = new FileInputStream(sourceFile); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
             byte[] buffer = new byte[1024];
             int length;
@@ -380,9 +365,9 @@ public class RequestActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/zip");
-        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss",Locale.US);
+        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
-        intent.putExtra(Intent.EXTRA_TITLE,"IconRequest_" + zipName);
+        intent.putExtra(Intent.EXTRA_TITLE, "IconRequest_" + zipName);
         activityResultLauncher.launch(intent);
 
     }
@@ -434,7 +419,7 @@ public class RequestActivity extends AppCompatActivity {
             }
         }
 
-        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss",Locale.US);
+        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
 
@@ -499,7 +484,7 @@ public class RequestActivity extends AppCompatActivity {
                                 if (xmlCode.length > 1) {
                                     String xmlPackage = xmlCode[0].substring(14);
                                     String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                    appListAll.add(new AppInfo(null,null,
+                                    appListAll.add(new AppInfo(null, null,
                                             xmlLabel, xmlPackage, xmlClass, false));
                                     if (DEBUG) Log.v(TAG, "XML APP: " + xmlLabel);
                                 }
@@ -531,7 +516,7 @@ public class RequestActivity extends AppCompatActivity {
         for (int i = 0; i < list.size(); i++) {
             ResolveInfo resolveInfo = localIterator.next();
             Drawable icon1 = getHighResIcon(pm, resolveInfo);
-            Drawable icon2 = getHighResIcon(pm, resolveInfo);//resolveInfo.loadIcon(pm);
+            Drawable icon2 = resolveInfo.loadIcon(pm);
             if (DEBUG) Log.v(TAG, String.valueOf(icon2));
             AppInfo appInfo = new AppInfo(icon1,
                     icon2,
@@ -539,10 +524,10 @@ public class RequestActivity extends AppCompatActivity {
                     resolveInfo.activityInfo.packageName,
                     resolveInfo.activityInfo.name,
                     false);
-            if (notVisible){
+            if (notVisible) {
                 if (DEBUG) Log.v(TAG, "Not Done");
-                if (visible(icon1,icon2)) arrayList.add(appInfo);
-            }else arrayList.add(appInfo);
+                if (visible(icon1, icon2)) arrayList.add(appInfo);
+            } else arrayList.add(appInfo);
 
         }
 
@@ -574,17 +559,19 @@ public class RequestActivity extends AppCompatActivity {
 
             if (iconId != 0) {
                 icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null);
+                //icon = context.getPackageManager().getApplicationIcon(resolveInfo.activityInfo.packageName);
+                //icon =pm.getDrawable(resolveInfo.activityInfo.packageName, iconId, null);
                 //Drawable adaptiveDrawable = resolveInfo.loadIcon(pm);
                 //PackageManager packageManager = getPackageManager();
                 //icon = resolveInfo.loadIcon(packageManager);
-                //icon = context.getDrawable(iconId);
+                //icon = context.getDrawable(pm.getResourcesForActivity(componentName),iconId,null);
                 return icon;
             }
             return resolveInfo.loadIcon(pm);
         } catch (PackageManager.NameNotFoundException e) {
             //fails return the normal icon
-            return resolveInfo.loadIcon(pm);
-        }catch (Resources.NotFoundException e) {
+           return resolveInfo.loadIcon(pm);
+        } catch (Resources.NotFoundException e) {
             return resolveInfo.loadIcon(pm);
         }
     }
@@ -626,6 +613,7 @@ public class RequestActivity extends AppCompatActivity {
             }
         });
     }
+
     public boolean loadDataBool(String setting) {
         SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
         return sharedPreferences.getBoolean(setting, false);
@@ -665,8 +653,8 @@ public class RequestActivity extends AppCompatActivity {
             holder.apkClass.setText(appInfo.className);
             holder.apkName.setText(appInfo.label);
             holder.apkIcon.setImageDrawable(appInfo.icon);
-           holder.apkIconnow.setImageDrawable(appInfo.icon2);
-            if(loadDataBool("SettingRow")==true){
+            holder.apkIconnow.setImageDrawable(appInfo.icon2);
+            if (loadDataBool("SettingRow") == true) {
                 holder.apkIconnow.setVisibility(View.VISIBLE);
             }
 
