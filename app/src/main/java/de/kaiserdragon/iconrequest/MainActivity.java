@@ -1,6 +1,7 @@
 package de.kaiserdragon.iconrequest;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,8 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+    private static final boolean DEBUG = true;
+
+    private static ArrayList<iPackInfo> appListFilter = new ArrayList<>();
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void start(boolean update) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
+        //if (DEBUG) Log.v(TAG, String.valueOf(getAvailableIconPacks(true)));
+        //populateView(appListFilter);
+
         intent.putExtra("update", update);
         intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".RequestActivity"));
         startActivity(intent);
@@ -59,4 +70,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
         return sharedPreferences.getInt("DarkModeState", -1);
     }
+
+
 }

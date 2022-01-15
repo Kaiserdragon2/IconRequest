@@ -62,13 +62,9 @@ public class SettingActivity extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(update);
         } else {
             if (view == (CheckBox) findViewById(R.id.checkBoxRows)) {
-                if (((CheckBox) view).isChecked()) {
-                    saveDataBool("SettingRow", true);
-                } else saveDataBool("SettingRow", false);
+                saveDataBool("SettingRow", ((CheckBox) view).isChecked());
             } else if (view == (CheckBox) findViewById(R.id.checkBoxOnly)) {
-                if (((CheckBox) view).isChecked()) {
-                    saveDataBool("SettingOnlyNew", true);
-                } else saveDataBool("SettingOnlyNew", false);
+                saveDataBool("SettingOnlyNew", ((CheckBox) view).isChecked());
             }
         }
 
