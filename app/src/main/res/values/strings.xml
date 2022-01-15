@@ -15,11 +15,14 @@
     <string name="ThemeDevice">Device Default</string>
 
     <string name="Other">Other</string>
-    <string name="notes">The following options might not work as intended. These options depend somewhat on the Launcher.
-    It works with the OnePlus-Launcher but not with KissLauncher. If it doesn\'t work please disable it.</string>
-    <string name="ShowSecondRow">Show second row with currently applied icons</string>
+    <string name="notes">The following options let you choose one of your installed icon packs to use
+        for these options. The first option takes quite some cpu power and takes therefore a bit of time.
+        if you don\'t need it disable it. </string>
+    <string name="ShowSecondRow">Show second icon from an icon pack</string>
     <string name="ShowOnly">Show only apps that currently doesn\'t have an themed icon</string>
     <string name="savesetting">Save</string>
+
+    <string name="chooseipack">Choose an icon pack</string>
 
     <string name="IconDescriber">Show Icon</string>
     <string name="IconSelectDescriber">Show Icon selected</string>

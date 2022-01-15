@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -85,12 +84,16 @@ public class RequestActivity extends AppCompatActivity {
     private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static String xmlString;
     private static boolean updateOnly;
+    private static boolean OnlyNew;
+    private static boolean SecondIcon;
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
+    private static ArrayList<iPackInfo> IPackListFilter = new ArrayList<>();
     private String ImgLocation;
     private String ZipLocation;
     private ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private Context context;
+    private boolean IPackChoosen = false;
 
     public static void deleteDirectory(File path) {
         if (path.exists()) {
@@ -209,6 +212,8 @@ public class RequestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         updateOnly = getIntent().getBooleanExtra("update", false);
+        OnlyNew = loadDataBool("SettingOnlyNew");
+        SecondIcon = (loadDataBool("SettingRow") == true);
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -222,28 +227,36 @@ public class RequestActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        if (savedInstanceState == null) {
+        //if (savedInstanceState == null) {
 
             ExecutorService executors = Executors.newSingleThreadExecutor();
             executors.execute(() -> {
                 try {
-                    // get included apps
-                    parseXML();
-                    // compare list to installed apps
-                    prepareData();
+                    if (OnlyNew | SecondIcon) {
+                        prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
+                    } else {
+                        prepareData();  //show all apps
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    populateView(appListFilter);
+                    if (OnlyNew | SecondIcon) {
+                        populateView_Ipack(IPackListFilter);
+                    } else {
+                        findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                        populateView(appListFilter);
+                    }
                     switcherLoad.showNext();
                 });
             });
 
-        } else {
-            populateView(appListFilter);
-            switcherLoad.showNext();
-        }
+        //} else {
+      //      populateView_Ipack(IPackListFilter);
+            //populateView(appListFilter);
+       //     switcherLoad.showNext();
+      //  }
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
@@ -253,13 +266,18 @@ public class RequestActivity extends AppCompatActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (updateOnly) {
-            getMenuInflater().inflate(R.menu.menu_request_update, menu);
+        if (OnlyNew && !IPackChoosen) {
+            getMenuInflater().inflate(R.menu.menu_iconpack_chooser, menu);
         } else {
-            getMenuInflater().inflate(R.menu.menu_request_new, menu);
+            if (updateOnly) {
+                getMenuInflater().inflate(R.menu.menu_request_update, menu);
+            } else {
+                getMenuInflater().inflate(R.menu.menu_request_new, menu);
+            }
         }
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -285,18 +303,6 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    private boolean visible(Drawable one, Drawable two) {
-        Bitmap bmp1 = getBitmapFromDrawable(one);
-        Bitmap bmp2 = getBitmapFromDrawable(two);
-
-        ByteBuffer buffer1 = ByteBuffer.allocate(bmp1.getHeight() * bmp1.getRowBytes());
-        bmp1.copyPixelsToBuffer(buffer1);
-
-        ByteBuffer buffer2 = ByteBuffer.allocate(bmp2.getHeight() * bmp2.getRowBytes());
-        bmp2.copyPixelsToBuffer(buffer2);
-
-        return Arrays.equals(buffer1.array(), buffer2.array());
-    }
 
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
@@ -371,7 +377,6 @@ public class RequestActivity extends AppCompatActivity {
         activityResultLauncher.launch(intent);
 
     }
-
 
     private String[] actionSave() {
         final File imgLocation = new File(ImgLocation);
@@ -457,51 +462,79 @@ public class RequestActivity extends AppCompatActivity {
         return bmp;
     }
 
-    private void parseXML() {
+    private void parseXML(String packageName) {
+        // load appfilter.xml from the icon pack package
+        Resources iconPackres = null;
+
+        PackageManager pm = getPackageManager();
+
         try {
+            iconPackres = pm.getResourcesForApplication(packageName);
             XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
-            XmlPullParser myparser = xmlFactoryObject.newPullParser();
+            XmlPullParser xpp = xmlFactoryObject.newPullParser();
 
-            AssetManager am = context.getAssets();
-            String xmlLocation = "empty.xml";
-            InputStream inputStream = am.open(xmlLocation);
-            myparser.setInput(inputStream, null);
+            try {
+                InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
 
-            int activity = myparser.getEventType();
-            while (activity != XmlPullParser.END_DOCUMENT) {
-                String name = myparser.getName();
-                switch (activity) {
-                    case XmlPullParser.START_TAG:
-                        break;
-                    case XmlPullParser.END_TAG:
-                        if (name.equals("item")) {
-                            try {
-                                String xmlLabel = myparser.getAttributeValue(null, "drawable");
-                                String xmlComponent =
-                                        myparser.getAttributeValue(null, "component");
-
-                                String[] xmlCode = xmlComponent.split("/");
-                                if (xmlCode.length > 1) {
-                                    String xmlPackage = xmlCode[0].substring(14);
-                                    String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                    appListAll.add(new AppInfo(null, null,
-                                            xmlLabel, xmlPackage, xmlClass, false));
-                                    if (DEBUG) Log.v(TAG, "XML APP: " + xmlLabel);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        break;
-                }
-                activity = myparser.next();
+                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                xpp = factory.newPullParser();
+                xpp.setInput(appfilterstream, "utf-8");
+            } catch (IOException e1) {
+                Log.v(TAG, "No appfilter.xml file");
             }
-        } catch (Exception e) {
-            makeToast(getString(R.string.appfilter_assets));
-            e.printStackTrace();
-        }
-    }
 
+            if (xpp != null) {
+                int activity = xpp.getEventType();
+                while (activity != XmlPullParser.END_DOCUMENT) {
+                    String name = xpp.getName();
+                    switch (activity) {
+                        case XmlPullParser.START_TAG:
+                            break;
+                        case XmlPullParser.END_TAG:
+                            if (name.equals("item")) {
+                                try {
+                                    String xmlLabel = xpp.getAttributeValue(null, "drawable");
+                                    String xmlComponent =
+                                            xpp.getAttributeValue(null, "component");
+
+                                    String[] xmlCode = xmlComponent.split("/");
+                                    if (xmlCode.length > 1) {
+                                        String xmlPackage = xmlCode[0].substring(14);
+                                        String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
+                                        //if (DEBUG) Log.v(TAG, "XML APP: "+ xmlLabel);
+                                        Drawable icon = null;
+                                        if (SecondIcon){
+                                        if (xmlLabel != null)  icon = loadDrawable(xmlLabel, iconPackres, packageName);
+                                        }
+                                        appListAll.add(new AppInfo(icon, null,
+                                                xmlLabel, xmlPackage, xmlClass, false));
+                                        // if (DEBUG) Log.v(TAG, "XML APP: " + xmlLabel +"  " + xmlPackage);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            break;
+                    }
+                    activity = xpp.next();
+                }
+            }
+            } catch(Exception e){
+                makeToast(getString(R.string.appfilter_assets));
+                e.printStackTrace();
+            }
+        }
+
+
+    private Drawable loadDrawable(String drawableName, Resources iconPackres, String packageName) {
+        int id = iconPackres.getIdentifier(drawableName, "drawable", packageName);
+        if (id > 0) {
+            Drawable bitmap = ResourcesCompat.getDrawable(iconPackres, id, null);
+            return bitmap;
+        }
+        return null;
+    }
 
     private void prepareData() {
         // sort the apps
@@ -512,24 +545,46 @@ public class RequestActivity extends AppCompatActivity {
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
         Iterator<ResolveInfo> localIterator = list.iterator();
         if (DEBUG) Log.v(TAG, "list size: " + list.size());
-        boolean notVisible = loadDataBool("SettingOnlyNew");
+
         for (int i = 0; i < list.size(); i++) {
             ResolveInfo resolveInfo = localIterator.next();
             Drawable icon1 = getHighResIcon(pm, resolveInfo);
-            Drawable icon2 = resolveInfo.loadIcon(pm);
-            if (DEBUG) Log.v(TAG, String.valueOf(icon2));
             AppInfo appInfo = new AppInfo(icon1,
-                    icon2,
+                    null,
                     resolveInfo.loadLabel(pm).toString(),
                     resolveInfo.activityInfo.packageName,
                     resolveInfo.activityInfo.name,
                     false);
-            if (notVisible) {
-                if (DEBUG) Log.v(TAG, "Not Done");
-                if (visible(icon1, icon2)) arrayList.add(appInfo);
-            } else arrayList.add(appInfo);
 
-        }
+            if (SecondIcon) {
+                Drawable icon2 = null;
+                if (appListAll.contains(appInfo)) {//check if the list contains the element
+                    int o = appListAll.indexOf((appInfo));
+                    if (DEBUG) Log.v(TAG, String.valueOf(o));
+                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));//get the element by passing the index of the element
+                    //if (DEBUG) Log.v(TAG, "label" + String.valueOf(geticon.label));
+                    icon2 = geticon.icon;
+                    // if (DEBUG) Log.v(TAG,"iconwert" + String.valueOf(icon2));
+                }
+                appInfo = new AppInfo(icon1,
+                        icon2,
+                        resolveInfo.loadLabel(pm).toString(),
+                        resolveInfo.activityInfo.packageName,
+                        resolveInfo.activityInfo.name,
+                        false);
+            }
+
+                if (OnlyNew) {
+                    // filter out apps that are already included
+                    if (!appListAll.contains(appInfo)) {
+                        arrayList.add(appInfo);
+                        if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
+                    } else {
+                        if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
+                    }
+                } else arrayList.add(appInfo);
+
+            }
 
         //Custom comparator to ensure correct sorting for characters like and apps
         // starting with a small letter like iNex
@@ -546,6 +601,51 @@ public class RequestActivity extends AppCompatActivity {
         appListFilter = arrayList;
     }
 
+    private void prepareDataIPack() {
+        // sort the apps
+        ArrayList<iPackInfo> arrayList = new ArrayList<>();
+        PackageManager pm = getPackageManager();
+        Intent intent = new Intent("org.adw.launcher.THEMES", null);
+        // intent.addCategory("org.adw.launcher.THEMES");
+        // List<ResolveInfo> adwlauncherthemes = pm.queryIntentActivities(new Intent("org.adw.launcher.THEMES"), PackageManager.GET_META_DATA);
+        List<ResolveInfo> golauncherthemes = pm.queryIntentActivities(new Intent("com.gau.go.launcherex.theme"), PackageManager.GET_META_DATA);
+
+        // List<ResolveInfo> rinfo = new ArrayList<ResolveInfo>(adwlauncherthemes);
+        // rinfo.addAll(golauncherthemes);
+
+        List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
+        //list.addAll(golauncherthemes);
+        Iterator<ResolveInfo> localIterator = list.iterator();
+        if (DEBUG) Log.v(TAG, "list size: " + list.size());
+        boolean notVisible = loadDataBool("SettingOnlyNew");
+        for (int i = 0; i < list.size(); i++) {
+            ResolveInfo resolveInfo = localIterator.next();
+
+            iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
+                    //icon2,
+                    resolveInfo.loadLabel(pm).toString(),
+                    resolveInfo.activityInfo.packageName,
+                    // resolveInfo.activityInfo.name,
+                    false);
+            arrayList.add(ipackinfo);
+
+        }
+
+        //Custom comparator to ensure correct sorting for characters like and apps
+        // starting with a small letter like iNex
+        Collections.sort(arrayList, (object1, object2) -> {
+            Locale locale = Locale.getDefault();
+            Collator collator = Collator.getInstance(locale);
+            collator.setStrength(Collator.TERTIARY);
+
+            if (DEBUG)
+                Log.v(TAG, "Comparing \"" + object1.label + "\" to \"" + object2.label + "\"");
+
+            return collator.compare(object1.label, object2.label);
+        });
+        IPackListFilter = arrayList;
+    }
+
     private Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
 
         Drawable icon;
@@ -558,19 +658,20 @@ public class RequestActivity extends AppCompatActivity {
             int iconId = resolveInfo.getIconResource();//Get the resource Id for the activity icon
 
             if (iconId != 0) {
-                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null);
-                //icon = context.getPackageManager().getApplicationIcon(resolveInfo.activityInfo.packageName);
-                //icon =pm.getDrawable(resolveInfo.activityInfo.packageName, iconId, null);
-                //Drawable adaptiveDrawable = resolveInfo.loadIcon(pm);
+                //Resources.Theme theme = context.getTheme();
+                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
+                //icon = context.getPackageManager().getApplicationIcon(resolveInfo.activityInfo.packageName); //loads themed OnePlus
+                //icon =pm.getDrawable(resolveInfo.activityInfo.packageName, iconId, null);               //loads unthemed
+                //Drawable adaptiveDrawable = resolveInfo.loadIcon(pm);                                     //loads themed OnePlus
                 //PackageManager packageManager = getPackageManager();
-                //icon = resolveInfo.loadIcon(packageManager);
-                //icon = context.getDrawable(pm.getResourcesForActivity(componentName),iconId,null);
+                //icon = resolveInfo.loadIcon(packageManager);                                             //loads themed OnePlus
+
                 return icon;
             }
             return resolveInfo.loadIcon(pm);
         } catch (PackageManager.NameNotFoundException e) {
             //fails return the normal icon
-           return resolveInfo.loadIcon(pm);
+            return resolveInfo.loadIcon(pm);
         } catch (Resources.NotFoundException e) {
             return resolveInfo.loadIcon(pm);
         }
@@ -582,7 +683,7 @@ public class RequestActivity extends AppCompatActivity {
 
         ListView grid = findViewById(R.id.app_list);
         grid.setFastScrollEnabled(true);
-        grid.setFastScrollAlwaysVisible(true);
+        //grid.setFastScrollAlwaysVisible(true);
         grid.setAdapter(new AppAdapter(this, R.layout.item_request, local_arrayList));
         grid.setOnItemClickListener((AdapterView, view, position, row) -> {
             AppInfo appInfo = (AppInfo) AdapterView.getItemAtPosition(position);
@@ -618,6 +719,39 @@ public class RequestActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
         return sharedPreferences.getBoolean(setting, false);
     }
+
+    private void populateView_Ipack(ArrayList<iPackInfo> arrayListFinal) {
+        ArrayList<iPackInfo> local_arrayList;
+        local_arrayList = arrayListFinal;
+
+        ListView grid = findViewById(R.id.app_list);
+        grid.setFastScrollEnabled(true);
+        //grid.setFastScrollAlwaysVisible(true);
+        grid.setAdapter(new RequestActivity.IPackAppAdapter(this, R.layout.item_iconpack, local_arrayList));
+        grid.setOnItemClickListener((AdapterView, view, position, row) -> {
+            iPackInfo ipackinfo = (iPackInfo) AdapterView.getItemAtPosition(position);
+            switcherLoad.showNext();
+            ExecutorService executors = Executors.newSingleThreadExecutor();
+            executors.execute(() -> {
+                try {
+                    parseXML(ipackinfo.packageName);
+                    if (DEBUG) Log.v(TAG, ipackinfo.packageName);
+                    prepareData();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                    populateView(appListFilter);
+                    IPackChoosen = true;
+                    invalidateOptionsMenu();
+                    //populateView(appListFilter); //Orginal fill view
+                    switcherLoad.showNext();
+                });
+            });
+        });
+    }
+
 
     private class AppAdapter extends ArrayAdapter<AppInfo> {
         private final ArrayList<AppInfo> appList = new ArrayList<>();
@@ -688,4 +822,39 @@ public class RequestActivity extends AppCompatActivity {
 
         }
     }
+
+    private class IPackAppAdapter extends ArrayAdapter<iPackInfo> {
+        private final ArrayList<iPackInfo> appList = new ArrayList<>();
+
+        public IPackAppAdapter(Context context, int position, ArrayList<iPackInfo> adapterArrayList) {
+            super(context, position, adapterArrayList);
+            appList.addAll(adapterArrayList);
+        }
+
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            RequestActivity.IPackAppAdapter.ViewHolder holder;
+            if (convertView == null) {
+                convertView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                        .inflate(R.layout.item_iconpack, null);
+                holder = new RequestActivity.IPackAppAdapter.ViewHolder();
+                holder.apkIcon = convertView.findViewById(R.id.ipackicon);
+                holder.apkName = convertView.findViewById(R.id.ipacklabel);
+                convertView.setTag(holder);
+            } else {
+                holder = (RequestActivity.IPackAppAdapter.ViewHolder) convertView.getTag();
+            }
+
+            iPackInfo appInfo = appList.get(position);
+            holder.apkName.setText(appInfo.label);
+            holder.apkIcon.setImageDrawable(appInfo.icon);
+            return convertView;
+        }
+
+        private class ViewHolder {
+            TextView apkName;
+            ImageView apkIcon;
+        }
+    }
 }
+
