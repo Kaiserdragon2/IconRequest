@@ -19,13 +19,11 @@ It just collects the app title, package name, activity name and the icon file wi
 [<img src="https://camo.githubusercontent.com/35b4ec18c762358fb784f9e973f77cf6eb596f2240e69a4c6c093a836655d889/68747470733a2f2f692e6962622e636f2f71306d6463345a2f6765742d69742d6f6e2d6769746875622e706e67" alt="Get it on F-Droid" height="90">](https://github.com/Kaiserdragon2/IconRequest/releases)
 
 ## Screenshots
-<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Main.png" height="600"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ListNormal.png" height="600">
+<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Main.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ListNormal.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Settings.png" height="500">
 
-<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Settings.png" height="600"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/IPackChooser.png" height="600">
+<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/IPackChooser.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/List2Icon.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ShowOnlyNew.png" height="500">
 
-<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/List2Icon.png" height="600"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ShowOnlyNew.png" height="600">
-
-<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/shareinfo.png" height="600"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/shareicon.png" height="600">
+<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/shareinfo.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/shareicon.png" height="500">
 
 ## License
 
