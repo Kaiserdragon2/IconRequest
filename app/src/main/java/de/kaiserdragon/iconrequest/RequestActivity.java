@@ -35,7 +35,6 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -60,11 +59,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -213,7 +210,7 @@ public class RequestActivity extends AppCompatActivity {
 
         updateOnly = getIntent().getBooleanExtra("update", false);
         OnlyNew = loadDataBool("SettingOnlyNew");
-        SecondIcon = (loadDataBool("SettingRow") == true);
+        SecondIcon = loadDataBool("SettingRow");
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -257,12 +254,7 @@ public class RequestActivity extends AppCompatActivity {
             //populateView(appListFilter);
        //     switcherLoad.showNext();
       //  }
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                actionSaveext(actionSave(), result);
-            }
-        });
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -288,7 +280,8 @@ public class RequestActivity extends AppCompatActivity {
             actionSendSave();
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            actionSendText(actionSave());
+            actionSave();
+            actionSendText();
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
             actionSave();
@@ -338,7 +331,7 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    private void actionSendText(String[] array) {
+    private void actionSendText() {
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, xmlString);
@@ -355,14 +348,16 @@ public class RequestActivity extends AppCompatActivity {
         if (DEBUG) Log.i(TAG, String.valueOf(result));
         File sourceFile = new File(ZipLocation + "/" + array[0] + ".zip");
         Intent data = result.getData();
-        try (InputStream is = new FileInputStream(sourceFile); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
+        if (data != null) {
+            try (InputStream is = new FileInputStream(sourceFile); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
     }
@@ -464,7 +459,7 @@ public class RequestActivity extends AppCompatActivity {
 
     private void parseXML(String packageName) {
         // load appfilter.xml from the icon pack package
-        Resources iconPackres = null;
+        Resources iconPackres;
 
         PackageManager pm = getPackageManager();
 
@@ -530,8 +525,7 @@ public class RequestActivity extends AppCompatActivity {
     private Drawable loadDrawable(String drawableName, Resources iconPackres, String packageName) {
         int id = iconPackres.getIdentifier(drawableName, "drawable", packageName);
         if (id > 0) {
-            Drawable bitmap = ResourcesCompat.getDrawable(iconPackres, id, null);
-            return bitmap;
+            return ResourcesCompat.getDrawable(iconPackres, id, null);
         }
         return null;
     }
@@ -606,18 +600,9 @@ public class RequestActivity extends AppCompatActivity {
         ArrayList<iPackInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Intent intent = new Intent("org.adw.launcher.THEMES", null);
-        // intent.addCategory("org.adw.launcher.THEMES");
-        // List<ResolveInfo> adwlauncherthemes = pm.queryIntentActivities(new Intent("org.adw.launcher.THEMES"), PackageManager.GET_META_DATA);
-        List<ResolveInfo> golauncherthemes = pm.queryIntentActivities(new Intent("com.gau.go.launcherex.theme"), PackageManager.GET_META_DATA);
-
-        // List<ResolveInfo> rinfo = new ArrayList<ResolveInfo>(adwlauncherthemes);
-        // rinfo.addAll(golauncherthemes);
-
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
-        //list.addAll(golauncherthemes);
         Iterator<ResolveInfo> localIterator = list.iterator();
         if (DEBUG) Log.v(TAG, "list size: " + list.size());
-        boolean notVisible = loadDataBool("SettingOnlyNew");
         for (int i = 0; i < list.size(); i++) {
             ResolveInfo resolveInfo = localIterator.next();
 
@@ -788,7 +773,7 @@ public class RequestActivity extends AppCompatActivity {
             holder.apkName.setText(appInfo.label);
             holder.apkIcon.setImageDrawable(appInfo.icon);
             holder.apkIconnow.setImageDrawable(appInfo.icon2);
-            if (loadDataBool("SettingRow") == true) {
+            if (SecondIcon) {
                 holder.apkIconnow.setVisibility(View.VISIBLE);
             }
 

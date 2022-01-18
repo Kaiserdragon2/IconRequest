@@ -1,0 +1,7 @@
+Release 1.5.0
+New Features
+- Show a second icon (with the currently applied Pack) beside the normal icon
+- Show only new icons (icons that don't have currently an applied icon
+
+These doesn't work on every Launcher as of now.
+Tested on OnePlus-Launcher(works),KissLauncher(doesn't work)

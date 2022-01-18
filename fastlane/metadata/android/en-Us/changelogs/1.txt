@@ -1,0 +1,5 @@
+First Release
+
+Get the unthemed icons of your apps or just their activity names
+- Now with Darkmode
+- share the data through other apps
