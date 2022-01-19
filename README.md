@@ -7,6 +7,7 @@ With this app you can share (via email, or other protocols like Owncloud, NFC, B
 the data for adding the icons missing in your icon pack.
 It just collects the app title, package name, activity name and the icon file without any theme of the apps you select.
 
+[<img src="https://camo.githubusercontent.com/35b4ec18c762358fb784f9e973f77cf6eb596f2240e69a4c6c093a836655d889/68747470733a2f2f692e6962622e636f2f71306d6463345a2f6765742d69742d6f6e2d6769746875622e706e67" alt="Get it on F-Droid" height="90">](https://github.com/Kaiserdragon2/IconRequest/releases) [<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="90">](https://apt.izzysoft.de/fdroid/index/apk/de.kaiserdragon.iconrequest) 
 ## Features
 - save request as zipfile on your device
 - share request with compatible apps
@@ -15,9 +16,7 @@ It just collects the app title, package name, activity name and the icon file wi
 - choose an installed icon pack from your device
 > - show only icons that aren't in this icon pack
 > - show a second icon beside the standard icon from this icon pack
-
-[<img src="https://camo.githubusercontent.com/35b4ec18c762358fb784f9e973f77cf6eb596f2240e69a4c6c093a836655d889/68747470733a2f2f692e6962622e636f2f71306d6463345a2f6765742d69742d6f6e2d6769746875622e706e67" alt="Get it on F-Droid" height="90">](https://github.com/Kaiserdragon2/IconRequest/releases)
-
+> 
 ## Screenshots
 <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Main.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ListNormal.png" height="500"> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Settings.png" height="500">
 
