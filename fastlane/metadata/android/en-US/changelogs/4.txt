@@ -1,0 +1,4 @@
+Release 1.2.5
+Bug Fix :
+    App crashes on API-Level <=25 caused by missing legacy icon
+    Missing legacy icon added back
