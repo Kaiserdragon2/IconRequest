@@ -78,7 +78,7 @@ public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
-    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static String xmlString;
     private static boolean updateOnly;
     private static boolean OnlyNew;
@@ -206,9 +206,8 @@ public class RequestActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //todo check if next line as something todo with saving the data even if you go back
         super.onCreate(savedInstanceState);
-
+        appListAll.clear();
         updateOnly = getIntent().getBooleanExtra("update", false);
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
@@ -396,12 +395,14 @@ public class RequestActivity extends AppCompatActivity {
                         .replaceAll("[^a-zA-Z0-9.\\-;]+", "")
                         .toLowerCase();
                 if (DEBUG) Log.i(TAG, "iconName: " + iconName);
-                int n = 0;
-                while (LabelList.contains(iconName)) {
-                    n++;
-                    iconName = iconName + n;
+                if (!updateOnly) {
+                    int n = 0;
+                    while (LabelList.contains(iconName)) {
+                        n++;
+                        iconName = iconName + n;
+                    }
+                    LabelList.add(iconName);
                 }
-                LabelList.add(iconName);
                 if (DEBUG) Log.i(TAG, "iconName: " + iconName);
                 //check if icon is in an arraylist if not add else rename and check again
                 stringBuilderEmail.append(arrayList.get(i).label).append("\n");
@@ -413,24 +414,26 @@ public class RequestActivity extends AppCompatActivity {
                         .append(iconName)
                         .append("\"/>")
                         .append("\n\n");
-
-                try {
-                    Bitmap bitmap = getBitmapFromDrawable(arrayList.get(i).icon);
-                    FileOutputStream fOut = new FileOutputStream(ImgLocation + "/" + iconName + ".png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-                    fOut.flush();
-                    fOut.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (!updateOnly) {
+                    try {
+                        Bitmap bitmap = getBitmapFromDrawable(arrayList.get(i).icon);
+                        FileOutputStream fOut = new FileOutputStream(ImgLocation + "/" + iconName + ".png");
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+                        fOut.flush();
+                        fOut.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    amount++;
                 }
-                amount++;
             }
         }
-
+//todo why name it here not static
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
-
+        //write files and create zip only when needed
+        if (!updateOnly) {
         if (amount == 0) {
             // no apps are selected
             makeToast(getString(R.string.request_toast_no_apps_selected));
@@ -449,10 +452,10 @@ public class RequestActivity extends AppCompatActivity {
 
             // delete all generated files except the zip
             deleteDirectory(imgLocation);
-            //todo why create the zipfile at updateonly is the appfilter and images really needed?
             if (updateOnly) {
                 deleteDirectory(zipLocation);
             }
+        }
         }
         return new String[]{zipName, stringBuilderEmail.toString()};
     }
@@ -562,8 +565,8 @@ public class RequestActivity extends AppCompatActivity {
             if (SecondIcon) {
                 Drawable icon2 = null;
                 if (appListAll.contains(appInfo)) {//check if the list contains the element
-                    int o = appListAll.indexOf((appInfo));
-                    if (DEBUG) Log.v(TAG, String.valueOf(o));
+                    //int o = appListAll.indexOf((appInfo));
+                    //if (DEBUG) Log.v(TAG, String.valueOf(o));
                     AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));//get the element by passing the index of the element
                     //if (DEBUG) Log.v(TAG, "label" + String.valueOf(geticon.label));
                     icon2 = geticon.icon;
