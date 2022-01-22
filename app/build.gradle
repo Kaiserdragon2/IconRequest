@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId 'de.kaiserdragon.iconrequest'
         minSdkVersion 21
-        targetSdkVersion 31
-        versionName "1.7"
-        versionCode 6
+        targetSdkVersio 31
+        versionName "1.8.0"
+        versionCode 7
     }
 
     buildTypes {
