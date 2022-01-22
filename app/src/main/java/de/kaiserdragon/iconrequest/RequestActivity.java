@@ -78,7 +78,7 @@ public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
-    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static String xmlString;
     private static boolean updateOnly;
     private static boolean OnlyNew;
@@ -207,7 +207,7 @@ public class RequestActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        appListAll.clear();
         updateOnly = getIntent().getBooleanExtra("update", false);
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
@@ -226,34 +226,34 @@ public class RequestActivity extends AppCompatActivity {
 
         //if (savedInstanceState == null) {
 
-            ExecutorService executors = Executors.newSingleThreadExecutor();
-            executors.execute(() -> {
-                try {
-                    if (OnlyNew | SecondIcon) {
-                        prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
-                    } else {
-                        prepareData();  //show all apps
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+        ExecutorService executors = Executors.newSingleThreadExecutor();
+        executors.execute(() -> {
+            try {
+                if (OnlyNew | SecondIcon) {
+                    prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
+                } else {
+                    prepareData();  //show all apps
                 }
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (OnlyNew | SecondIcon) {
-                        populateView_Ipack(IPackListFilter);
-                    } else {
-                        findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                        populateView(appListFilter);
-                    }
-                    switcherLoad.showNext();
-                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (OnlyNew | SecondIcon) {
+                    populateView_Ipack(IPackListFilter);
+                } else {
+                    findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                    populateView(appListFilter);
+                }
+                switcherLoad.showNext();
             });
+        });
 
         //} else {
-      //      populateView_Ipack(IPackListFilter);
-            //populateView(appListFilter);
-       //     switcherLoad.showNext();
-      //  }
+        //      populateView_Ipack(IPackListFilter);
+        //populateView(appListFilter);
+        //     switcherLoad.showNext();
+        //  }
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
     }
 
@@ -387,7 +387,7 @@ public class RequestActivity extends AppCompatActivity {
         StringBuilder stringBuilderXML = new StringBuilder();
         stringBuilderEmail.append(getString(R.string.request_email_text));
         int amount = 0;
-
+        ArrayList LabelList = new ArrayList();
         // process selected apps
         for (int i = 0; i < arrayList.size(); i++) {
             if (arrayList.get(i).selected) {
@@ -395,7 +395,16 @@ public class RequestActivity extends AppCompatActivity {
                         .replaceAll("[^a-zA-Z0-9.\\-;]+", "")
                         .toLowerCase();
                 if (DEBUG) Log.i(TAG, "iconName: " + iconName);
-
+                if (!updateOnly) {
+                    int n = 0;
+                    while (LabelList.contains(iconName)) {
+                        n++;
+                        iconName = iconName + n;
+                    }
+                    LabelList.add(iconName);
+                }
+                if (DEBUG) Log.i(TAG, "iconName: " + iconName);
+                //check if icon is in an arraylist if not add else rename and check again
                 stringBuilderEmail.append(arrayList.get(i).label).append("\n");
                 stringBuilderXML.append("\t<!-- ")
                         .append(arrayList.get(i).label)
@@ -405,24 +414,26 @@ public class RequestActivity extends AppCompatActivity {
                         .append(iconName)
                         .append("\"/>")
                         .append("\n\n");
-
-                try {
-                    Bitmap bitmap = getBitmapFromDrawable(arrayList.get(i).icon);
-                    FileOutputStream fOut = new FileOutputStream(ImgLocation + "/" + iconName + ".png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-                    fOut.flush();
-                    fOut.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (!updateOnly) {
+                    try {
+                        Bitmap bitmap = getBitmapFromDrawable(arrayList.get(i).icon);
+                        FileOutputStream fOut = new FileOutputStream(ImgLocation + "/" + iconName + ".png");
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+                        fOut.flush();
+                        fOut.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    amount++;
                 }
-                amount++;
             }
         }
-
+//todo why name it here not static
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
-
+        //write files and create zip only when needed
+        if (!updateOnly) {
         if (amount == 0) {
             // no apps are selected
             makeToast(getString(R.string.request_toast_no_apps_selected));
@@ -436,7 +447,7 @@ public class RequestActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+//todo check what this does keepDirectoryStructure
             createZipFile(ImgLocation, true, ZipLocation + "/" + zipName + ".zip");
 
             // delete all generated files except the zip
@@ -444,6 +455,7 @@ public class RequestActivity extends AppCompatActivity {
             if (updateOnly) {
                 deleteDirectory(zipLocation);
             }
+        }
         }
         return new String[]{zipName, stringBuilderEmail.toString()};
     }
@@ -460,7 +472,6 @@ public class RequestActivity extends AppCompatActivity {
     private void parseXML(String packageName) {
         // load appfilter.xml from the icon pack package
         Resources iconPackres;
-
         PackageManager pm = getPackageManager();
 
         try {
@@ -478,7 +489,7 @@ public class RequestActivity extends AppCompatActivity {
             } catch (IOException e1) {
                 Log.v(TAG, "No appfilter.xml file");
             }
-
+            //write content of icon pack appfilter to the appListAll arraylist
             if (xpp != null) {
                 int activity = xpp.getEventType();
                 while (activity != XmlPullParser.END_DOCUMENT) {
@@ -499,8 +510,9 @@ public class RequestActivity extends AppCompatActivity {
                                         String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
                                         //if (DEBUG) Log.v(TAG, "XML APP: "+ xmlLabel);
                                         Drawable icon = null;
-                                        if (SecondIcon){
-                                        if (xmlLabel != null)  icon = loadDrawable(xmlLabel, iconPackres, packageName);
+                                        if (SecondIcon) {
+                                            if (xmlLabel != null)
+                                                icon = loadDrawable(xmlLabel, iconPackres, packageName);
                                         }
                                         appListAll.add(new AppInfo(icon, null,
                                                 xmlLabel, xmlPackage, xmlClass, false));
@@ -515,13 +527,13 @@ public class RequestActivity extends AppCompatActivity {
                     activity = xpp.next();
                 }
             }
-            } catch(Exception e){
-                makeToast(getString(R.string.appfilter_assets));
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            makeToast(getString(R.string.appfilter_assets));
+            e.printStackTrace();
         }
+    }
 
-
+    //get the drawable for an app from the icon Pack
     private Drawable loadDrawable(String drawableName, Resources iconPackres, String packageName) {
         int id = iconPackres.getIdentifier(drawableName, "drawable", packageName);
         if (id > 0) {
@@ -553,8 +565,8 @@ public class RequestActivity extends AppCompatActivity {
             if (SecondIcon) {
                 Drawable icon2 = null;
                 if (appListAll.contains(appInfo)) {//check if the list contains the element
-                    int o = appListAll.indexOf((appInfo));
-                    if (DEBUG) Log.v(TAG, String.valueOf(o));
+                    //int o = appListAll.indexOf((appInfo));
+                    //if (DEBUG) Log.v(TAG, String.valueOf(o));
                     AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));//get the element by passing the index of the element
                     //if (DEBUG) Log.v(TAG, "label" + String.valueOf(geticon.label));
                     icon2 = geticon.icon;
@@ -568,17 +580,17 @@ public class RequestActivity extends AppCompatActivity {
                         false);
             }
 
-                if (OnlyNew) {
-                    // filter out apps that are already included
-                    if (!appListAll.contains(appInfo)) {
-                        arrayList.add(appInfo);
-                        if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
-                    } else {
-                        if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
-                    }
-                } else arrayList.add(appInfo);
+            if (OnlyNew) {
+                // filter out apps that are already included
+                if (!appListAll.contains(appInfo)) {
+                    arrayList.add(appInfo);
+                    if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
+                } else {
+                    if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
+                }
+            } else arrayList.add(appInfo);
 
-            }
+        }
 
         //Custom comparator to ensure correct sorting for characters like and apps
         // starting with a small letter like iNex
@@ -611,6 +623,7 @@ public class RequestActivity extends AppCompatActivity {
                     resolveInfo.loadLabel(pm).toString(),
                     resolveInfo.activityInfo.packageName,
                     // resolveInfo.activityInfo.name,
+                    //todo remove unused data
                     false);
             arrayList.add(ipackinfo);
 
@@ -622,7 +635,6 @@ public class RequestActivity extends AppCompatActivity {
             Locale locale = Locale.getDefault();
             Collator collator = Collator.getInstance(locale);
             collator.setStrength(Collator.TERTIARY);
-
             if (DEBUG)
                 Log.v(TAG, "Comparing \"" + object1.label + "\" to \"" + object2.label + "\"");
 
@@ -643,14 +655,14 @@ public class RequestActivity extends AppCompatActivity {
             int iconId = resolveInfo.getIconResource();//Get the resource Id for the activity icon
 
             if (iconId != 0) {
-                //Resources.Theme theme = context.getTheme();
                 icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
-                //icon = context.getPackageManager().getApplicationIcon(resolveInfo.activityInfo.packageName); //loads themed OnePlus
-                //icon =pm.getDrawable(resolveInfo.activityInfo.packageName, iconId, null);               //loads unthemed
-                //Drawable adaptiveDrawable = resolveInfo.loadIcon(pm);                                     //loads themed OnePlus
-                //PackageManager packageManager = getPackageManager();
-                //icon = resolveInfo.loadIcon(packageManager);                                             //loads themed OnePlus
-
+                /*
+                icon = context.getPackageManager().getApplicationIcon(resolveInfo.activityInfo.packageName); //loads themed OnePlus
+                icon =pm.getDrawable(resolveInfo.activityInfo.packageName, iconId, null);               //loads unthemed
+                Drawable adaptiveDrawable = resolveInfo.loadIcon(pm);                                     //loads themed OnePlus
+                PackageManager packageManager = getPackageManager();
+                icon = resolveInfo.loadIcon(packageManager);                                             //loads themed OnePlus
+                */
                 return icon;
             }
             return resolveInfo.loadIcon(pm);

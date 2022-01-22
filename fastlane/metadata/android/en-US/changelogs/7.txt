@@ -1,0 +1,4 @@
+Bug Fix and Performace improvment
+If you go back from the iconview and then choose another icon pack the data got mixed up (fixed)
+If apps would have the same name  only one icon would be saved (fixed)
+save icons and create zip file are only done if new icon request is used not the update only (broken icons) function
