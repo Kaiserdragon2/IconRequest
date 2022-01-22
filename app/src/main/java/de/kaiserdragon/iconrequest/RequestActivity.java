@@ -78,7 +78,7 @@ public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
-    private static ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static String xmlString;
     private static boolean updateOnly;
     private static boolean OnlyNew;
@@ -379,15 +379,17 @@ public class RequestActivity extends AppCompatActivity {
 
         // delete old zips and recreate
         deleteDirectory(zipLocation);
-        imgLocation.mkdirs();
-        zipLocation.mkdirs();
+        if (!updateOnly) {
+            imgLocation.mkdirs();
+            zipLocation.mkdirs();
+        }
 
         ArrayList<AppInfo> arrayList = appListFilter;
         StringBuilder stringBuilderEmail = new StringBuilder();
         StringBuilder stringBuilderXML = new StringBuilder();
         stringBuilderEmail.append(getString(R.string.request_email_text));
         int amount = 0;
-        ArrayList LabelList = new ArrayList();
+        ArrayList <String> LabelList = new ArrayList<>();
         // process selected apps
         for (int i = 0; i < arrayList.size(); i++) {
             if (arrayList.get(i).selected) {
@@ -428,7 +430,6 @@ public class RequestActivity extends AppCompatActivity {
                 }
             }
         }
-//todo why name it here not static
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
@@ -447,7 +448,6 @@ public class RequestActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//todo check what this does keepDirectoryStructure
             createZipFile(ImgLocation, true, ZipLocation + "/" + zipName + ".zip");
 
             // delete all generated files except the zip
@@ -564,13 +564,9 @@ public class RequestActivity extends AppCompatActivity {
 
             if (SecondIcon) {
                 Drawable icon2 = null;
-                if (appListAll.contains(appInfo)) {//check if the list contains the element
-                    //int o = appListAll.indexOf((appInfo));
-                    //if (DEBUG) Log.v(TAG, String.valueOf(o));
-                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));//get the element by passing the index of the element
-                    //if (DEBUG) Log.v(TAG, "label" + String.valueOf(geticon.label));
+                if (appListAll.contains(appInfo)) { //check if the list contains the element
+                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
                     icon2 = geticon.icon;
-                    // if (DEBUG) Log.v(TAG,"iconwert" + String.valueOf(icon2));
                 }
                 appInfo = new AppInfo(icon1,
                         icon2,
@@ -619,12 +615,10 @@ public class RequestActivity extends AppCompatActivity {
             ResolveInfo resolveInfo = localIterator.next();
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
-                    //icon2,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
+                    resolveInfo.activityInfo.packageName
                     // resolveInfo.activityInfo.name,
-                    //todo remove unused data
-                    false);
+                    );
             arrayList.add(ipackinfo);
 
         }
@@ -668,8 +662,6 @@ public class RequestActivity extends AppCompatActivity {
             return resolveInfo.loadIcon(pm);
         } catch (PackageManager.NameNotFoundException e) {
             //fails return the normal icon
-            return resolveInfo.loadIcon(pm);
-        } catch (Resources.NotFoundException e) {
             return resolveInfo.loadIcon(pm);
         }
     }

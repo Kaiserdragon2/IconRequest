@@ -9,9 +9,9 @@
     <string name="save">Save File</string>
     <string name="settings">Settings</string>
 
-    <string name="Theme">Theme</string>
-    <string name="DarkMode">DarkMode</string>
-    <string name="LightMode">LightMode</string>
+    <string name="Theme" translatable="false">Theme</string>
+    <string name="DarkMode" translatable="false">DarkMode</string>
+    <string name="LightMode" translatable="false">LightMode</string>
     <string name="ThemeDevice">Device Default</string>
 
     <string name="Other">Other</string>
@@ -24,8 +24,8 @@
 
     <string name="chooseipack">Choose an icon pack</string>
 
-    <string name="IconDescriber">Show Icon</string>
-    <string name="IconSelectDescriber">Show Icon selected</string>
+    <string name="IconDescriber" translatable="false">Show Icon</string>
+    <string name="IconSelectDescriber" translatable="false">Show Icon selected</string>
 
     <string name="with_this_tool">With this tool you can request icons for apps that
         are missing from icon packs.</string>
@@ -38,13 +38,13 @@
         You will have to submit a file with your icon request.</string>
 
     <string name="no_email_clients">There are no email clients installed.</string>
-    <string name="appfilter_assets">Make sure you copied your icon list into the assets folder.</string>
+    <string name="appfilter_assets">Couldn\'t get appfilter from the icon pack</string>
 
     <string name="request_dummy_text">Hello world!</string>
     <string name="loading">Loading…</string>
     <string name="request_send_request">Send Request</string>
     <string name="request_toast_no_apps_selected">No apps selected. Select at least one app.</string>
-    <string name="request_email_subject">Icon Request</string>
+    <string name="request_email_subject" translatable="false">Icon Request</string>
     <string name="request_email_text">Some app icons are missing on my device.\n\n</string>
 
 </resources>
