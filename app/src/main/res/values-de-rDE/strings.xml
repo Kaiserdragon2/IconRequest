@@ -21,4 +21,5 @@
     <string name="with_this_tool">Mit dieser app kannst du Icons die in einem Icon Pack fehlen anfragen.</string>
     <string name="notes">"Die folgenden Optionen lassen dich ein Icon Pack waehlen um diese Funktionen auszufuehren.\nDie erste Funktion brauch eine menge Rechenpower und brauch deshalb etwas Zeit.\nWen du die Funktion nicht brauchst, deaktiviere sie. "</string>
     <string name="ShowOnly">Zeige nur Apps ohne Icon Pack Icon</string>
+    <string name="icon_update">Waehle diese Option wenn du denkst eine deiner Apps sollte ein Icon haben, hat aber keins, oder wenn einige deiner Icons nach einem Update nicht mehr funktionieren.\nDu musst nur etwas Text kopieren.</string>
 </resources>
