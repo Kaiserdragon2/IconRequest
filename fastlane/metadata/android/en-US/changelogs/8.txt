@@ -1,0 +1,2 @@
+Optimized appfilter.xml
+Spaces in icon names are now underscores 
