@@ -68,4 +68,19 @@
         android:text="@string/start"
         android:textSize="20sp" />
 
+    <Button
+        android:id="@+id/CompareIconPacks"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:insetTop="10dp"
+        android:insetBottom="10dp"
+        android:paddingStart="20dp"
+        android:paddingLeft="20dp"
+        android:paddingEnd="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/CompareIconPacks"
+        android:textSize="20sp" />
+
 </LinearLayout>

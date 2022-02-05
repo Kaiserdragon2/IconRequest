@@ -24,6 +24,14 @@
                 android:value="de.kaiserdragon.iconrequest.MainActivity" />
         </activity>
         <activity
+            android:name="de.kaiserdragon.iconrequest.CompareIPacks"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.kaiserdragon.iconrequest.MainActivity" />
+        </activity>
+        <activity
             android:name="de.kaiserdragon.iconrequest.SettingActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
