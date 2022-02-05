@@ -392,7 +392,7 @@ public class RequestActivity extends AppCompatActivity {
         for (int i = 0; i < arrayList.size(); i++) {
             if (arrayList.get(i).selected) {
                 String iconName = arrayList.get(i).label
-                        .replaceAll("[^a-zA-Z0-9]+", "")
+                        .replaceAll("[^a-zA-Z0-9 ]+", "")
                         .replaceAll("[ ]+", "_")
                         .toLowerCase();
                 if (DEBUG) Log.i(TAG, "iconName: " + iconName);
