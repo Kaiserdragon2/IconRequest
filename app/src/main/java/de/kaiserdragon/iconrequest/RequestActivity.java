@@ -220,6 +220,7 @@ public class RequestActivity extends AppCompatActivity {
         ZipLocation = context.getFilesDir() + "/Icons";
 
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -627,6 +628,24 @@ public class RequestActivity extends AppCompatActivity {
                     //todo remove unused data
                     false);
             arrayList.add(ipackinfo);
+
+        }
+
+        Intent intent2 = new Intent("com.gau.go.launcherex.theme", null);
+        List<ResolveInfo> list2 = pm.queryIntentActivities(intent2, 0);
+        Iterator<ResolveInfo> localIterator2 = list.iterator();
+        for (int i = 0; i < list2.size(); i++) {
+            ResolveInfo resolveInfo = localIterator2.next();
+
+            iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
+                    //icon2,
+                    resolveInfo.loadLabel(pm).toString(),
+                    resolveInfo.activityInfo.packageName,
+                    // resolveInfo.activityInfo.name,
+                    //todo remove unused data
+                    false);
+            if (!arrayList.contains(ipackinfo))
+                arrayList.add(ipackinfo);
 
         }
 

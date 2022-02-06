@@ -65,8 +65,17 @@
         android:paddingLeft="20dp"
         android:paddingEnd="20dp"
         android:paddingRight="20dp"
-        android:text="@string/start"
+        android:text="@string/RequestNew"
         android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/CompareIPacksText"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/CompareIconPacks"

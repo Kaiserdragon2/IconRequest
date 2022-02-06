@@ -60,12 +60,17 @@ public class CompareIPacks extends AppCompatActivity {
     private static ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static ArrayList<AppInfo> appListPack1 = new ArrayList<>();
     private static ArrayList<AppInfo> appListPack2 = new ArrayList<>();
+    String Label1;
+    String Label2;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         appListAll.clear();
+        appListPack1.clear();
+        appListPack2.clear();
+        appListFilter.clear();
         //updateOnly = getIntent().getBooleanExtra("update", false);
         //OnlyNew = loadDataBool("SettingOnlyNew");
         //SecondIcon = loadDataBool("SettingRow");
@@ -114,6 +119,10 @@ public class CompareIPacks extends AppCompatActivity {
         //     switcherLoad.showNext();
         //  }
         //activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
+    }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_request_update, menu);
+        return true;
     }
 
     public void makeToast(String text) {
@@ -196,54 +205,17 @@ public class CompareIPacks extends AppCompatActivity {
     private void prepareData() {
         // sort the apps
         ArrayList<AppInfo> arrayList = new ArrayList<>();
-        /*
-        PackageManager pm = getPackageManager();
-        Intent intent = new Intent("android.intent.action.MAIN", null);
-        intent.addCategory("android.intent.category.LAUNCHER");
-        List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
-        Iterator<ResolveInfo> localIterator = list.iterator();
-        if (DEBUG) Log.v(TAG, "list size: " + list.size());
 
-        for (int i = 0; i < list.size(); i++) {
-            ResolveInfo resolveInfo = localIterator.next();
-            Drawable icon1 = getHighResIcon(pm, resolveInfo);
-            AppInfo appInfo = new AppInfo(icon1,
-                    null,
-                    resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
-                    resolveInfo.activityInfo.name,
-                    false);
-
-            if (false) {
-                Drawable icon2 = null;
-                if (appListAll.contains(appInfo)) {//check if the list contains the element
-                    //int o = appListAll.indexOf((appInfo));
-                    //if (DEBUG) Log.v(TAG, String.valueOf(o));
-                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));//get the element by passing the index of the element
-                    //if (DEBUG) Log.v(TAG, "label" + String.valueOf(geticon.label));
-                    icon2 = geticon.icon;
-                    // if (DEBUG) Log.v(TAG,"iconwert" + String.valueOf(icon2));
-                }
-                appInfo = new AppInfo(icon1,
-                        icon2,
-                        resolveInfo.loadLabel(pm).toString(),
-                        resolveInfo.activityInfo.packageName,
-                        resolveInfo.activityInfo.name,
-                        false);
+        appListAll = appListPack1;
+        if (DEBUG) Log.v(TAG, "list size: " + appListAll.size());
+        for (int i = 0; i < appListPack2.size(); i++) {
+            AppInfo appInfo = appListPack2.get(i);
+            if (!appListAll.contains(appInfo)) {
+                arrayList.add(appInfo);
             }
 
-            if (true) {
-                // filter out apps that are already included
-                if (!appListAll.contains(appInfo)) {
-                    arrayList.add(appInfo);
-                    if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
-                } else {
-                    if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
-                }
-            } else arrayList.add(appInfo);
 
         }
-        */
         //Custom comparator to ensure correct sorting for characters like and apps
         // starting with a small letter like iNex
         Collections.sort(arrayList, (object1, object2) -> {
@@ -256,6 +228,7 @@ public class CompareIPacks extends AppCompatActivity {
 
             return collator.compare(object1.label, object2.label);
         });
+
         appListFilter = arrayList;
     }
 
@@ -300,6 +273,23 @@ public class CompareIPacks extends AppCompatActivity {
                     //todo remove unused data
                     false);
             arrayList.add(ipackinfo);
+
+        }
+        Intent intent2 = new Intent("com.gau.go.launcherex.theme", null);
+        List<ResolveInfo> list2 = pm.queryIntentActivities(intent2, 0);
+        Iterator<ResolveInfo> localIterator2 = list.iterator();
+        for (int i = 0; i < list2.size(); i++) {
+            ResolveInfo resolveInfo = localIterator2.next();
+
+            iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
+                    //icon2,
+                    resolveInfo.loadLabel(pm).toString(),
+                    resolveInfo.activityInfo.packageName,
+                    // resolveInfo.activityInfo.name,
+                    //todo remove unused data
+                    false);
+            if (!arrayList.contains(ipackinfo))
+                arrayList.add(ipackinfo);
 
         }
 
@@ -376,22 +366,34 @@ public class CompareIPacks extends AppCompatActivity {
                 try {
                     parseXML(ipackinfo.packageName,firstrun);
                     if (DEBUG) Log.v(TAG, ipackinfo.packageName);
-                    TextView chooser = (TextView)findViewById(R.id.text_ipack_chooser);
-                    chooser.setText("Choose your second Icon Pack");
-                    populateView_Ipack(IPackListFilter,false);
 
-                    //prepareData();
+                    populateView_Ipack(IPackListFilter,false);
+                    if (firstrun) Label1 = ipackinfo.label ;
+
+                    if (!firstrun) {
+                       Label2 = ipackinfo.label ;
+                        prepareData();
+                    }
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                     new Handler(Looper.getMainLooper()).post(() -> {
+                        TextView chooser = (TextView) findViewById(R.id.text_ipack_chooser);
                         if (!firstrun) {
-                        findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                        //findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                         populateView(appListFilter);
                         invalidateOptionsMenu();
                         switcherLoad.showNext();
-                        }else switcherLoad.showPrevious();
+
+                            chooser.setText("Unique Apps"+"\n"+Label1+": "+appListPack1.size()+"\n"+Label2+": "+appListPack2.size());
+                        }else {
+                            switcherLoad.showPrevious();
+
+                            chooser.setText("Choose your second Icon Pack");
+                        }
 
                     });
 
