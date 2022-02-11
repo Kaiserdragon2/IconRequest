@@ -136,18 +136,23 @@ public class CompareIPacks extends AppCompatActivity {
 
         try {
             iconPackres = pm.getResourcesForApplication(packageName);
-            XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
-            XmlPullParser xpp = xmlFactoryObject.newPullParser();
+            XmlPullParser xpp = null;
+            int appfilterid = iconPackres.getIdentifier("appfilter", "xml", packageName);
+            if (appfilterid > 0)
+            {
+                xpp = iconPackres.getXml(appfilterid);
+            }
+            else {
+                try {
+                    InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
 
-            try {
-                InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
-
-                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                xpp = factory.newPullParser();
-                xpp.setInput(appfilterstream, "utf-8");
-            } catch (IOException e1) {
-                Log.v(TAG, "No appfilter.xml file");
+                    XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                    factory.setNamespaceAware(true);
+                    xpp = factory.newPullParser();
+                    xpp.setInput(appfilterstream, "utf-8");
+                } catch (IOException e1) {
+                    Log.v(TAG, "No appfilter.xml file");
+                }
             }
             //write content of icon pack appfilter to the appListAll arraylist
             if (xpp != null) {
@@ -155,9 +160,9 @@ public class CompareIPacks extends AppCompatActivity {
                 while (activity != XmlPullParser.END_DOCUMENT) {
                     String name = xpp.getName();
                     switch (activity) {
-                        case XmlPullParser.START_TAG:
-                            break;
                         case XmlPullParser.END_TAG:
+                            break;
+                        case XmlPullParser.START_TAG:
                             if (name.equals("item")) {
                                 try {
                                     String xmlLabel = xpp.getAttributeValue(null, "drawable");
@@ -168,7 +173,6 @@ public class CompareIPacks extends AppCompatActivity {
                                     if (xmlCode.length > 1) {
                                         String xmlPackage = xmlCode[0].substring(14);
                                         String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                        //if (DEBUG) Log.v(TAG, "XML APP: "+ xmlLabel);
                                         Drawable icon = null;
                                         if (xmlLabel != null)
                                             icon = loadDrawable(xmlLabel, iconPackres, packageName);
