@@ -36,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         Button startUpdate = findViewById(R.id.start_update);
         startUpdate.setOnClickListener(view -> start(true));
 
+        Button CompareIconPacks =findViewById(R.id.CompareIconPacks);
+        CompareIconPacks.setOnClickListener(view -> startcompare());
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
@@ -53,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
 
         intent.putExtra("update", update);
         intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".RequestActivity"));
+        startActivity(intent);
+    }
+    public void startcompare() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        //if (DEBUG) Log.v(TAG, String.valueOf(getAvailableIconPacks(true)));
+        //populateView(appListFilter);
+
+        intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".CompareIPacks"));
         startActivity(intent);
     }
 

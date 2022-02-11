@@ -3,6 +3,7 @@
     <string name="app_name" translatable="false">IconRequest</string>
 
     <string name="start">Start</string>
+    <string name="RequestNew">Request new</string>
     <string name="share">Share Text</string>
     <string name="copy">Copy</string>
     <string name="share_file">Share File</string>
@@ -46,5 +47,7 @@
     <string name="request_toast_no_apps_selected">No apps selected. Select at least one app.</string>
     <string name="request_email_subject">Icon Request</string>
     <string name="request_email_text">Some app icons are missing on my device.\n\n</string>
+    <string name="CompareIconPacks">Compare Icon Packs</string>
+    <string name="CompareIPacksText">Compare two Icon Packs. Shows apps that aren\'t in the first icon pack from the second icon pack</string>
 
 </resources>
