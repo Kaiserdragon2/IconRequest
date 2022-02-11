@@ -35,7 +35,7 @@
         but doesn\'t, or if some of your icons broke after an update.
         You only need to copy and paste some text for this option.</string>
 
-    <string name="icon_new">Select this option if you want to submit new icons.
+    <string name="icon_new" translatable="false">Select this option if you want to submit new icons.
         You will have to submit a file with your icon request.</string>
 
     <string name="no_email_clients">There are no email clients installed.</string>
@@ -48,6 +48,7 @@
     <string name="request_email_subject" translatable="false">Icon Request</string>
     <string name="request_email_text">Some app icons are missing on my device.\n\n</string>
     <string name="CompareIconPacks">Compare Icon Packs</string>
-    <string name="CompareIPacksText">Compare two Icon Packs. Shows apps that aren\'t in the first icon pack from the second icon pack</string>
+    <string name="CompareIPacksText">Compare two Icon Packs. Shows apps that aren\\\'t in the first icon pack from the second icon pack</string>
+
 
 </resources>
