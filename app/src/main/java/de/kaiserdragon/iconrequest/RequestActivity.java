@@ -220,6 +220,7 @@ public class RequestActivity extends AppCompatActivity {
         ZipLocation = context.getFilesDir() + "/Icons";
 
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -394,7 +395,8 @@ public class RequestActivity extends AppCompatActivity {
         for (int i = 0; i < arrayList.size(); i++) {
             if (arrayList.get(i).selected) {
                 String iconName = arrayList.get(i).label
-                        .replaceAll("[^a-zA-Z0-9.\\-;]+", "")
+                        .replaceAll("[^a-zA-Z0-9 ]+", "")
+                        .replaceAll("[ ]+", "_")
                         .toLowerCase();
                 if (DEBUG) Log.i(TAG, "iconName: " + iconName);
                 if (!updateOnly) {
@@ -476,18 +478,21 @@ public class RequestActivity extends AppCompatActivity {
 
         try {
             iconPackres = pm.getResourcesForApplication(packageName);
-            XmlPullParserFactory xmlFactoryObject = XmlPullParserFactory.newInstance();
-            XmlPullParser xpp = xmlFactoryObject.newPullParser();
-
-            try {
-                InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
-
-                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                xpp = factory.newPullParser();
-                xpp.setInput(appfilterstream, "utf-8");
-            } catch (IOException e1) {
-                Log.v(TAG, "No appfilter.xml file");
+            XmlPullParser xpp = null;
+            int appfilterid = iconPackres.getIdentifier("appfilter", "xml", packageName);
+            if (appfilterid > 0)
+            {
+                xpp = iconPackres.getXml(appfilterid);
+            }
+            else {
+                try {
+                    InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
+                    XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                    xpp = factory.newPullParser();
+                    xpp.setInput(appfilterstream, "utf-8");
+                } catch (IOException e1) {
+                    Log.v(TAG, "No appfilter.xml file");
+                }
             }
             //write content of icon pack appfilter to the appListAll arraylist
             if (xpp != null) {
@@ -495,20 +500,18 @@ public class RequestActivity extends AppCompatActivity {
                 while (activity != XmlPullParser.END_DOCUMENT) {
                     String name = xpp.getName();
                     switch (activity) {
-                        case XmlPullParser.START_TAG:
-                            break;
                         case XmlPullParser.END_TAG:
+                            break;
+                        case XmlPullParser.START_TAG:
                             if (name.equals("item")) {
                                 try {
                                     String xmlLabel = xpp.getAttributeValue(null, "drawable");
-                                    String xmlComponent =
-                                            xpp.getAttributeValue(null, "component");
+                                    String xmlComponent = xpp.getAttributeValue(null, "component");
 
                                     String[] xmlCode = xmlComponent.split("/");
                                     if (xmlCode.length > 1) {
                                         String xmlPackage = xmlCode[0].substring(14);
                                         String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                        //if (DEBUG) Log.v(TAG, "XML APP: "+ xmlLabel);
                                         Drawable icon = null;
                                         if (SecondIcon) {
                                             if (xmlLabel != null)
@@ -516,7 +519,6 @@ public class RequestActivity extends AppCompatActivity {
                                         }
                                         appListAll.add(new AppInfo(icon, null,
                                                 xmlLabel, xmlPackage, xmlClass, false));
-                                        // if (DEBUG) Log.v(TAG, "XML APP: " + xmlLabel +"  " + xmlPackage);
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -620,6 +622,24 @@ public class RequestActivity extends AppCompatActivity {
                     // resolveInfo.activityInfo.name,
                     );
             arrayList.add(ipackinfo);
+
+        }
+
+        Intent intent2 = new Intent("com.gau.go.launcherex.theme", null);
+        List<ResolveInfo> list2 = pm.queryIntentActivities(intent2, 0);
+        Iterator<ResolveInfo> localIterator2 = list.iterator();
+        for (int i = 0; i < list2.size(); i++) {
+            ResolveInfo resolveInfo = localIterator2.next();
+
+            iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
+                    //icon2,
+                    resolveInfo.loadLabel(pm).toString(),
+                    resolveInfo.activityInfo.packageName,
+                    // resolveInfo.activityInfo.name,
+                    //todo remove unused data
+                    false);
+            if (!arrayList.contains(ipackinfo))
+                arrayList.add(ipackinfo);
 
         }
 
