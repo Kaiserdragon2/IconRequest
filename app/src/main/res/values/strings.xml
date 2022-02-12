@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name" translatable="false">IconRequest</string>
 
-    <string name="start">Start</string>
+    <string name="start">Update Existing</string>
     <string name="RequestNew">Request new</string>
     <string name="share">Share Text</string>
     <string name="copy">Copy</string>

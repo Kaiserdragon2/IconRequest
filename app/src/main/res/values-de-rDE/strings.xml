@@ -12,9 +12,9 @@
     <string name="request_send_request">Anfrage senden</string>
     <string name="request_toast_no_apps_selected">Keine Apps ausgewaehlt. Waehle mindestens eine App</string>
     <string name="request_email_text">Ein paar App Symbole fehlen au f meinem Geraet</string>
-    <string name="loading" translatable="false">Laedt</string>
+    <string name="loading" >Laedt</string>
     <string name="no_email_clients">Es sind keine e-Mail Programme installiert.</string>
-    <string name="appfilter_assets" translatable="false">Appfilterdatei konnte nicht vom Icon Pack geladen werden.</string>
+    <string name="appfilter_assets" >Appfilterdatei konnte nicht vom Icon Pack geladen werden.</string>
     <string name="ShowSecondRow">Zeige ein zweites Icon von einem Icon Pack</string>
     <string name="savesetting">Speichern</string>
     <string name="chooseipack">Waehle ein Icon Pack</string>
