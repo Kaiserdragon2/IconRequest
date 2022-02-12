@@ -14,9 +14,9 @@ public class iPackInfo {
     }
 
 
-    /*
+
     public String getCode() {
-        return packageName + "/" + className;
+        return packageName;
      }
      @Override
      public boolean equals(Object object) {
@@ -26,7 +26,7 @@ public class iPackInfo {
          }
          return false;
       }
-    */
+
 
 }
 

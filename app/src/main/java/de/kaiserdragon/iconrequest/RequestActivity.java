@@ -615,9 +615,7 @@ public class RequestActivity extends AppCompatActivity {
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName
-                    // resolveInfo.activityInfo.name,
-            );
+                    resolveInfo.activityInfo.packageName);
             arrayList.add(ipackinfo);
 
         }
@@ -629,10 +627,8 @@ public class RequestActivity extends AppCompatActivity {
             ResolveInfo resolveInfo = localIterator2.next();
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
-                    //icon2,
                     resolveInfo.loadLabel(pm).toString(),
                     resolveInfo.activityInfo.packageName
-                    // resolveInfo.activityInfo.name,
                     );
             if (!arrayList.contains(ipackinfo))
                 arrayList.add(ipackinfo);
