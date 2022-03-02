@@ -83,6 +83,7 @@ public class RequestActivity extends AppCompatActivity {
     private static boolean updateOnly;
     private static boolean OnlyNew;
     private static boolean SecondIcon;
+    private static boolean Shortcut;
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
     private static ArrayList<iPackInfo> IPackListFilter = new ArrayList<>();
     private String ImgLocation;
@@ -211,6 +212,7 @@ public class RequestActivity extends AppCompatActivity {
         updateOnly = getIntent().getBooleanExtra("update", false);
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
+        Shortcut = loadDataBool("Shortcut");
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -545,8 +547,15 @@ public class RequestActivity extends AppCompatActivity {
         // sort the apps
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
-        Intent intent = new Intent("android.intent.action.MAIN", null);
-        intent.addCategory("android.intent.category.LAUNCHER");
+        Intent intent;
+        if (Shortcut){
+            intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
+            intent.addCategory("android.intent.category.DEFAULT");
+        }else{
+            intent = new Intent("android.intent.action.MAIN", null);
+            intent.addCategory("android.intent.category.LAUNCHER");
+        }
+
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
         Iterator<ResolveInfo> localIterator = list.iterator();
         if (DEBUG) Log.v(TAG, "list size: " + list.size());

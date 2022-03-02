@@ -49,6 +49,8 @@
     <string name="request_email_text">Some app icons are missing on my device.\n\n</string>
     <string name="CompareIconPacks">Compare Icon Packs</string>
     <string name="CompareIPacksText">Compare two Icon Packs. Shows apps that aren\'t in the first icon pack from the second icon pack</string>
+    <string name="Experimental">Experimental</string>
+    <string name="AppsOrShortcutWidgets">Show shortcut widgets insted of apps</string>
 
 
 </resources>
