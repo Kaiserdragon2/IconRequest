@@ -34,6 +34,7 @@ public class SettingActivity extends AppCompatActivity {
 
         ((CheckBox) findViewById(R.id.checkBoxRows)).setChecked(loadDataBool("SettingRow"));
         ((CheckBox) findViewById(R.id.checkBoxOnly)).setChecked(loadDataBool("SettingOnlyNew"));
+        ((CheckBox) findViewById(R.id.checkShortcut)).setChecked(loadDataBool("Shortcut"));
 
 
         Button setDark = findViewById(R.id.radioDark);
