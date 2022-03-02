@@ -22,13 +22,13 @@ public class SettingActivity extends AppCompatActivity {
 
         switch (loadData("DarkModeState")) {
             case -1:
-                ((RadioGroup) findViewById(R.id.radioGroup)).check(R.id.radioDefault);
+                ((RadioGroup) findViewById(R.id.RadioTheme)).check(R.id.radioDefault);
                 break;
             case 1:
-                ((RadioGroup) findViewById(R.id.radioGroup)).check(R.id.radioLight);
+                ((RadioGroup) findViewById(R.id.RadioTheme)).check(R.id.radioLight);
                 break;
             case 2:
-                ((RadioGroup) findViewById(R.id.radioGroup)).check(R.id.radioDark);
+                ((RadioGroup) findViewById(R.id.RadioTheme)).check(R.id.radioDark);
                 break;
         }
 
@@ -51,6 +51,9 @@ public class SettingActivity extends AppCompatActivity {
         CheckBox OnlyNew = findViewById(R.id.checkBoxOnly);
         OnlyNew.setOnClickListener(view -> start(view, 0));
 
+        CheckBox Shortcut = findViewById(R.id.checkShortcut);
+        Shortcut.setOnClickListener(view -> start(view, 0));
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -65,6 +68,9 @@ public class SettingActivity extends AppCompatActivity {
                 saveDataBool("SettingRow", ((CheckBox) view).isChecked());
             } else if (view == (CheckBox) findViewById(R.id.checkBoxOnly)) {
                 saveDataBool("SettingOnlyNew", ((CheckBox) view).isChecked());
+            }
+            else if (view == (CheckBox) findViewById(R.id.checkShortcut)) {
+                saveDataBool("Shortcut", ((CheckBox) view).isChecked());
             }
         }
 

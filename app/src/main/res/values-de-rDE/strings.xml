@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="start">Start</string>
+    <string name="share">Text teilen</string>
+    <string name="copy">Kopieren</string>
+    <string name="share_file">Datei teilen</string>
+    <string name="save">Datei speichern</string>
+    <string name="settings">Speichern</string>
+    <string name="ThemeDevice">Geraetestandard</string>
+    <string name="Other">Weiteres</string>
+    <string name="request_dummy_text">Hallo Welt!</string>
+    <string name="request_send_request">Anfrage senden</string>
+    <string name="request_toast_no_apps_selected">Keine Apps ausgewaehlt. Waehle mindestens eine App</string>
+    <string name="request_email_text">Ein paar App Symbole fehlen au f meinem Geraet</string>
+    <string name="loading" >Laedt</string>
+    <string name="no_email_clients">Es sind keine e-Mail Programme installiert.</string>
+    <string name="appfilter_assets" >Appfilterdatei konnte nicht vom Icon Pack geladen werden.</string>
+    <string name="ShowSecondRow">Zeige ein zweites Icon von einem Icon Pack</string>
+    <string name="savesetting">Speichern</string>
+    <string name="chooseipack">Waehle ein Icon Pack</string>
+    <string name="with_this_tool">Mit dieser app kannst du Icons die in einem Icon Pack fehlen anfragen.</string>
+    <string name="notes">"Die folgenden Optionen lassen dich ein Icon Pack waehlen um diese Funktionen auszufuehren.\nDie erste Funktion brauch eine menge Rechenpower und brauch deshalb etwas Zeit.\nWen du die Funktion nicht brauchst, deaktiviere sie. "</string>
+    <string name="ShowOnly">Zeige nur Apps ohne Icon Pack Icon</string>
+    <string name="icon_update">Waehle diese Option wenn du denkst eine deiner Apps sollte ein Icon haben, hat aber keins, oder wenn einige deiner Icons nach einem Update nicht mehr funktionieren.\nDu musst nur etwas Text kopieren.</string>
+    <string name="RequestNew">Neue Icons anfragen</string>
+    <string name="CompareIconPacks">Vergleiche Icon Packs</string>
+    <string name="CompareIPacksText">Vergleiche zwei Icon Packs. Zeige Apps die nicht im ersten Icon Pack sind vom zweitem Icon Pack</string>
+    <string name="Experimental">Experimentell</string>
+    <string name="AppsOrShortcutWidgets">Zeige Verknuepfungswidgets anstatt Apps</string>
+</resources>

@@ -1,5 +1,7 @@
 package de.kaiserdragon.iconrequest;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -27,10 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -53,16 +56,16 @@ import java.util.concurrent.Executors;
 public class CompareIPacks extends AppCompatActivity {
     private static final String TAG = "CompareActivity";
     private static final boolean DEBUG = true;
-    private ViewSwitcher switcherLoad;
     private static ArrayList<iPackInfo> IPackListFilter = new ArrayList<>();
-    private Context context;
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
     private static ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static ArrayList<AppInfo> appListPack1 = new ArrayList<>();
     private static ArrayList<AppInfo> appListPack2 = new ArrayList<>();
+    private static String xmlString;
     String Label1;
     String Label2;
-
+    private ViewSwitcher switcherLoad;
+    private Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,27 +91,27 @@ public class CompareIPacks extends AppCompatActivity {
         ExecutorService executors = Executors.newSingleThreadExecutor();
         executors.execute(() -> {
             try {
-               // if (OnlyNew | SecondIcon) {
-                    prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
-              //  } else {
-               //     prepareData();  //show all apps
-              //  }
+                // if (OnlyNew | SecondIcon) {
+                prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
+                //  } else {
+                //     prepareData();  //show all apps
+                //  }
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
             new Handler(Looper.getMainLooper()).post(() -> {
-              //  if (OnlyNew | SecondIcon) {
+                //  if (OnlyNew | SecondIcon) {
 
-                    TextView chooser = (TextView)findViewById(R.id.text_ipack_chooser);
-                    chooser.setText("Choose your first Icon Pack");
-                    populateView_Ipack(IPackListFilter,true);
+                TextView chooser = (TextView) findViewById(R.id.text_ipack_chooser);
+                chooser.setText("Choose your first Icon Pack");
+                populateView_Ipack(IPackListFilter, true);
 
 
-             //   } else {
-                   // findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                 //   populateView(appListFilter);
-              //  }
+                //   } else {
+                // findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                //   populateView(appListFilter);
+                //  }
                 switcherLoad.showNext();
             });
         });
@@ -120,9 +123,89 @@ public class CompareIPacks extends AppCompatActivity {
         //  }
         //activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
     }
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_request_update, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+     if (item.getItemId() == R.id.action_sharetext) {
+            actionSave();
+            actionSendText();
+            return true;
+        } else if (item.getItemId() == R.id.action_copy) {
+            actionSave();
+            actionCopy();
+            return true;
+        } else if (item.getItemId() == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        } else {
+            super.onOptionsItemSelected(item);
+            return true;
+        }
+    }
+
+
+    private void actionCopy() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Icon Request", xmlString);
+        clipboard.setPrimaryClip(clip);
+        makeToast("Your icon request has been saved to the clipboard.");
+    }
+
+    private void actionSendText() {
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, xmlString);
+        try {
+            startActivity(Intent.createChooser(intent, null));
+        } catch (Exception e) {
+            makeToast(getString(R.string.no_email_clients));
+            e.printStackTrace();
+        }
+    }
+
+    private String[] actionSave() {
+
+
+
+        ArrayList<AppInfo> arrayList = appListFilter;
+        StringBuilder stringBuilderEmail = new StringBuilder();
+        StringBuilder stringBuilderXML = new StringBuilder();
+        stringBuilderEmail.append(getString(R.string.request_email_text));
+        int amount = 0;
+        ArrayList<String> LabelList = new ArrayList<>();
+        // process selected apps
+        for (int i = 0; i < arrayList.size(); i++) {
+            if (arrayList.get(i).selected) {
+                String iconName = arrayList.get(i).label
+                        .replaceAll("[^a-zA-Z0-9 ]+", "")
+                        .replaceAll("[ ]+", "_")
+                        .toLowerCase();
+                if (DEBUG) Log.i(TAG, "iconName: " + iconName);
+
+                if (DEBUG) Log.i(TAG, "iconName: " + iconName);
+                //check if icon is in an arraylist if not add else rename and check again
+                stringBuilderEmail.append(arrayList.get(i).label).append("\n");
+                stringBuilderXML.append("\t<!-- ")
+                        .append(arrayList.get(i).label)
+                        .append(" -->\n\t<item component=\"ComponentInfo{")
+                        .append(arrayList.get(i).getCode())
+                        .append("}\" drawable=\"")
+                        .append(iconName)
+                        .append("\"/>")
+                        .append("\n\n");
+
+            }
+        }
+
+        xmlString = stringBuilderXML.toString();
+        //write files and create zip only when needed
+
+        return new String[]{stringBuilderEmail.toString()};
     }
 
     public void makeToast(String text) {
@@ -138,11 +221,9 @@ public class CompareIPacks extends AppCompatActivity {
             iconPackres = pm.getResourcesForApplication(packageName);
             XmlPullParser xpp = null;
             int appfilterid = iconPackres.getIdentifier("appfilter", "xml", packageName);
-            if (appfilterid > 0)
-            {
+            if (appfilterid > 0) {
                 xpp = iconPackres.getXml(appfilterid);
-            }
-            else {
+            } else {
                 try {
                     InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
 
@@ -270,12 +351,8 @@ public class CompareIPacks extends AppCompatActivity {
             ResolveInfo resolveInfo = localIterator.next();
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
-                    //icon2,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
-                    // resolveInfo.activityInfo.name,
-                    //todo remove unused data
-                    false);
+                    resolveInfo.activityInfo.packageName);
             arrayList.add(ipackinfo);
 
         }
@@ -286,12 +363,8 @@ public class CompareIPacks extends AppCompatActivity {
             ResolveInfo resolveInfo = localIterator2.next();
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
-                    //icon2,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
-                    // resolveInfo.activityInfo.name,
-                    //todo remove unused data
-                    false);
+                    resolveInfo.activityInfo.packageName);
             if (!arrayList.contains(ipackinfo))
                 arrayList.add(ipackinfo);
 
@@ -354,7 +427,7 @@ public class CompareIPacks extends AppCompatActivity {
         return sharedPreferences.getBoolean(setting, false);
     }
 
-    private void populateView_Ipack(ArrayList<iPackInfo> arrayListFinal,boolean firstrun) {
+    private void populateView_Ipack(ArrayList<iPackInfo> arrayListFinal, boolean firstrun) {
         ArrayList<iPackInfo> local_arrayList;
         local_arrayList = arrayListFinal;
 
@@ -368,14 +441,14 @@ public class CompareIPacks extends AppCompatActivity {
             ExecutorService executors = Executors.newSingleThreadExecutor();
             executors.execute(() -> {
                 try {
-                    parseXML(ipackinfo.packageName,firstrun);
+                    parseXML(ipackinfo.packageName, firstrun);
                     if (DEBUG) Log.v(TAG, ipackinfo.packageName);
 
-                    populateView_Ipack(IPackListFilter,false);
-                    if (firstrun) Label1 = ipackinfo.label ;
+                    populateView_Ipack(IPackListFilter, false);
+                    if (firstrun) Label1 = ipackinfo.label;
 
                     if (!firstrun) {
-                       Label2 = ipackinfo.label ;
+                        Label2 = ipackinfo.label;
                         prepareData();
                     }
 
@@ -384,22 +457,22 @@ public class CompareIPacks extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        TextView chooser = (TextView) findViewById(R.id.text_ipack_chooser);
-                        if (!firstrun) {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    TextView chooser = (TextView) findViewById(R.id.text_ipack_chooser);
+                    if (!firstrun) {
                         //findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                         populateView(appListFilter);
                         invalidateOptionsMenu();
                         switcherLoad.showNext();
 
-                            chooser.setText("Unique Apps"+"\n"+Label1+": "+appListPack1.size()+"\n"+Label2+": "+appListPack2.size());
-                        }else {
-                            switcherLoad.showPrevious();
+                        chooser.setText("Unique Apps" + "\n" + Label1 + ": " + appListPack1.size() + "\n" + Label2 + ": " + appListPack2.size());
+                    } else {
+                        switcherLoad.showPrevious();
 
-                            chooser.setText("Choose your second Icon Pack");
-                        }
+                        chooser.setText("Choose your second Icon Pack");
+                    }
 
-                    });
+                });
 
             });
         });

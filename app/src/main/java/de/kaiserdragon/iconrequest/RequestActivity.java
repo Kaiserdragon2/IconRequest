@@ -78,11 +78,12 @@ public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final int BUFFER = 2048;
     private static final boolean DEBUG = true;
-    private static ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static String xmlString;
     private static boolean updateOnly;
     private static boolean OnlyNew;
     private static boolean SecondIcon;
+    private static boolean Shortcut;
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
     private static ArrayList<iPackInfo> IPackListFilter = new ArrayList<>();
     private String ImgLocation;
@@ -211,6 +212,7 @@ public class RequestActivity extends AppCompatActivity {
         updateOnly = getIntent().getBooleanExtra("update", false);
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
+        Shortcut = loadDataBool("Shortcut");
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -218,7 +220,6 @@ public class RequestActivity extends AppCompatActivity {
 
         ImgLocation = context.getFilesDir() + "/Icons/IconRequest";
         ZipLocation = context.getFilesDir() + "/Icons";
-
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -380,15 +381,17 @@ public class RequestActivity extends AppCompatActivity {
 
         // delete old zips and recreate
         deleteDirectory(zipLocation);
-        imgLocation.mkdirs();
-        zipLocation.mkdirs();
+        if (!updateOnly) {
+            imgLocation.mkdirs();
+            zipLocation.mkdirs();
+        }
 
         ArrayList<AppInfo> arrayList = appListFilter;
         StringBuilder stringBuilderEmail = new StringBuilder();
         StringBuilder stringBuilderXML = new StringBuilder();
         stringBuilderEmail.append(getString(R.string.request_email_text));
         int amount = 0;
-        ArrayList LabelList = new ArrayList();
+        ArrayList<String> LabelList = new ArrayList<>();
         // process selected apps
         for (int i = 0; i < arrayList.size(); i++) {
             if (arrayList.get(i).selected) {
@@ -430,34 +433,32 @@ public class RequestActivity extends AppCompatActivity {
                 }
             }
         }
-//todo why name it here not static
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
         //write files and create zip only when needed
         if (!updateOnly) {
-        if (amount == 0) {
-            // no apps are selected
-            makeToast(getString(R.string.request_toast_no_apps_selected));
-        } else {
-            // write zip and start email intent
-            try {
-                FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
-                BufferedWriter out = new BufferedWriter(fstream);
-                out.write(stringBuilderXML.toString());
-                out.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-//todo check what this does keepDirectoryStructure
-            createZipFile(ImgLocation, true, ZipLocation + "/" + zipName + ".zip");
+            if (amount == 0) {
+                // no apps are selected
+                makeToast(getString(R.string.request_toast_no_apps_selected));
+            } else {
+                // write zip and start email intent
+                try {
+                    FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
+                    BufferedWriter out = new BufferedWriter(fstream);
+                    out.write(stringBuilderXML.toString());
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                createZipFile(ImgLocation, true, ZipLocation + "/" + zipName + ".zip");
 
-            // delete all generated files except the zip
-            deleteDirectory(imgLocation);
-            if (updateOnly) {
-                deleteDirectory(zipLocation);
+                // delete all generated files except the zip
+                deleteDirectory(imgLocation);
+                if (updateOnly) {
+                    deleteDirectory(zipLocation);
+                }
             }
-        }
         }
         return new String[]{zipName, stringBuilderEmail.toString()};
     }
@@ -480,11 +481,9 @@ public class RequestActivity extends AppCompatActivity {
             iconPackres = pm.getResourcesForApplication(packageName);
             XmlPullParser xpp = null;
             int appfilterid = iconPackres.getIdentifier("appfilter", "xml", packageName);
-            if (appfilterid > 0)
-            {
+            if (appfilterid > 0) {
                 xpp = iconPackres.getXml(appfilterid);
-            }
-            else {
+            } else {
                 try {
                     InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
                     XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -548,8 +547,15 @@ public class RequestActivity extends AppCompatActivity {
         // sort the apps
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
-        Intent intent = new Intent("android.intent.action.MAIN", null);
-        intent.addCategory("android.intent.category.LAUNCHER");
+        Intent intent;
+        if (Shortcut){
+            intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
+            intent.addCategory("android.intent.category.DEFAULT");
+        }else{
+            intent = new Intent("android.intent.action.MAIN", null);
+            intent.addCategory("android.intent.category.LAUNCHER");
+        }
+
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
         Iterator<ResolveInfo> localIterator = list.iterator();
         if (DEBUG) Log.v(TAG, "list size: " + list.size());
@@ -566,13 +572,9 @@ public class RequestActivity extends AppCompatActivity {
 
             if (SecondIcon) {
                 Drawable icon2 = null;
-                if (appListAll.contains(appInfo)) {//check if the list contains the element
-                    //int o = appListAll.indexOf((appInfo));
-                    //if (DEBUG) Log.v(TAG, String.valueOf(o));
-                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));//get the element by passing the index of the element
-                    //if (DEBUG) Log.v(TAG, "label" + String.valueOf(geticon.label));
+                if (appListAll.contains(appInfo)) { //check if the list contains the element
+                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
                     icon2 = geticon.icon;
-                    // if (DEBUG) Log.v(TAG,"iconwert" + String.valueOf(icon2));
                 }
                 appInfo = new AppInfo(icon1,
                         icon2,
@@ -621,12 +623,8 @@ public class RequestActivity extends AppCompatActivity {
             ResolveInfo resolveInfo = localIterator.next();
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
-                    //icon2,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
-                    // resolveInfo.activityInfo.name,
-                    //todo remove unused data
-                    false);
+                    resolveInfo.activityInfo.packageName);
             arrayList.add(ipackinfo);
 
         }
@@ -638,12 +636,9 @@ public class RequestActivity extends AppCompatActivity {
             ResolveInfo resolveInfo = localIterator2.next();
 
             iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
-                    //icon2,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
-                    // resolveInfo.activityInfo.name,
-                    //todo remove unused data
-                    false);
+                    resolveInfo.activityInfo.packageName
+                    );
             if (!arrayList.contains(ipackinfo))
                 arrayList.add(ipackinfo);
 
@@ -688,8 +683,6 @@ public class RequestActivity extends AppCompatActivity {
             return resolveInfo.loadIcon(pm);
         } catch (PackageManager.NameNotFoundException e) {
             //fails return the normal icon
-            return resolveInfo.loadIcon(pm);
-        } catch (Resources.NotFoundException e) {
             return resolveInfo.loadIcon(pm);
         }
     }
