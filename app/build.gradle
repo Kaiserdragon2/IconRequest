@@ -20,6 +20,15 @@ android {
         debug {
             zipAlignEnabled true
         }
+        applicationVariants.all{
+            variant ->
+                variant.outputs.each{
+                    output ->
+                        def name ="IconRequest-v${variant.versionName}.apk"
+                        output.outputFileName=name
+                }
+
+        }
     }
 
     compileOptions {
