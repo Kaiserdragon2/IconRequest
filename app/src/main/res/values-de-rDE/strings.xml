@@ -27,4 +27,5 @@
     <string name="CompareIPacksText">Vergleiche zwei Icon Packs. Zeige Apps die nicht im ersten Icon Pack sind vom zweitem Icon Pack</string>
     <string name="Experimental">Experimentell</string>
     <string name="AppsOrShortcutWidgets">Zeige Verknuepfungswidgets anstatt Apps</string>
+    <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
 </resources>

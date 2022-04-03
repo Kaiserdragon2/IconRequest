@@ -15,7 +15,7 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="655dp"
         android:paddingStart="10dp"
         android:paddingEnd="10dp">
 
@@ -127,5 +127,17 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <TextView
+        android:id="@+id/PrivacyPolicy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:foregroundGravity="bottom"
+        android:gravity="bottom|center_horizontal"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="@string/PrivacyPolicy"
+        android:textAlignment="center" />
 
 </LinearLayout>

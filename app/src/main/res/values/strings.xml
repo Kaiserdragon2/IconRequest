@@ -51,6 +51,7 @@
     <string name="CompareIPacksText">Compare two Icon Packs. Shows apps that aren\'t in the first icon pack from the second icon pack</string>
     <string name="Experimental">Experimental</string>
     <string name="AppsOrShortcutWidgets">Show shortcut widgets insted of apps</string>
+    <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
 
 
 </resources>
