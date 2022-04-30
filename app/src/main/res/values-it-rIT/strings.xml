@@ -15,7 +15,7 @@
     <string name="savesetting">Salva</string>
     <string name="chooseipack">"Scegli un pacchetto di icone"</string>
     <string name="with_this_tool">Con questo strumento puoi richiedere icone per applicazioni che mancano dai pacchetti di icone.</string>
-    <string name="icon_update">Seleziona questa opzione se pensi che una delle tue applicazioni debba avere un\'icona, ma non ce l'\ha, o se alcune delle tue icone si sono rotte dopo un\'aggiornamento.\nDevi solo copiare e incollare del testo per questa opzione.</string>
+    <string name="icon_update">Seleziona questa opzione se pensi che una delle tue applicazioni debba avere un\'icona, ma non ce l\'ha, o se alcune delle tue icone si sono rotte dopo un\'aggiornamento.\nDevi solo copiare e incollare del testo per questa opzione.</string>
     <string name="icon_new">Seleziona questa opzione se vuoi inviare una nuova richiesta di icone. Dovrai inviare un file con le icone richieste.</string>
     <string name="no_email_clients">Non sono installati programmi di posta elettronica.</string>
     <string name="appfilter_assets">Impossibile ottenere il file appfilter dal pacchetto di icone.</string>
