@@ -35,7 +35,7 @@
         but doesn\'t, or if some of your icons broke after an update.
         You only need to copy and paste some text for this option.</string>
 
-    <string name="icon_new" translatable="false">Select this option if you want to submit new icons.
+    <string name="icon_new">Select this option if you want to submit new icons.
         You will have to submit a file with your icon request.</string>
 
     <string name="no_email_clients">There are no email clients installed.</string>
