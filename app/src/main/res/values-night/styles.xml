@@ -23,4 +23,9 @@
         <!-- Used to color back button and three dots -->
         <item name="android:textColorSecondary">@color/white</item>
     </style>
+    <style name="PopupMenuListView" parent="@style/Widget.AppCompat.Light.ListView.DropDown">
+        <item name="android:divider">?colorOnPrimary</item>
+        <item name="android:dividerHeight">0.5dp</item>
+        <item name="android:colorBackground">@color/black</item>
+    </style>
 </resources>
