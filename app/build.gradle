@@ -8,8 +8,8 @@ android {
         applicationId 'de.kaiserdragon.iconrequest'
         minSdkVersion 21
         targetSdkVersion 31
-        versionName "1.8.5"
-        versionCode 10
+        versionName "1.9.5"
+        versionCode 13
     }
 
     buildTypes {
@@ -19,6 +19,15 @@ android {
         }
         debug {
             zipAlignEnabled true
+        }
+        applicationVariants.all{
+            variant ->
+                variant.outputs.each{
+                    output ->
+                        def name ="IconRequest-v${variant.versionName}.apk"
+                        output.outputFileName=name
+                }
+
         }
     }
 

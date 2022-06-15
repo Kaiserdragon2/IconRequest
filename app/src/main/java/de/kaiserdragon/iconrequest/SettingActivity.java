@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.text.method.LinkMovementMethod;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -19,6 +22,9 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
+
+        TextView PolicyView =  findViewById(R.id.PrivacyPolicy);
+        PolicyView.setMovementMethod(LinkMovementMethod.getInstance());
 
         switch (loadData("DarkModeState")) {
             case -1:
@@ -34,6 +40,7 @@ public class SettingActivity extends AppCompatActivity {
 
         ((CheckBox) findViewById(R.id.checkBoxRows)).setChecked(loadDataBool("SettingRow"));
         ((CheckBox) findViewById(R.id.checkBoxOnly)).setChecked(loadDataBool("SettingOnlyNew"));
+        ((CheckBox) findViewById(R.id.checkShortcut)).setChecked(loadDataBool("Shortcut"));
 
 
         Button setDark = findViewById(R.id.radioDark);
@@ -51,6 +58,9 @@ public class SettingActivity extends AppCompatActivity {
         CheckBox OnlyNew = findViewById(R.id.checkBoxOnly);
         OnlyNew.setOnClickListener(view -> start(view, 0));
 
+        CheckBox Shortcut = findViewById(R.id.checkShortcut);
+        Shortcut.setOnClickListener(view -> start(view, 0));
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -65,6 +75,9 @@ public class SettingActivity extends AppCompatActivity {
                 saveDataBool("SettingRow", ((CheckBox) view).isChecked());
             } else if (view == (CheckBox) findViewById(R.id.checkBoxOnly)) {
                 saveDataBool("SettingOnlyNew", ((CheckBox) view).isChecked());
+            }
+            else if (view == (CheckBox) findViewById(R.id.checkShortcut)) {
+                saveDataBool("Shortcut", ((CheckBox) view).isChecked());
             }
         }
 
