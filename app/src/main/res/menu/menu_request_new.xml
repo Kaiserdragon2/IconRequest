@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <item
+        android:id="@+id/selectallnew"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@android:string/selectAll"
+        app:showAsAction="never"
+        app:buttonTint="?attr/colorOnPrimary"/>
     <item
         android:id="@+id/action_save"
         android:icon="@drawable/ic_baseline_save_24"
