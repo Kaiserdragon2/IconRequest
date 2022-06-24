@@ -41,7 +41,7 @@ public class SettingActivity extends AppCompatActivity {
         ((CheckBox) findViewById(R.id.checkBoxRows)).setChecked(loadDataBool("SettingRow"));
         ((CheckBox) findViewById(R.id.checkBoxOnly)).setChecked(loadDataBool("SettingOnlyNew"));
         ((CheckBox) findViewById(R.id.checkShortcut)).setChecked(loadDataBool("Shortcut"));
-
+        ((CheckBox) findViewById(R.id.checkSystemApps)).setChecked(loadDataBool("SystemApps"));
 
         Button setDark = findViewById(R.id.radioDark);
         setDark.setOnClickListener(view -> start(view, 2));
@@ -61,6 +61,9 @@ public class SettingActivity extends AppCompatActivity {
         CheckBox Shortcut = findViewById(R.id.checkShortcut);
         Shortcut.setOnClickListener(view -> start(view, 0));
 
+        CheckBox SystemApps = findViewById(R.id.checkSystemApps);
+        SystemApps.setOnClickListener(view -> start(view, 0));
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -78,6 +81,9 @@ public class SettingActivity extends AppCompatActivity {
             }
             else if (view == (CheckBox) findViewById(R.id.checkShortcut)) {
                 saveDataBool("Shortcut", ((CheckBox) view).isChecked());
+            }
+            else if (view == (CheckBox) findViewById(R.id.checkSystemApps)) {
+                saveDataBool("SystemApps", ((CheckBox) view).isChecked());
             }
         }
 

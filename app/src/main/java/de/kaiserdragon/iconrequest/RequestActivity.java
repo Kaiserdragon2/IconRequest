@@ -1,12 +1,16 @@
 package de.kaiserdragon.iconrequest;
 
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -84,6 +88,7 @@ public class RequestActivity extends AppCompatActivity {
     private static boolean OnlyNew;
     private static boolean SecondIcon;
     private static boolean Shortcut;
+    private static boolean SystemApps;
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
     private static ArrayList<iPackInfo> IPackListFilter = new ArrayList<>();
     private String ImgLocation;
@@ -213,6 +218,7 @@ public class RequestActivity extends AppCompatActivity {
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
         Shortcut = loadDataBool("Shortcut");
+        SystemApps =loadDataBool("SystemApps");
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -548,52 +554,93 @@ public class RequestActivity extends AppCompatActivity {
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Intent intent;
-        if (Shortcut){
-            intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
-            intent.addCategory("android.intent.category.DEFAULT");
-        }else{
-            intent = new Intent("android.intent.action.MAIN", null);
-            intent.addCategory("android.intent.category.LAUNCHER");
-        }
 
-        List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
-        Iterator<ResolveInfo> localIterator = list.iterator();
-        if (DEBUG) Log.v(TAG, "list size: " + list.size());
-
-        for (int i = 0; i < list.size(); i++) {
-            ResolveInfo resolveInfo = localIterator.next();
-            Drawable icon1 = getHighResIcon(pm, resolveInfo);
-            AppInfo appInfo = new AppInfo(icon1,
-                    null,
-                    resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName,
-                    resolveInfo.activityInfo.name,
-                    false);
-
-            if (SecondIcon) {
-                Drawable icon2 = null;
-                if (appListAll.contains(appInfo)) { //check if the list contains the element
-                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
-                    icon2 = geticon.icon;
+        if (SystemApps) {
+            //List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+             List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
+            //todo System Apps
+            for (PackageInfo packageInfo : packages) {
+            //for (ApplicationInfo packageInfo : packages) {
+                Log.d(TAG, "Installed package :" + packageInfo.packageName);
+                //Log.d(TAG, "Source dir : " + packageInfo.sourceDir);
+                ActivityInfo[] activities = packageInfo.activities;
+                /*
+                intent = pm.getLaunchIntentForPackage(packageInfo.packageName);
+                String activityname;
+                //Drawable icon1 = getHighResIcon1(pm, packageInfo.packageName);
+                try {
+                    activityname = intent.getComponent().getClassName();
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                    activityname = null;
                 }
-                appInfo = new AppInfo(icon1,
-                        icon2,
+                 */
+
+                if (activities != null)
+                    for (ActivityInfo activityInfo : activities) {
+
+                        AppInfo appInfo = new AppInfo(activityInfo.loadIcon(getPackageManager()),
+                                null,
+                                activityInfo.loadLabel(pm).toString(),
+                                packageInfo.packageName,
+                                activityInfo.name,
+                                false);
+                        arrayList.add(appInfo);
+
+                    } // for (ActivityInfo activityInfo : activities)
+
+                // if (activities != null)
+
+            }
+        } else {
+            if (Shortcut){
+                intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
+                intent.addCategory("android.intent.category.DEFAULT");
+            }else{
+                intent = new Intent("android.intent.action.MAIN", null);
+                intent.addCategory("android.intent.category.LAUNCHER");
+            }
+
+            List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
+            Iterator<ResolveInfo> localIterator = list.iterator();
+            if (DEBUG) Log.v(TAG, "list size: " + list.size());
+
+            for (int i = 0; i < list.size(); i++) {
+                ResolveInfo resolveInfo = localIterator.next();
+                Drawable icon1 = getHighResIcon(pm, resolveInfo);
+                AppInfo appInfo = new AppInfo(icon1,
+                        null,
                         resolveInfo.loadLabel(pm).toString(),
                         resolveInfo.activityInfo.packageName,
                         resolveInfo.activityInfo.name,
                         false);
-            }
 
-            if (OnlyNew) {
-                // filter out apps that are already included
-                if (!appListAll.contains(appInfo)) {
-                    arrayList.add(appInfo);
-                    if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
-                } else {
-                    if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
+
+                if (SecondIcon) {
+                    Drawable icon2 = null;
+                    if (appListAll.contains(appInfo)) { //check if the list contains the element
+                        AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
+                        icon2 = geticon.icon;
+                    }
+                    appInfo = new AppInfo(icon1,
+                            icon2,
+                            resolveInfo.loadLabel(pm).toString(),
+                            resolveInfo.activityInfo.packageName,
+                            resolveInfo.activityInfo.name,
+                            false);
                 }
-            } else arrayList.add(appInfo);
 
+                if (OnlyNew) {
+                    // filter out apps that are already included
+                    if (!appListAll.contains(appInfo)) {
+                        arrayList.add(appInfo);
+                        if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
+                    } else {
+                        if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
+                    }
+                } else arrayList.add(appInfo);
+
+            }
         }
 
         //Custom comparator to ensure correct sorting for characters like and apps
@@ -686,6 +733,8 @@ public class RequestActivity extends AppCompatActivity {
             return resolveInfo.loadIcon(pm);
         }
     }
+
+
 
     private void populateView(ArrayList<AppInfo> arrayListFinal) {
         ArrayList<AppInfo> local_arrayList;
