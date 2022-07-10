@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/selectall"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@android:string/selectAll"
+        app:showAsAction="never"
+        android:buttonTint="?attr/colorOnPrimary"/>
+    <item
         android:id="@+id/action_copy"
         android:icon="?attr/actionModeCopyDrawable"
         android:title="@string/copy"

@@ -98,6 +98,7 @@ public class RequestActivity extends AppCompatActivity {
     private Context context;
     private boolean IPackChoosen = false;
 
+
     public static void deleteDirectory(File path) {
         if (path.exists()) {
             File[] files = path.listFiles();
@@ -298,13 +299,30 @@ public class RequestActivity extends AppCompatActivity {
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
+            //todo checkAll
+        } else if (item.getItemId() == R.id.selectall){
+            item.setChecked(!item.isChecked());
+            SelectAll(item.isChecked());
+         return true;
+        } else if(item.getItemId() == R.id.selectallnew){
+            item.setChecked(!item.isChecked());
+            SelectAll(item.isChecked());
+            return true;
         } else {
             super.onOptionsItemSelected(item);
             return true;
         }
     }
 
-
+    public void SelectAll(boolean selected){
+        for ( int i=0; i < appListFilter.size(); i++) {
+            if (DEBUG) Log.i(TAG, String.valueOf(i));
+            AppInfo data = appListFilter.get(i);
+            appListFilter.set(i, new AppInfo(data.icon, data.icon2,
+                    data.label, data.packageName, data.className, selected));
+        }
+        populateView(appListFilter);
+    }
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
@@ -820,6 +838,8 @@ public class RequestActivity extends AppCompatActivity {
             appList.addAll(adapterArrayList);
         }
 
+
+
         @NonNull
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             ViewHolder holder;
@@ -850,7 +870,6 @@ public class RequestActivity extends AppCompatActivity {
             if (SecondIcon) {
                 holder.apkIconnow.setVisibility(View.VISIBLE);
             }
-
 
             holder.switcherChecked.setInAnimation(null);
             holder.switcherChecked.setOutAnimation(null);
