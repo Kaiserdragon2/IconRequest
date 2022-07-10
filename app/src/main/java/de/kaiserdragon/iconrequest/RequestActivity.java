@@ -299,7 +299,6 @@ public class RequestActivity extends AppCompatActivity {
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
-            //todo checkAll
         } else if (item.getItemId() == R.id.selectall){
             item.setChecked(!item.isChecked());
             SelectAll(item.isChecked());
