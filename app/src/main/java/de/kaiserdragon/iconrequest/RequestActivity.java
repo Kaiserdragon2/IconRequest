@@ -594,20 +594,14 @@ public class RequestActivity extends AppCompatActivity {
                         activityname = intent.getComponent().getShortClassName();
                     } catch (Exception i) {
                         //e.printStackTrace();
-                        try{
-                            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
-                            activityname = launchIntent.getComponent().getClassName();
-                        }catch(Exception o){
                             activityname = null;
-                        }
                     }
                 }
 
                 Drawable icon = null;
                 try {
-                    ApplicationInfo applicationInfo=pm.getApplicationInfo(packageInfo.packageName,PackageManager.GET_META_DATA);
-                    Resources resources=pm.getResourcesForApplication(applicationInfo);
-                    icon =   resources.getDrawable(applicationInfo.icon, null);
+                    Resources resources=pm.getResourcesForApplication(packageInfo);
+                    icon =   resources.getDrawable(packageInfo.icon, null);
                     //icon= null;
                 } catch (Exception e){
                     try {
