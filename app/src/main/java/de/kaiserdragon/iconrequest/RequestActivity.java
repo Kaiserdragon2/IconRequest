@@ -572,27 +572,80 @@ public class RequestActivity extends AppCompatActivity {
         PackageManager pm = getPackageManager();
         Intent intent;
 
+        //todo System Apps
         if (SystemApps) {
-            //List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-             List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
-            //todo System Apps
-            for (PackageInfo packageInfo : packages) {
-            //for (ApplicationInfo packageInfo : packages) {
-                Log.d(TAG, "Installed package :" + packageInfo.packageName);
+            List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+            //todo option to load every activity
+            //List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_ACTIVITIES);
+            //for (PackageInfo packageInfo : packages) {
+            //Log.d(TAG, "Installed package :" + packageInfo.packageName);
+            //ActivityInfo[] activities = packageInfo.activities;
+
+            for (ApplicationInfo packageInfo : packages) {
                 //Log.d(TAG, "Source dir : " + packageInfo.sourceDir);
-                ActivityInfo[] activities = packageInfo.activities;
-                /*
                 intent = pm.getLaunchIntentForPackage(packageInfo.packageName);
                 String activityname;
                 //Drawable icon1 = getHighResIcon1(pm, packageInfo.packageName);
                 try {
                     activityname = intent.getComponent().getClassName();
                 } catch (Exception e) {
-                    //e.printStackTrace();
-                    activityname = null;
+                    try {
+                        activityname = intent.getComponent().getShortClassName();
+                    } catch (Exception i) {
+                        //e.printStackTrace();
+                        try{
+                            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageInfo.packageName);
+                            activityname = launchIntent.getComponent().getClassName();
+                        }catch(Exception o){
+                            activityname = null;
+                        }
+                    }
                 }
-                 */
 
+                Drawable icon = null;
+                try {
+                    ApplicationInfo applicationInfo=pm.getApplicationInfo(packageInfo.packageName,PackageManager.GET_META_DATA);
+                    Resources resources=pm.getResourcesForApplication(applicationInfo);
+                    icon =   resources.getDrawable(applicationInfo.icon, null);
+                    //icon= null;
+                } catch (Exception e){
+                    try {
+                        icon = context.getPackageManager().getApplicationIcon(packageInfo.packageName);
+                        //icon =null;
+                    } catch (Exception ex) {
+                        //ex.printStackTrace();
+                        icon =null;
+                    }
+                }
+                AppInfo appInfo = new AppInfo(icon,
+                        null,
+                        packageInfo.loadLabel(pm).toString(),
+                        packageInfo.packageName,
+                        activityname,
+                        false);
+                if (SecondIcon) {
+                    Drawable icon2 = null;
+                    if (appListAll.contains(appInfo)) { //check if the list contains the element
+                        AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
+                        icon2 = geticon.icon;
+                    }
+                    appInfo = new AppInfo(icon,
+                            icon2,
+                            packageInfo.loadLabel(pm).toString(),
+                            packageInfo.packageName,
+                            activityname,
+                            false);
+                }
+                if (OnlyNew) {
+                    // filter out apps that are already included
+                    if (!appListAll.contains(appInfo)) {
+                        arrayList.add(appInfo);
+                    }
+                } else arrayList.add(appInfo);
+
+//todo option to load every activity
+/*
                 if (activities != null)
                     for (ActivityInfo activityInfo : activities) {
 
@@ -604,16 +657,19 @@ public class RequestActivity extends AppCompatActivity {
                                 false);
                         arrayList.add(appInfo);
 
-                    } // for (ActivityInfo activityInfo : activities)
+                    } //
+ */
+                   // for (ActivityInfo activityInfo : activities)
+
 
                 // if (activities != null)
 
             }
         } else {
-            if (Shortcut){
+            if (Shortcut) {
                 intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
                 intent.addCategory("android.intent.category.DEFAULT");
-            }else{
+            } else {
                 intent = new Intent("android.intent.action.MAIN", null);
                 intent.addCategory("android.intent.category.LAUNCHER");
             }
@@ -674,6 +730,7 @@ public class RequestActivity extends AppCompatActivity {
         });
         appListFilter = arrayList;
     }
+
 
     private void prepareDataIPack() {
         // sort the apps
