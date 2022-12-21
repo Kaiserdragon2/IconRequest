@@ -29,7 +29,7 @@
             android:visibility="gone" />
 
         <ViewSwitcher
-            android:id="@+id/viewSwitcherChecked"
+            android:id="@+id/SwitcherChecked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 

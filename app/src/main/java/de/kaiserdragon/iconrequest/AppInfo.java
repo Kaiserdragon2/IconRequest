@@ -22,6 +22,9 @@ public class AppInfo {
         return packageName + "/" + className;
     }
 
+
+
+
     public String getLabel() {
         return label;
     }
@@ -32,6 +35,10 @@ public class AppInfo {
 
     public Drawable getIcon() {
         return icon;
+    }
+
+    public Drawable getIcon2() {
+        return icon2;
     }
 
     public void setIcon(Drawable icon) {

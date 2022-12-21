@@ -26,10 +26,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -41,7 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -87,12 +83,12 @@ public class RequestActivity extends AppCompatActivity {
     private static boolean SecondIcon;
     private static boolean Shortcut;
     private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
-    private static ArrayList<iPackInfo> IPackListFilter = new ArrayList<>();
+    //private static ArrayList<AppInfo> IPackListFilter = new ArrayList<>();
     private String ImgLocation;
     private String ZipLocation;
-    private ViewSwitcher switcherLoad;
+    private static ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
-    private Context context;
+    private final Context context = this;
     private boolean IPackChoosen = false;
 
 
@@ -225,85 +221,118 @@ public class RequestActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
-        context = this;
+        //context = this;
 
         ImgLocation = context.getFilesDir() + "/Icons/IconRequest";
         ZipLocation = context.getFilesDir() + "/Icons";
 
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
 
-
-
-
         //if (savedInstanceState == null) {
 
-        ExecutorService executors = Executors.newSingleThreadExecutor();
-        executors.execute(() -> {
-            try {
-                if (OnlyNew | SecondIcon) {
-                    prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
-                } else {
-                    prepareData();  //show all apps
-                }
+        //ExecutorService executors = Executors.newSingleThreadExecutor();
+        //executors.execute(() -> {
+        //   try {
+        if (OnlyNew | SecondIcon) {
+            //prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
+            adapter = new AppAdapter(prepareData(true));
+        } else adapter = new AppAdapter(prepareData(false)); //show all apps
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            new Handler(Looper.getMainLooper()).post(() -> {
-                if (OnlyNew | SecondIcon) {
-                   // populateView_Ipack(IPackListFilter);
-                } else {
-                    findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                    //populateView(appListFilter);
-                }
-                recyclerView = findViewById(R.id.recycler_view);
-                recyclerView.setHasFixedSize(true);
+        //    } catch (Exception e) {
+        //        e.printStackTrace();
+        //    }
+        //new Handler(Looper.getMainLooper()).post(() -> {
+        if (!OnlyNew && !SecondIcon) findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+        recyclerView.setAdapter(adapter);
+        switcherLoad.showNext();
+        // });
+        //});
 
-                layoutManager = new LinearLayoutManager(this);
-                recyclerView.setLayoutManager(layoutManager);
-
-                adapter = new AppAdapter(appListFilter);
-                recyclerView.setAdapter(adapter);
-                switcherLoad.showNext();
-            });
-        });
-
-        //} else {
-        //      populateView_Ipack(IPackListFilter);
-        //populateView(appListFilter);
-        //     switcherLoad.showNext();
-        //  }
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
     }
 
 
+    public void IPackSelect(String packageName) {
+
+        switcherLoad.showNext();
+        ExecutorService executors = Executors.newSingleThreadExecutor();
+        executors.execute(() -> {
+            try {
+                parseXML(packageName);
+                if (DEBUG) Log.v(TAG, packageName);
+                //appListFilter = prepareData();
+                adapter = new AppAdapter(prepareData(false));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                //populateView(appListFilter);
+
+                recyclerView.setAdapter(adapter);
+                IPackChoosen = true;
+                invalidateOptionsMenu();
+                //populateView(appListFilter); //Orginal fill view
+                switcherLoad.showNext();
+            });
+        });
+    }
 
 
-    public static class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
+    public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         private List<AppInfo> appList;
 
         public AppAdapter(List<AppInfo> appList) {
             this.appList = appList;
         }
 
+        public void setAllSelected(boolean selected) {
+            for (AppInfo app : appList) {
+                app.setSelected(selected);
+            }
+            notifyDataSetChanged();
+        }
+
+        public ArrayList<AppInfo> getAllSelected() {
+            ArrayList<AppInfo> arrayList = null;
+            for (AppInfo app : appList) {
+                if (app.selected)  arrayList.add(app) ;
+            }
+            return arrayList;
+        }
+
+
         @NonNull
         @Override
         public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.app_item, parent, false);
-            return new AppViewHolder(v);
+            return new AppViewHolder(v, appList);
         }
+
 
         @Override
         public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
             AppInfo app = appList.get(position);
-            holder.textView.setText(app.getLabel());
+            holder.labelView.setText(app.getLabel());
+            holder.packageNameView.setText(app.packageName);
+            holder.classNameView.setText(app.className);
             holder.imageView.setImageDrawable(app.getIcon());
-            holder.checkBox.setChecked(app.isSelected());
+            if (app.selected) holder.checkBox.setDisplayedChild(1);
+            else holder.checkBox.setDisplayedChild(0);
+            if (SecondIcon && IPackChoosen) {
+                holder.apkIconView.setVisibility(View.VISIBLE);
+                holder.apkIconView.setImageDrawable(app.getIcon2());
+            }
+
         }
 
         @Override
@@ -313,23 +342,42 @@ public class RequestActivity extends AppCompatActivity {
     }
 
 
-    public static class AppViewHolder extends RecyclerView.ViewHolder {
-        public TextView textView;
+    public class AppViewHolder extends RecyclerView.ViewHolder {
+        public TextView labelView;
+        public TextView packageNameView;
+        public TextView classNameView;
         public ImageView imageView;
-        public CheckBox checkBox;
+        public ImageView apkIconView;
+        public ViewSwitcher checkBox;
 
-        public AppViewHolder(View v) {
+
+        private List<AppInfo> appList;
+
+        public AppViewHolder(View v, List<AppInfo> appList) {
             super(v);
-            textView = v.findViewById(R.id.text_view);
-            imageView = v.findViewById(R.id.image_view);
-            checkBox = v.findViewById(R.id.check_box);
+            labelView = v.findViewById(R.id.label_view);
+            packageNameView = v.findViewById(R.id.packagename_view);
+            classNameView = v.findViewById(R.id.classname_view);
+            imageView = v.findViewById(R.id.icon_view);
+            apkIconView = v.findViewById(R.id.apkicon_view);
+            checkBox = v.findViewById(R.id.SwitcherChecked);
 
-            checkBox.setOnClickListener(new View.OnClickListener() {
+            this.appList = appList;
+
+
+            v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-                    //AppInfo app = appList.get(position);
-                    //app.setSelected(checkBox.isChecked());
+                    AppInfo app = appList.get(position);
+                    app.setSelected(!app.isSelected());
+                    if (!IPackChoosen && (OnlyNew || SecondIcon)) IPackSelect(app.packageName);
+                    Animation aniIn = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_1);
+                    Animation aniOut = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_2);
+                    checkBox.setInAnimation(aniIn);
+                    checkBox.setOutAnimation(aniOut);
+                    checkBox.showNext();
+
                 }
             });
         }
@@ -370,13 +418,13 @@ public class RequestActivity extends AppCompatActivity {
             NavUtils.navigateUpFromSameTask(this);
             return true;
             //todo checkAll
-        } else if (item.getItemId() == R.id.selectall){
+        } else if (item.getItemId() == R.id.selectall) {
             item.setChecked(!item.isChecked());
-            SelectAll(item.isChecked());
-         return true;
-        } else if(item.getItemId() == R.id.selectallnew){
+            adapter.setAllSelected(item.isChecked());
+            return true;
+        } else if (item.getItemId() == R.id.selectallnew) {
+            adapter.setAllSelected(!item.isChecked());
             item.setChecked(!item.isChecked());
-            SelectAll(item.isChecked());
             return true;
         } else {
             super.onOptionsItemSelected(item);
@@ -384,15 +432,6 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    public void SelectAll(boolean selected){
-        for ( int i=0; i < appListFilter.size(); i++) {
-            if (DEBUG) Log.i(TAG, String.valueOf(i));
-            AppInfo data = appListFilter.get(i);
-            appListFilter.set(i, new AppInfo(data.icon, data.icon2,
-                    data.label, data.packageName, data.className, selected));
-        }
-       // populateView(appListFilter);
-    }
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
@@ -480,40 +519,33 @@ public class RequestActivity extends AppCompatActivity {
             zipLocation.mkdirs();
         }
 
-        ArrayList<AppInfo> arrayList = appListFilter;
+        ArrayList<AppInfo> arrayList = adapter.getAllSelected();
+        if (arrayList.size() <= 0) {
+            // no apps are selected
+            makeToast(getString(R.string.request_toast_no_apps_selected));
+        }
+
         StringBuilder stringBuilderEmail = new StringBuilder();
         StringBuilder stringBuilderXML = new StringBuilder();
         stringBuilderEmail.append(getString(R.string.request_email_text));
-        int amount = 0;
         ArrayList<String> LabelList = new ArrayList<>();
         // process selected apps
         for (int i = 0; i < arrayList.size(); i++) {
-            if (arrayList.get(i).selected) {
+            //if (arrayList.get(i).selected) {
                 String iconName = arrayList.get(i).label
                         .replaceAll("[^a-zA-Z0-9 ]+", "")
                         .replaceAll("[ ]+", "_")
                         .toLowerCase();
                 if (DEBUG) Log.i(TAG, "iconName: " + iconName);
                 if (!updateOnly) {
+                    //if a name is a duplicate rename 1 so nothing gets replaced while saving
                     int n = 0;
                     while (LabelList.contains(iconName)) {
                         n++;
                         iconName = iconName + n;
                     }
                     LabelList.add(iconName);
-                }
-                if (DEBUG) Log.i(TAG, "iconName: " + iconName);
-                //check if icon is in an arraylist if not add else rename and check again
-                stringBuilderEmail.append(arrayList.get(i).label).append("\n");
-                stringBuilderXML.append("\t<!-- ")
-                        .append(arrayList.get(i).label)
-                        .append(" -->\n\t<item component=\"ComponentInfo{")
-                        .append(arrayList.get(i).getCode())
-                        .append("}\" drawable=\"")
-                        .append(iconName)
-                        .append("\"/>")
-                        .append("\n\n");
-                if (!updateOnly) {
+
                     try {
                         Bitmap bitmap = getBitmapFromDrawable(arrayList.get(i).icon);
                         FileOutputStream fOut = new FileOutputStream(ImgLocation + "/" + iconName + ".png");
@@ -523,37 +555,44 @@ public class RequestActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    amount++;
                 }
+            if (DEBUG) Log.i(TAG, "iconName: " + iconName);
+            //check if icon is in an arraylist if not add else rename and check again
+            stringBuilderEmail.append(arrayList.get(i).label).append("\n");
+            stringBuilderXML.append("\t<!-- ")
+                    .append(arrayList.get(i).label)
+                    .append(" -->\n\t<item component=\"ComponentInfo{")
+                    .append(arrayList.get(i).getCode())
+                    .append("}\" drawable=\"")
+                    .append(iconName)
+                    .append("\"/>")
+                    .append("\n\n");
+
             }
-        }
+       // }
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         xmlString = stringBuilderXML.toString();
         //write files and create zip only when needed
         if (!updateOnly) {
-            if (amount == 0) {
-                // no apps are selected
-                makeToast(getString(R.string.request_toast_no_apps_selected));
-            } else {
-                // write zip and start email intent
-                try {
-                    FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
-                    BufferedWriter out = new BufferedWriter(fstream);
-                    out.write(stringBuilderXML.toString());
-                    out.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                createZipFile(ImgLocation, true, ZipLocation + "/" + zipName + ".zip");
+            // write zip and start email intent
+            try {
+                FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
+                BufferedWriter out = new BufferedWriter(fstream);
+                out.write(stringBuilderXML.toString());
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            createZipFile(ImgLocation, true, ZipLocation + "/" + zipName + ".zip");
 
-                // delete all generated files except the zip
-                deleteDirectory(imgLocation);
-                if (updateOnly) {
-                    deleteDirectory(zipLocation);
-                }
+            // delete all generated files except the zip
+            deleteDirectory(imgLocation);
+            if (updateOnly) {
+                deleteDirectory(zipLocation);
             }
         }
+
         return new String[]{zipName, stringBuilderEmail.toString()};
     }
 
@@ -623,6 +662,8 @@ public class RequestActivity extends AppCompatActivity {
                 }
             }
         } catch (Exception e) {
+
+            //Todo toast isnt shown
             makeToast(getString(R.string.appfilter_assets));
             e.printStackTrace();
         }
@@ -637,15 +678,17 @@ public class RequestActivity extends AppCompatActivity {
         return null;
     }
 
-    private void prepareData() {
+    private ArrayList<AppInfo> prepareData(boolean iPack) {
         // sort the apps
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Intent intent;
-        if (Shortcut){
+        if (iPack) {
+            intent = new Intent("org.adw.launcher.THEMES", null);
+        } else if (Shortcut) {
             intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
             intent.addCategory("android.intent.category.DEFAULT");
-        }else{
+        } else {
             intent = new Intent("android.intent.action.MAIN", null);
             intent.addCategory("android.intent.category.LAUNCHER");
         }
@@ -664,7 +707,7 @@ public class RequestActivity extends AppCompatActivity {
                     resolveInfo.activityInfo.name,
                     false);
 
-            if (SecondIcon) {
+            if (SecondIcon && !iPack) {
                 Drawable icon2 = null;
                 if (appListAll.contains(appInfo)) { //check if the list contains the element
                     AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
@@ -678,7 +721,7 @@ public class RequestActivity extends AppCompatActivity {
                         false);
             }
 
-            if (OnlyNew) {
+            if (OnlyNew && !iPack ) {
                 // filter out apps that are already included
                 if (!appListAll.contains(appInfo)) {
                     arrayList.add(appInfo);
@@ -702,12 +745,13 @@ public class RequestActivity extends AppCompatActivity {
 
             return collator.compare(object1.label, object2.label);
         });
-        appListFilter = arrayList;
+        //    appListFilter
+        return arrayList;
     }
-
+/*
     private void prepareDataIPack() {
         // sort the apps
-        ArrayList<iPackInfo> arrayList = new ArrayList<>();
+        ArrayList<AppInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Intent intent = new Intent("org.adw.launcher.THEMES", null);
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
@@ -716,9 +760,12 @@ public class RequestActivity extends AppCompatActivity {
         for (int i = 0; i < list.size(); i++) {
             ResolveInfo resolveInfo = localIterator.next();
 
-            iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
+            AppInfo ipackinfo = new AppInfo(getHighResIcon(pm, resolveInfo),
+                    null,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName);
+                    resolveInfo.activityInfo.packageName,
+                    null,
+                    false);
             arrayList.add(ipackinfo);
 
         }
@@ -729,10 +776,13 @@ public class RequestActivity extends AppCompatActivity {
         for (int i = 0; i < list2.size(); i++) {
             ResolveInfo resolveInfo = localIterator2.next();
 
-            iPackInfo ipackinfo = new iPackInfo(getHighResIcon(pm, resolveInfo),
+            AppInfo ipackinfo = new AppInfo(getHighResIcon(pm, resolveInfo),
+                    null,
                     resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.activityInfo.packageName
-                    );
+                    resolveInfo.activityInfo.packageName,
+                    null,
+                    false
+            );
             if (!arrayList.contains(ipackinfo))
                 arrayList.add(ipackinfo);
 
@@ -752,6 +802,8 @@ public class RequestActivity extends AppCompatActivity {
         IPackListFilter = arrayList;
     }
 
+ */
+
     private Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
 
         Drawable icon;
@@ -765,13 +817,6 @@ public class RequestActivity extends AppCompatActivity {
 
             if (iconId != 0) {
                 icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
-                /*
-                icon = context.getPackageManager().getApplicationIcon(resolveInfo.activityInfo.packageName); //loads themed OnePlus
-                icon =pm.getDrawable(resolveInfo.activityInfo.packageName, iconId, null);               //loads unthemed
-                Drawable adaptiveDrawable = resolveInfo.loadIcon(pm);                                     //loads themed OnePlus
-                PackageManager packageManager = getPackageManager();
-                icon = resolveInfo.loadIcon(packageManager);                                             //loads themed OnePlus
-                */
                 return icon;
             }
             return resolveInfo.loadIcon(pm);
@@ -780,186 +825,9 @@ public class RequestActivity extends AppCompatActivity {
             return resolveInfo.loadIcon(pm);
         }
     }
-/*
-    private void populateView(ArrayList<AppInfo> arrayListFinal) {
-        ArrayList<AppInfo> local_arrayList;
-        local_arrayList = arrayListFinal;
 
-        ListView grid = findViewById(R.id.app_list);
-        grid.setFastScrollEnabled(true);
-        //grid.setFastScrollAlwaysVisible(true);
-        grid.setAdapter(new AppAdapter(this, R.layout.item_request, local_arrayList));
-        grid.setOnItemClickListener((AdapterView, view, position, row) -> {
-            AppInfo appInfo = (AppInfo) AdapterView.getItemAtPosition(position);
-            CheckBox checker = view.findViewById(R.id.CBappSelect);
-            ViewSwitcher icon = view.findViewById(R.id.viewSwitcherChecked);
-            LinearLayout localBackground = view.findViewById(R.id.card_bg);
-            Animation aniIn = AnimationUtils.loadAnimation(context, R.anim.request_flip_in_half_1);
-            Animation aniOut = AnimationUtils.loadAnimation(context, R.anim.request_flip_in_half_2);
-
-            checker.toggle();
-            appInfo.selected = checker.isChecked();
-
-            icon.setInAnimation(aniIn);
-            icon.setOutAnimation(aniOut);
-
-            if (appInfo.selected) {
-                if (DEBUG) Log.v(TAG, "Selected App: " + appInfo.label);
-                localBackground.setBackgroundColor(ContextCompat.getColor(context, R.color.request_card_pressed));
-                if (icon.getDisplayedChild() == 0) {
-                    icon.showNext();
-                }
-            } else {
-                if (DEBUG) Log.v(TAG, "Deselected App: " + appInfo.label);
-                localBackground.setBackgroundColor(ContextCompat.getColor(context, R.color.request_card_unpressed));
-                if (icon.getDisplayedChild() == 1) {
-                    icon.showPrevious();
-                }
-            }
-        });
-    }
-    */
     public boolean loadDataBool(String setting) {
         SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
         return sharedPreferences.getBoolean(setting, false);
     }
-/*
-    private void populateView_Ipack(ArrayList<iPackInfo> arrayListFinal) {
-        ArrayList<iPackInfo> local_arrayList;
-        local_arrayList = arrayListFinal;
-
-        ListView grid = findViewById(R.id.app_list);
-        grid.setFastScrollEnabled(true);
-        //grid.setFastScrollAlwaysVisible(true);
-        grid.setAdapter(new RequestActivity.IPackAppAdapter(this, R.layout.item_iconpack, local_arrayList));
-        grid.setOnItemClickListener((AdapterView, view, position, row) -> {
-            iPackInfo ipackinfo = (iPackInfo) AdapterView.getItemAtPosition(position);
-            switcherLoad.showNext();
-            ExecutorService executors = Executors.newSingleThreadExecutor();
-            executors.execute(() -> {
-                try {
-                    parseXML(ipackinfo.packageName);
-                    if (DEBUG) Log.v(TAG, ipackinfo.packageName);
-                    prepareData();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                    populateView(appListFilter);
-                    IPackChoosen = true;
-                    invalidateOptionsMenu();
-                    //populateView(appListFilter); //Orginal fill view
-                    switcherLoad.showNext();
-                });
-            });
-        });
-    }
-
-
-   /* private class AppAdapter extends ArrayAdapter<AppInfo> {
-        private final ArrayList<AppInfo> appList = new ArrayList<>();
-
-        public AppAdapter(Context context, int position, ArrayList<AppInfo> adapterArrayList) {
-            super(context, position, adapterArrayList);
-            appList.addAll(adapterArrayList);
-        }
-
-
-
-        @NonNull
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                convertView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                        .inflate(R.layout.item_request, null);
-                holder = new ViewHolder();
-                holder.apkIcon = convertView.findViewById(R.id.IVappIcon);
-                holder.apkIconnow = convertView.findViewById(R.id.IVappIconnow);
-                holder.apkName = convertView.findViewById(R.id.TVappName);
-                holder.apkPackage = convertView.findViewById(R.id.TVappPackage);
-                holder.apkClass = convertView.findViewById(R.id.TVappClass);
-                holder.checker = convertView.findViewById(R.id.CBappSelect);
-                holder.cardBack = convertView.findViewById(R.id.card_bg);
-                holder.switcherChecked = convertView.findViewById(R.id.viewSwitcherChecked);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-
-            AppInfo appInfo = appList.get(position);
-
-            holder.apkPackage.setText(appInfo.packageName);
-            holder.apkClass.setText(appInfo.className);
-            holder.apkName.setText(appInfo.label);
-            holder.apkIcon.setImageDrawable(appInfo.icon);
-            holder.apkIconnow.setImageDrawable(appInfo.icon2);
-            if (SecondIcon) {
-                holder.apkIconnow.setVisibility(View.VISIBLE);
-            }
-
-            holder.switcherChecked.setInAnimation(null);
-            holder.switcherChecked.setOutAnimation(null);
-            holder.checker.setChecked(appInfo.selected);
-            if (appInfo.selected) {
-                holder.cardBack.setBackgroundColor(ContextCompat.getColor(context, R.color.request_card_pressed));
-                if (holder.switcherChecked.getDisplayedChild() == 0) {
-                    holder.switcherChecked.showNext();
-                }
-            } else {
-                holder.cardBack.setBackgroundColor(ContextCompat.getColor(context, R.color.request_card_unpressed));
-                if (holder.switcherChecked.getDisplayedChild() == 1) {
-                    holder.switcherChecked.showPrevious();
-                }
-            }
-            return convertView;
-        }
-
-        private class ViewHolder {
-            TextView apkName;
-            TextView apkPackage;
-            TextView apkClass;
-            ImageView apkIcon;
-            ImageView apkIconnow;
-            CheckBox checker;
-            LinearLayout cardBack;
-            ViewSwitcher switcherChecked;
-
-        }
-    }
-*/
-    private class IPackAppAdapter extends ArrayAdapter<iPackInfo> {
-        private final ArrayList<iPackInfo> appList = new ArrayList<>();
-
-        public IPackAppAdapter(Context context, int position, ArrayList<iPackInfo> adapterArrayList) {
-            super(context, position, adapterArrayList);
-            appList.addAll(adapterArrayList);
-        }
-
-        @NonNull
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            RequestActivity.IPackAppAdapter.ViewHolder holder;
-            if (convertView == null) {
-                convertView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                        .inflate(R.layout.item_iconpack, null);
-                holder = new RequestActivity.IPackAppAdapter.ViewHolder();
-                holder.apkIcon = convertView.findViewById(R.id.ipackicon);
-                holder.apkName = convertView.findViewById(R.id.ipacklabel);
-                convertView.setTag(holder);
-            } else {
-                holder = (RequestActivity.IPackAppAdapter.ViewHolder) convertView.getTag();
-            }
-
-            iPackInfo appInfo = appList.get(position);
-            holder.apkName.setText(appInfo.label);
-            holder.apkIcon.setImageDrawable(appInfo.icon);
-            return convertView;
-        }
-
-        private class ViewHolder {
-            TextView apkName;
-            ImageView apkIcon;
-        }
-    }
 }
-
