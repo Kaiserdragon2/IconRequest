@@ -52,7 +52,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
+/*
 public class CompareIPacks extends AppCompatActivity {
     private static final String TAG = "CompareActivity";
     private static final boolean DEBUG = true;
@@ -584,3 +584,5 @@ public class CompareIPacks extends AppCompatActivity {
     }
 
 }
+
+ */

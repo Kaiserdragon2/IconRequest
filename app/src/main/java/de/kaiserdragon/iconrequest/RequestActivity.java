@@ -44,6 +44,8 @@ import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -206,6 +208,12 @@ public class RequestActivity extends AppCompatActivity {
         finish();
     }
 
+
+    private RecyclerView recyclerView;
+    private AppAdapter adapter;
+    private RecyclerView.LayoutManager layoutManager;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -227,6 +235,10 @@ public class RequestActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+
+
+
+
         //if (savedInstanceState == null) {
 
         ExecutorService executors = Executors.newSingleThreadExecutor();
@@ -243,11 +255,19 @@ public class RequestActivity extends AppCompatActivity {
             }
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (OnlyNew | SecondIcon) {
-                    populateView_Ipack(IPackListFilter);
+                   // populateView_Ipack(IPackListFilter);
                 } else {
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                    populateView(appListFilter);
+                    //populateView(appListFilter);
                 }
+                recyclerView = findViewById(R.id.recycler_view);
+                recyclerView.setHasFixedSize(true);
+
+                layoutManager = new LinearLayoutManager(this);
+                recyclerView.setLayoutManager(layoutManager);
+
+                adapter = new AppAdapter(appListFilter);
+                recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
             });
         });
@@ -259,6 +279,62 @@ public class RequestActivity extends AppCompatActivity {
         //  }
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
     }
+
+
+
+
+    public static class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
+        private List<AppInfo> appList;
+
+        public AppAdapter(List<AppInfo> appList) {
+            this.appList = appList;
+        }
+
+        @NonNull
+        @Override
+        public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.app_item, parent, false);
+            return new AppViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
+            AppInfo app = appList.get(position);
+            holder.textView.setText(app.getLabel());
+            holder.imageView.setImageDrawable(app.getIcon());
+            holder.checkBox.setChecked(app.isSelected());
+        }
+
+        @Override
+        public int getItemCount() {
+            return appList.size();
+        }
+    }
+
+
+    public static class AppViewHolder extends RecyclerView.ViewHolder {
+        public TextView textView;
+        public ImageView imageView;
+        public CheckBox checkBox;
+
+        public AppViewHolder(View v) {
+            super(v);
+            textView = v.findViewById(R.id.text_view);
+            imageView = v.findViewById(R.id.image_view);
+            checkBox = v.findViewById(R.id.check_box);
+
+            checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    //AppInfo app = appList.get(position);
+                    //app.setSelected(checkBox.isChecked());
+                }
+            });
+        }
+    }
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         if (OnlyNew && !IPackChoosen) {
@@ -315,7 +391,7 @@ public class RequestActivity extends AppCompatActivity {
             appListFilter.set(i, new AppInfo(data.icon, data.icon2,
                     data.label, data.packageName, data.className, selected));
         }
-        populateView(appListFilter);
+       // populateView(appListFilter);
     }
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
@@ -704,7 +780,7 @@ public class RequestActivity extends AppCompatActivity {
             return resolveInfo.loadIcon(pm);
         }
     }
-
+/*
     private void populateView(ArrayList<AppInfo> arrayListFinal) {
         ArrayList<AppInfo> local_arrayList;
         local_arrayList = arrayListFinal;
@@ -742,12 +818,12 @@ public class RequestActivity extends AppCompatActivity {
             }
         });
     }
-
+    */
     public boolean loadDataBool(String setting) {
         SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
         return sharedPreferences.getBoolean(setting, false);
     }
-
+/*
     private void populateView_Ipack(ArrayList<iPackInfo> arrayListFinal) {
         ArrayList<iPackInfo> local_arrayList;
         local_arrayList = arrayListFinal;
@@ -781,7 +857,7 @@ public class RequestActivity extends AppCompatActivity {
     }
 
 
-    private class AppAdapter extends ArrayAdapter<AppInfo> {
+   /* private class AppAdapter extends ArrayAdapter<AppInfo> {
         private final ArrayList<AppInfo> appList = new ArrayList<>();
 
         public AppAdapter(Context context, int position, ArrayList<AppInfo> adapterArrayList) {
@@ -851,7 +927,7 @@ public class RequestActivity extends AppCompatActivity {
 
         }
     }
-
+*/
     private class IPackAppAdapter extends ArrayAdapter<iPackInfo> {
         private final ArrayList<iPackInfo> appList = new ArrayList<>();
 

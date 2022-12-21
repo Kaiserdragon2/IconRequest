@@ -36,6 +36,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    namespace 'de.kaiserdragon.iconrequest'
 }
 
 dependencies {
