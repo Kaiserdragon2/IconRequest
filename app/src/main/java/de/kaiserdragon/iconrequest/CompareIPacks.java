@@ -52,7 +52,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/*
+
 public class CompareIPacks extends AppCompatActivity {
     private static final String TAG = "CompareActivity";
     private static final boolean DEBUG = true;
@@ -62,6 +62,7 @@ public class CompareIPacks extends AppCompatActivity {
     private static ArrayList<AppInfo> appListPack1 = new ArrayList<>();
     private static ArrayList<AppInfo> appListPack2 = new ArrayList<>();
     private static String xmlString;
+    private RequestActivity.AppAdapter adapter;
     String Label1;
     String Label2;
     private ViewSwitcher switcherLoad;
@@ -92,7 +93,8 @@ public class CompareIPacks extends AppCompatActivity {
         executors.execute(() -> {
             try {
                 // if (OnlyNew | SecondIcon) {
-                prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
+                //adapter = new  RequestActivity.AppAdapter(appListAll);
+                //prepareDataIPack(); //show only apps that arent in the selectable Icon Pack
                 //  } else {
                 //     prepareData();  //show all apps
                 //  }
@@ -105,7 +107,7 @@ public class CompareIPacks extends AppCompatActivity {
 
                 TextView chooser = (TextView) findViewById(R.id.text_ipack_chooser);
                 chooser.setText("Choose your first Icon Pack");
-                populateView_Ipack(IPackListFilter, true);
+                //populateView_Ipack(IPackListFilter, true);
 
 
                 //   } else {
@@ -115,6 +117,9 @@ public class CompareIPacks extends AppCompatActivity {
                 switcherLoad.showNext();
             });
         });
+    }
+}
+        /*
 
         //} else {
         //      populateView_Ipack(IPackListFilter);

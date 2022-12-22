@@ -1,4 +1,5 @@
 package de.kaiserdragon.iconrequest;
+
 import android.graphics.drawable.Drawable;
 
 public class AppInfo {
@@ -6,8 +7,8 @@ public class AppInfo {
     public Drawable icon2;
     public String label;
     public boolean selected;
-     String packageName;
-     String className;
+    String packageName;
+    String className;
 
     public AppInfo(Drawable icon, Drawable icon2, String label, String packageName, String className, boolean selected) {
         this.icon = icon;
@@ -22,9 +23,6 @@ public class AppInfo {
         return packageName + "/" + className;
     }
 
-
-
-
     public String getLabel() {
         return label;
     }
@@ -37,12 +35,12 @@ public class AppInfo {
         return icon;
     }
 
-    public Drawable getIcon2() {
-        return icon2;
-    }
-
     public void setIcon(Drawable icon) {
         this.icon = icon;
+    }
+
+    public Drawable getIcon2() {
+        return icon2;
     }
 
     public boolean isSelected() {

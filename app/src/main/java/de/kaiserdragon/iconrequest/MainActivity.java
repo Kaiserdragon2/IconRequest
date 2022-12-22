@@ -22,6 +22,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static ArrayList<iPackInfo> appListFilter = new ArrayList<>();
     private Context context;
+    private final int updateExisting = 0;
+    private final int requestNew = 1;
+    private final int compareIconPack = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +35,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Button startNew = findViewById(R.id.start_new);
-        startNew.setOnClickListener(view -> start(false));
+        startNew.setOnClickListener(view -> start(requestNew));
 
         Button startUpdate = findViewById(R.id.start_update);
-        startUpdate.setOnClickListener(view -> start(true));
+        startUpdate.setOnClickListener(view -> start(updateExisting));
 
         Button CompareIconPacks = findViewById(R.id.CompareIconPacks);
-        CompareIconPacks.setOnClickListener(view -> startcompare());
+        CompareIconPacks.setOnClickListener(view -> start(compareIconPack));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -49,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void start(boolean update) {
+    public void start(int update) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         //if (DEBUG) Log.v(TAG, String.valueOf(getAvailableIconPacks(true)));
         //populateView(appListFilter);
