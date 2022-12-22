@@ -82,7 +82,7 @@ public class RequestActivity extends AppCompatActivity {
     private static boolean OnlyNew;
     private static boolean SecondIcon;
     private static boolean Shortcut;
-    private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
+    //private static ArrayList<AppInfo> appListFilter = new ArrayList<>();
     //private static ArrayList<AppInfo> IPackListFilter = new ArrayList<>();
     private String ImgLocation;
     private String ZipLocation;
@@ -302,7 +302,7 @@ public class RequestActivity extends AppCompatActivity {
         }
 
         public ArrayList<AppInfo> getAllSelected() {
-            ArrayList<AppInfo> arrayList = null;
+            ArrayList<AppInfo> arrayList = new ArrayList<>();
             for (AppInfo app : appList) {
                 if (app.selected)  arrayList.add(app) ;
             }
@@ -407,12 +407,10 @@ public class RequestActivity extends AppCompatActivity {
             actionSendSave();
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            actionSave();
-            actionSendText();
+            actionSendText(actionSave());
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            actionSave();
-            actionCopy();
+            actionCopy(actionSave());
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
@@ -436,9 +434,9 @@ public class RequestActivity extends AppCompatActivity {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
-    private void actionCopy() {
+    private void actionCopy(String[] array) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Icon Request", xmlString);
+        ClipData clip = ClipData.newPlainText("Icon Request", array[1]);
         clipboard.setPrimaryClip(clip);
         makeToast("Your icon request has been saved to the clipboard.");
     }
@@ -466,10 +464,10 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    private void actionSendText() {
+    private void actionSendText(String[] array) {
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, xmlString);
+        intent.putExtra(Intent.EXTRA_TEXT, array[1]);
         try {
             startActivity(Intent.createChooser(intent, null));
         } catch (Exception e) {
@@ -523,6 +521,7 @@ public class RequestActivity extends AppCompatActivity {
         if (arrayList.size() <= 0) {
             // no apps are selected
             makeToast(getString(R.string.request_toast_no_apps_selected));
+            //return new String[]{"error"};
         }
 
         StringBuilder stringBuilderEmail = new StringBuilder();
@@ -572,9 +571,11 @@ public class RequestActivity extends AppCompatActivity {
        // }
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
-        xmlString = stringBuilderXML.toString();
+        //xmlString = stringBuilderXML.toString();
+        if (updateOnly) return new String[]{zipName, stringBuilderXML.toString()};
         //write files and create zip only when needed
-        if (!updateOnly) {
+       // if (!updateOnly) {
+
             // write zip and start email intent
             try {
                 FileWriter fstream = new FileWriter(ImgLocation + "/appfilter.xml");
@@ -588,10 +589,10 @@ public class RequestActivity extends AppCompatActivity {
 
             // delete all generated files except the zip
             deleteDirectory(imgLocation);
-            if (updateOnly) {
-                deleteDirectory(zipLocation);
-            }
-        }
+            //if (updateOnly) {
+            //    deleteDirectory(zipLocation);
+            //}
+        //}
 
         return new String[]{zipName, stringBuilderEmail.toString()};
     }
@@ -745,7 +746,6 @@ public class RequestActivity extends AppCompatActivity {
 
             return collator.compare(object1.label, object2.label);
         });
-        //    appListFilter
         return arrayList;
     }
 /*
