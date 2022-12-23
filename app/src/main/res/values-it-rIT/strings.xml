@@ -25,7 +25,7 @@
     <string name="request_toast_no_apps_selected">Nessuna applicazione selezionata. Selezionane almeno una.</string>
     <string name="request_email_text">Mancano alcune icone di applicazioni sul mio dispositivo\n\n</string>
     <string name="CompareIconPacks">Confronta Pacchetti di Icone</string>
-    <string name="CompareIPacksText">Confronta due Pacchetti di Icone. Mostra applicazioni che non sono presenti nel primo pacchetto di applicazioni dal secondo pacchetto</string>
+    <string name="CompareIPacksText">Confronta due pacchetti di icone. Mostra i diversi articoli o gli articoli simili.</string>
     <string name="Experimental">Sperimentale</string>
     <string name="AppsOrShortcutWidgets">Mostra i widget di collegamento invece delle applicazioni</string>
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>

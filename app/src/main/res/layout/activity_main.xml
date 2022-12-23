@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:insetTop="10dp"
-                android:insetBottom="5dp"
+                android:insetBottom="10dp"
                 android:paddingStart="20dp"
                 android:paddingLeft="20dp"
                 android:paddingEnd="20dp"
