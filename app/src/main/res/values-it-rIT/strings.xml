@@ -29,6 +29,12 @@
     <string name="Experimental">Sperimentale</string>
     <string name="AppsOrShortcutWidgets">Mostra i widget di collegamento invece delle applicazioni</string>
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
-    <string name="checkIconPack">Controlla il pacchetto di icone per le voci duplicate</string>
+    <string name="checkIconPack">Controlla il pacchetto di icone per le voci duplicate o le voci con l\'icona mancante</string>
     <string name="checkButton">verificare</string>
+    <string name="MessageDialogCompare">Seleziona come vuoi confrontare i pacchetti di icone</string>
+    <string name="difference">Mostra differenze</string>
+    <string name="similarities">Mostra somiglianze</string>
+    <string name="MessageDialogCheck">Controlla il pacchetto di icone per voci duplicate o voci con icone mancanti.</string>
+    <string name="duplicate">Controlla i duplicati</string>
+    <string name="missingIcon">Controlla l\'icona mancante</string>
 </resources>

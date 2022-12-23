@@ -8,8 +8,8 @@ android {
         applicationId 'de.kaiserdragon.iconrequest'
         minSdkVersion 21
         targetSdkVersion 31
-        versionName "1.9.6"
-        versionCode 14
+        versionName "2.0.0"
+        versionCode 15
     }
 
     buildTypes {

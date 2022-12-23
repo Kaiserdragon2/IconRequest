@@ -1,8 +1,6 @@
 package de.kaiserdragon.iconrequest;
 
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,15 +8,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private final int requestNew = 1;
     private final int compareIconPack_diff = 2;
     private final int compareIconPack_sim = 3;
+    private final int check_duplicate = 4;
+    private final int check_missing_icon = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +39,10 @@ public class MainActivity extends AppCompatActivity {
         startUpdate.setOnClickListener(view -> start(updateExisting));
 
         Button CompareIconPacks = findViewById(R.id.CompareIconPacks);
-        CompareIconPacks.setOnClickListener(view -> setDialog());
+        CompareIconPacks.setOnClickListener(view -> setDialog(getString(R.string.CompareIconPacks), getString(R.string.MessageDialogCompare), getString(R.string.difference), getString(R.string.similarities), compareIconPack_diff, compareIconPack_sim));
 
         Button check = findViewById(R.id.CheckIconPack);
-        check.setOnClickListener(view -> start(4));
+        check.setOnClickListener(view -> setDialog(getString(R.string.checkButton), getString(R.string.MessageDialogCheck), getString(R.string.duplicate), getString(R.string.missingIcon), check_duplicate, check_missing_icon));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -57,10 +54,13 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public void setDialog() {
+    public void setDialog(String title, String message, String button1text, String button2text, int opt1, int opt2) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.CompareIconPacks));
-        builder.setMessage("Select how you want to compare the icon packs");
+        View view_title = getLayoutInflater().inflate(R.layout.dialog_title, null);
+        builder.setCustomTitle(view_title);
+        TextView text_title = view_title.findViewById(R.id.title_text);
+        text_title.setText(title);
+        builder.setMessage(message);
 
         // Set the layout for the dialog
         View view = getLayoutInflater().inflate(R.layout.dialog, null);
@@ -68,21 +68,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Set custom buttons for the dialog
         Button button1 = view.findViewById(R.id.button1);
-        button1.setText("Show differences");
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                start(compareIconPack_diff);
-            }
-        });
+        button1.setText(button1text);
+        button1.setOnClickListener(v -> start(opt1));
         Button button2 = view.findViewById(R.id.button2);
-        button2.setText("Show similarities");
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                start(compareIconPack_sim);
-            }
-        });
+        button2.setText(button2text);
+        button2.setOnClickListener(v -> start(opt2));
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -90,9 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void start(int update) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
-        //if (DEBUG) Log.v(TAG, String.valueOf(getAvailableIconPacks(true)));
-        //populateView(appListFilter);
-
         intent.putExtra("update", update);
         intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".RequestActivity"));
         startActivity(intent);
