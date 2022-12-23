@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <files-path
-        name="Icons"
-        path="/Icons" />
+    <files-path name="share" path="share/" />
 </paths>

@@ -52,6 +52,16 @@
     <string name="Experimental">Experimental</string>
     <string name="AppsOrShortcutWidgets">Show shortcut widgets insted of apps</string>
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
+    <string name="checkIconPack">Check the icon pack for duplicate entries or entries with missing icon</string>
+    <string name="checkButton">Check</string>
+    <string name="buttondialog1" translatable="false">buttondialog1</string>
+    <string name="buttondialog2" translatable="false">buttondialog2</string>
+    <string name="MessageDialogCompare">Select how you want to compare the icon packs</string>
+    <string name="difference">Show differences</string>
+    <string name="similarities">Show similarities</string>
+    <string name="MessageDialogCheck">Check icon pack for duplicate entries or entries with a missing icons.</string>
+    <string name="duplicate">Check for duplicates</string>
+    <string name="missingIcon">Check for missing icon</string>
 
 
 </resources>

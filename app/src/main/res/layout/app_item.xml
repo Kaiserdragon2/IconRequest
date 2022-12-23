@@ -1,0 +1,65 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ViewSwitcher
+        android:id="@+id/SwitcherChecked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/icon_view"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/IconDescriber"
+            android:padding="10dp" />
+
+        <ImageView
+            android:id="@+id/checkmark"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:contentDescription="@string/IconSelectDescriber"
+            android:layerType="none"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/ic_check"
+            app:tint="?android:attr/colorForeground" />
+
+    </ViewSwitcher>
+    <ImageView
+        android:id="@+id/apkicon_view"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone"
+        android:contentDescription="@string/IconDescriber"
+        android:padding="10dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/label_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/packagename_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/classname_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

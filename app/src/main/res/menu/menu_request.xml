@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_copy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="true"
+        android:icon="?attr/actionModeCopyDrawable"
+        android:title="@string/copy"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_sharetext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="true"
+        android:icon="?attr/actionModeShareDrawable"
+        android:title="@string/share"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_save"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_save_24"
+        android:title="@string/save"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_share"
+        android:enabled="true"
+        android:icon="?attr/actionModeShareDrawable"
+        android:title="@string/share_file"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/selectall"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@android:string/selectAll"
+        app:buttonTint="?attr/colorOnPrimary"
+        app:showAsAction="never" />
+</menu>
