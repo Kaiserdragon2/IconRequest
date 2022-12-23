@@ -57,12 +57,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
@@ -73,7 +71,7 @@ public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final boolean DEBUG = true;
     private static  final ArrayList<AppInfo> appListAll = new ArrayList<>();
-    private static boolean updateOnly;
+    private static boolean updateOnly = false;
     private static int mode;
     private static boolean OnlyNew;
     private static boolean SecondIcon;
@@ -106,7 +104,8 @@ public class RequestActivity extends AppCompatActivity {
     private ArrayList <AppInfo> compare(){
         ArrayList<AppInfo> newList = new ArrayList<>();
         ArrayList<AppInfo> Listdopp = new ArrayList<>();
-        if (false) {
+
+        if (mode == 2) {
             for (AppInfo appInfo : appListAll) {
                 if (newList.contains(appInfo)) {
                     newList.remove(appInfo);
@@ -114,18 +113,35 @@ public class RequestActivity extends AppCompatActivity {
             }
             return sort(newList);
         }
-        for (AppInfo appInfo : appListAll) {
-            if (!newList.contains(appInfo)) {
-                newList.add(appInfo);
-            }else {
-                AppInfo geticon = newList.get(newList.indexOf(appInfo));  //get the element by passing the index of the element
-                Drawable icon2 = geticon.icon;
-                appInfo.icon2 = icon2;
-                Listdopp.add(appInfo);
+        if (mode == 3) {
+            for (AppInfo appInfo : appListAll) {
+                if (!newList.contains(appInfo)) {
+                    newList.add(appInfo);
+                } else {
+                    AppInfo geticon = newList.get(newList.indexOf(appInfo));  //get the element by passing the index of the element
+                    Drawable icon2 = geticon.icon;
+                    appInfo.icon2 = icon2;
+                    Listdopp.add(appInfo);
+                }
             }
-        }
 
-        return sort(Listdopp);
+            return sort(Listdopp);
+        }
+        if (mode == 4) {
+            for (AppInfo appInfo : appListAll) {
+                if (!newList.contains(appInfo)) {
+                    newList.add(appInfo);
+                } else {
+                    AppInfo geticon = newList.get(newList.indexOf(appInfo));  //get the element by passing the index of the element
+                    Drawable icon2 = geticon.icon;
+                    appInfo.icon2 = icon2;
+                    Listdopp.add(appInfo);
+                }
+            }
+
+            return sort(Listdopp);
+        }
+        return null;
     }
 
     private ArrayList <AppInfo> sort(ArrayList <AppInfo> chaos){
@@ -158,6 +174,7 @@ public class RequestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         appListAll.clear();
         mode = getIntent().getIntExtra("update", 0);
+        updateOnly = false;
         if (mode == 0) updateOnly = true;
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
@@ -175,11 +192,11 @@ public class RequestActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-
-        if (OnlyNew | SecondIcon | mode == 2) {
+        if (OnlyNew || SecondIcon || (mode >= 2 && mode <= 4)) {
             adapter = new AppAdapter(prepareData(true));
+
         } else adapter = new AppAdapter(prepareData(false)); //show all apps
-        if (!OnlyNew && !SecondIcon && mode != 2) findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+        if (!OnlyNew && !SecondIcon && (mode < 2 || mode > 4)) findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
         recyclerView.setAdapter(adapter);
         switcherLoad.showNext();
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
@@ -195,14 +212,14 @@ public class RequestActivity extends AppCompatActivity {
                 parseXML(packageName);
                 if (DEBUG) Log.v(TAG, packageName);
                 //appListFilter = prepareData();
-                if (mode != 2) adapter = new AppAdapter(prepareData(false));
+                if (mode<2 || mode >4) adapter = new AppAdapter(prepareData(false));
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             new Handler(Looper.getMainLooper()).post(() -> {
-                if (mode !=2 | firstrun ){
+                if (mode !=2 && mode !=3 || firstrun ){
                     adapter = new AppAdapter(compare());
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                     IPackChoosen = true;
@@ -217,13 +234,26 @@ public class RequestActivity extends AppCompatActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (OnlyNew && !IPackChoosen) {
+        if ((OnlyNew || mode ==2 || mode ==3 ||mode ==4)&& !IPackChoosen) {
             getMenuInflater().inflate(R.menu.menu_iconpack_chooser, menu);
         } else {
-            if (updateOnly) {
-                getMenuInflater().inflate(R.menu.menu_request_update, menu);
-            } else {
-                getMenuInflater().inflate(R.menu.menu_request_new, menu);
+            getMenuInflater().inflate(R.menu.menu_request, menu);
+            MenuItem save = menu.findItem(R.id.action_save);
+            MenuItem share = menu.findItem(R.id.action_share);
+            MenuItem share_text = menu.findItem(R.id.action_sharetext);
+            MenuItem copy = menu.findItem(R.id.action_copy);
+
+
+            if (updateOnly || mode ==2 || mode == 3 || mode ==4) {
+                save.setVisible(false);
+                share.setVisible(false);
+                share_text.setVisible(true);
+                copy.setVisible(true);
+            }else{
+                share_text.setVisible(false);
+                copy.setVisible(false);
+                save.setVisible(true);
+                share.setVisible(true);
             }
         }
         return true;
@@ -246,12 +276,7 @@ public class RequestActivity extends AppCompatActivity {
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
-            //todo checkAll
         } else if (item.getItemId() == R.id.selectall) {
-            item.setChecked(!item.isChecked());
-            adapter.setAllSelected(item.isChecked());
-            return true;
-        } else if (item.getItemId() == R.id.selectallnew) {
             adapter.setAllSelected(!item.isChecked());
             item.setChecked(!item.isChecked());
             return true;
@@ -474,7 +499,7 @@ public class RequestActivity extends AppCompatActivity {
                                         String xmlPackage = xmlCode[0].substring(14);
                                         String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
                                         Drawable icon = null;
-                                        if (SecondIcon | mode ==2) {
+                                        if (SecondIcon || (mode >= 2 && mode <= 4)) {
                                             if (xmlLabel != null)
                                                 icon = loadDrawable(xmlLabel, iconPackres, packageName);
                                         }
@@ -613,7 +638,7 @@ public class RequestActivity extends AppCompatActivity {
             holder.imageView.setImageDrawable(app.getIcon());
             if (app.selected) holder.checkBox.setDisplayedChild(1);
             else holder.checkBox.setDisplayedChild(0);
-            if (SecondIcon && IPackChoosen) {
+            if ((SecondIcon || mode ==3 || mode == 4) && IPackChoosen && !(mode ==2)) {
                 holder.apkIconView.setVisibility(View.VISIBLE);
                 holder.apkIconView.setImageDrawable(app.getIcon2());
             }
@@ -652,7 +677,7 @@ public class RequestActivity extends AppCompatActivity {
                     int position = getAdapterPosition();
                     AppInfo app = appList.get(position);
                     app.setSelected(!app.isSelected());
-                    if (!IPackChoosen && (OnlyNew || SecondIcon|| mode == 2 )) IPackSelect(app.packageName);
+                    if (!IPackChoosen && (OnlyNew || SecondIcon|| (mode >= 2 && mode <= 4))) IPackSelect(app.packageName);
                     Animation aniIn = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_1);
                     Animation aniOut = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_2);
                     checkBox.setInAnimation(aniIn);

@@ -29,4 +29,6 @@
     <string name="Experimental">Sperimentale</string>
     <string name="AppsOrShortcutWidgets">Mostra i widget di collegamento invece delle applicazioni</string>
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
+    <string name="checkIconPack">Controlla il pacchetto di icone per le voci duplicate</string>
+    <string name="checkButton">verificare</string>
 </resources>

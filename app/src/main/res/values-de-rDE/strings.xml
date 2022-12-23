@@ -29,4 +29,6 @@
     <string name="AppsOrShortcutWidgets">Zeige Verknuepfungswidgets anstatt Apps</string>
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
     <string name="icon_new">Wahle diese Option wenn du ein neues Icon einreichen moechtest. Du wirst eine Datei mit deiner Anfrage mitsenden.</string>
+    <string name="checkIconPack">Prüfe das Icon Pack auf doppelte Einträge</string>
+    <string name="checkButton">Prüfe</string>
 </resources>
