@@ -225,7 +225,8 @@ public class RequestActivity extends AppCompatActivity {
 
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (mode != 2 && mode != 3 || firstrun) {
-                    adapter = new AppAdapter(compare());
+                    if (DEBUG) Log.v(TAG,"Wahh");
+                    if (!(mode <=1))adapter = new AppAdapter(compare());
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                     IPackChoosen = true;
                     invalidateOptionsMenu();
