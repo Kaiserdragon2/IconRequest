@@ -92,9 +92,8 @@ public class RequestActivity extends AppCompatActivity {
             for (File file : files) {
                 if (file.isDirectory()) {
                     deleteDirectory(file);
-                } else {
-                    file.delete();
-                }
+                } else file.delete();
+
             }
         }
         path.delete();
@@ -296,17 +295,16 @@ public class RequestActivity extends AppCompatActivity {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean actionCopy(String[] array) {
-        if (array[0] == null) return false;
+    private void actionCopy(String[] array) {
+        if (array[0] == null) return;
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Icon Request", array[1]);
         clipboard.setPrimaryClip(clip);
         makeToast("Your icon request has been saved to the clipboard.");
-        return true;
     }
 
-    private boolean actionSend(String[] array) {
-        if (array[0] == null) return false;
+    private void actionSend(String[] array) {
+        if (array[0] == null) return;
         final File ZipLocation = new File(context.getFilesDir() + "/share");
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("application/zip");
@@ -335,11 +333,10 @@ public class RequestActivity extends AppCompatActivity {
             makeToast(getString(R.string.no_email_clients));
             e.printStackTrace();
         }
-        return true;
     }
 
-    private boolean actionSendText(String[] array) {
-        if (array[0] == null) return false;
+    private void actionSendText(String[] array) {
+        if (array[0] == null) return;
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, array[1]);
@@ -349,11 +346,10 @@ public class RequestActivity extends AppCompatActivity {
             makeToast(getString(R.string.no_email_clients));
             e.printStackTrace();
         }
-        return true;
     }
 
-    private boolean actionSaveext(String[] array, ActivityResult result) {
-        if (array[0] == null) return false;
+    private void actionSaveext(String[] array, ActivityResult result) {
+        if (array[0] == null) return;
         if (DEBUG) Log.i(TAG, String.valueOf(result));
         Intent data = result.getData();
         if (data != null) {
@@ -367,7 +363,6 @@ public class RequestActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        return true;
     }
 
     private void actionSendSave() {
@@ -662,12 +657,12 @@ public class RequestActivity extends AppCompatActivity {
     }
 
     public class AppViewHolder extends RecyclerView.ViewHolder {
-        public TextView labelView;
-        public TextView packageNameView;
-        public TextView classNameView;
-        public ImageView imageView;
-        public ImageView apkIconView;
-        public ViewSwitcher checkBox;
+        public final TextView labelView;
+        public final TextView packageNameView;
+        public final TextView classNameView;
+        public final ImageView imageView;
+        public final ImageView apkIconView;
+        public final ViewSwitcher checkBox;
 
         public AppViewHolder(View v, List<AppInfo> appList) {
             super(v);

@@ -7,8 +7,8 @@ public class AppInfo {
     public Drawable icon2;
     public String label;
     public boolean selected;
-    String packageName;
-    String className;
+    final String packageName;
+    final String className;
 
     public AppInfo(Drawable icon, Drawable icon2, String label, String packageName, String className, boolean selected) {
         this.icon = icon;
@@ -33,10 +33,6 @@ public class AppInfo {
 
     public Drawable getIcon() {
         return icon;
-    }
-
-    public void setIcon(Drawable icon) {
-        this.icon = icon;
     }
 
     public Drawable getIcon2() {
