@@ -208,36 +208,41 @@ public class RequestActivity extends AppCompatActivity {
     }
 
     public void IPackSelect(String packageName) {
-
         switcherLoad.showNext();
-        ExecutorService executors = Executors.newSingleThreadExecutor();
-        executors.execute(() -> {
-            Looper.prepare();
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.execute(() -> {
             try {
                 parseXML(packageName);
                 if (DEBUG) Log.v(TAG, packageName);
-                //appListFilter = prepareData();
-                if (mode < 2 || mode > 5) adapter = new AppAdapter(prepareData(false));
 
+                if (mode < 2 || mode > 5) {
+                    adapter = new AppAdapter(prepareData(false));
+                }
+                if (mode > 1 && (mode != 2 && mode != 3 || firstrun) ) {
+                    adapter = new AppAdapter(compare());
+                    recyclerView.setAdapter(adapter);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            new Handler(Looper.getMainLooper()).post(() -> {
+            runOnUiThread(() -> {
                 if (mode != 2 && mode != 3 || firstrun) {
-                    if (DEBUG) Log.v(TAG,"Wahh");
-                    if (!(mode <=1))adapter = new AppAdapter(compare());
+                    if (DEBUG) Log.v(TAG, "Wahh");
+
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                     IPackChoosen = true;
                     invalidateOptionsMenu();
                 }
                 firstrun = true;
-                recyclerView.setAdapter(adapter);
-                switcherLoad.showNext();
 
+                switcherLoad.showNext();
             });
         });
     }
+
+
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         if ((OnlyNew || (mode >= 2 && mode <= 5)) && !IPackChoosen) {
