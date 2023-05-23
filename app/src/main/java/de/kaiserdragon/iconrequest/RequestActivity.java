@@ -544,6 +544,7 @@ public class RequestActivity extends AppCompatActivity {
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Intent intent;
+
         if (iPack) {
             intent = new Intent("org.adw.launcher.THEMES", null);
         } else if (Shortcut) {
@@ -555,36 +556,37 @@ public class RequestActivity extends AppCompatActivity {
         }
 
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
-        Iterator<ResolveInfo> localIterator = list.iterator();
+
         if (DEBUG) Log.v(TAG, "list size: " + list.size());
 
-        for (int i = 0; i < list.size(); i++) {
-            ResolveInfo resolveInfo = localIterator.next();
+        for (ResolveInfo resolveInfo : list) {
             Drawable icon1 = getHighResIcon(pm, resolveInfo);
             AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
 
             if (SecondIcon && !iPack) {
                 Drawable icon2 = null;
-                if (appListAll.contains(appInfo)) { //check if the list contains the element
-                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));  //get the element by passing the index of the element
+                if (appListAll.contains(appInfo)) {
+                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));
                     icon2 = geticon.icon;
                 }
                 appInfo = new AppInfo(icon1, icon2, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
             }
 
             if (OnlyNew && !iPack) {
-                // filter out apps that are already included
                 if (!appListAll.contains(appInfo)) {
                     arrayList.add(appInfo);
                     if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
                 } else {
                     if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
                 }
-            } else arrayList.add(appInfo);
-
+            } else {
+                arrayList.add(appInfo);
+            }
         }
+
         return sort(arrayList);
     }
+
 
     private Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
 
