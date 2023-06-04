@@ -196,14 +196,19 @@ public class RequestActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        if (OnlyNew || SecondIcon || (mode >= 2 && mode <= 5)) {
-            adapter = new AppAdapter(prepareData(true));
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.execute(() -> {
+            if (OnlyNew || SecondIcon || (mode >= 2 && mode <= 5)) {
+                adapter = new AppAdapter(prepareData(true));
+            } else adapter = new AppAdapter(prepareData(false)); //show all apps
+            runOnUiThread(() -> {
+                if (!OnlyNew && !SecondIcon && (mode < 2 || mode > 5))
+                    findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                recyclerView.setAdapter(adapter);
+                switcherLoad.showNext();
 
-        } else adapter = new AppAdapter(prepareData(false)); //show all apps
-        if (!OnlyNew && !SecondIcon && (mode < 2 || mode > 5))
-            findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-        recyclerView.setAdapter(adapter);
-        switcherLoad.showNext();
+            });
+        });
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
     }
 
