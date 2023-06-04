@@ -218,24 +218,22 @@ public class RequestActivity extends AppCompatActivity {
                 if (mode < 2 || mode > 5) {
                     adapter = new AppAdapter(prepareData(false));
                 }
-                if (mode > 1 && (mode != 2 && mode != 3 || firstrun) ) {
+                if (!(mode <= 1) && (mode != 2 && mode != 3 ||firstrun))  {
                     adapter = new AppAdapter(compare());
-                    recyclerView.setAdapter(adapter);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             runOnUiThread(() -> {
+                // Show IPack chooser a second Time
                 if (mode != 2 && mode != 3 || firstrun) {
-                    if (DEBUG) Log.v(TAG, "Wahh");
-
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                     IPackChoosen = true;
                     invalidateOptionsMenu();
                 }
                 firstrun = true;
-
+                recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
             });
         });
