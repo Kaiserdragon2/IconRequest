@@ -15,8 +15,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,7 +55,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -223,7 +220,7 @@ public class RequestActivity extends AppCompatActivity {
                 if (mode < 2 || mode > 5) {
                     adapter = new AppAdapter(prepareData(false));
                 }
-                if (!(mode <= 1) && (mode != 2 && mode != 3 ||firstrun))  {
+                if (!(mode <= 1) && (mode != 2 && mode != 3 || firstrun)) {
                     adapter = new AppAdapter(compare());
                 }
             } catch (Exception e) {
@@ -243,8 +240,6 @@ public class RequestActivity extends AppCompatActivity {
             });
         });
     }
-
-
 
 
     public boolean onCreateOptionsMenu(Menu menu) {
