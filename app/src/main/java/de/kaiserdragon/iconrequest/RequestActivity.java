@@ -394,7 +394,6 @@ public class RequestActivity extends AppCompatActivity {
         ZipOutputStream zos = new ZipOutputStream(baos);
 
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
-        if (arrayList.size() <= 0) {
         if (arrayList.size() == 0) {
             // no apps are selected
             makeToast(getString(R.string.request_toast_no_apps_selected));
