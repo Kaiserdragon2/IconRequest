@@ -395,6 +395,7 @@ public class RequestActivity extends AppCompatActivity {
 
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
         if (arrayList.size() <= 0) {
+        if (arrayList.size() == 0) {
             // no apps are selected
             makeToast(getString(R.string.request_toast_no_apps_selected));
             return new String[]{null};
@@ -510,18 +511,21 @@ public class RequestActivity extends AppCompatActivity {
                             if (name.equals("item")) {
                                 try {
                                     String xmlLabel = xpp.getAttributeValue(null, "drawable");
-                                    String xmlComponent = xpp.getAttributeValue(null, "component");
+                                    if (xmlLabel != null) {
+                                        String xmlComponent = xpp.getAttributeValue(null, "component");
+                                        if (xmlComponent != null) {
 
-                                    String[] xmlCode = xmlComponent.split("/");
-                                    if (xmlCode.length > 1) {
-                                        String xmlPackage = xmlCode[0].substring(14);
-                                        String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                        Drawable icon = null;
-                                        if (SecondIcon || (mode >= 2 && mode <= 5)) {
-                                            if (xmlLabel != null)
-                                                icon = loadDrawable(xmlLabel, iconPackres, packageName);
+                                            String[] xmlCode = xmlComponent.split("/");
+                                            if (xmlCode.length > 1) {
+                                                String xmlPackage = xmlCode[0].substring(14);
+                                                String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
+                                                Drawable icon = null;
+                                                if (SecondIcon || (mode >= 2 && mode <= 5)) {
+                                                    icon = loadDrawable(xmlLabel, iconPackres, packageName);
+                                                }
+                                                appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
+                                            }
                                         }
-                                        appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
