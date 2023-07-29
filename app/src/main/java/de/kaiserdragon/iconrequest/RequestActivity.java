@@ -201,6 +201,9 @@ public class RequestActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 if (!OnlyNew && !SecondIcon && (mode < 2 || mode > 5))
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                if(adapter.AdapterSize() < 1){
+                    findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
+                }
                 recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
 
@@ -567,14 +570,14 @@ public class RequestActivity extends AppCompatActivity {
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
 
         if (list.size() < 1){
-            iPack = false;
             OnlyNew =false;
             SecondIcon=false;
-            if (Shortcut) {
+            iPack = false;
+            if (Shortcut && mode <= 1) {
                 intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
                 intent.addCategory("android.intent.category.DEFAULT");
             }
-                else {
+            else if ( mode <= 1 ){
                     intent = new Intent("android.intent.action.MAIN", null);
                     intent.addCategory("android.intent.category.LAUNCHER");
                 }
