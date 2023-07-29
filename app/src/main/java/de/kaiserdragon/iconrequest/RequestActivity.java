@@ -235,6 +235,9 @@ public class RequestActivity extends AppCompatActivity {
                     invalidateOptionsMenu();
                 }
                 firstrun = true;
+                if(adapter.AdapterSize() < 1){
+                    findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
+                }
                 recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
             });
@@ -563,6 +566,21 @@ public class RequestActivity extends AppCompatActivity {
 
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
 
+        if (list.size() < 1){
+            iPack = false;
+            OnlyNew =false;
+            SecondIcon=false;
+            if (Shortcut) {
+                intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
+                intent.addCategory("android.intent.category.DEFAULT");
+            }
+                else {
+                    intent = new Intent("android.intent.action.MAIN", null);
+                    intent.addCategory("android.intent.category.LAUNCHER");
+                }
+            list = pm.queryIntentActivities(intent, 0);
+        }
+
         if (DEBUG) Log.v(TAG, "list size: " + list.size());
 
         for (ResolveInfo resolveInfo : list) {
@@ -622,6 +640,9 @@ public class RequestActivity extends AppCompatActivity {
 
         public AppAdapter(List<AppInfo> appList) {
             this.appList = appList;
+        }
+        public int AdapterSize(){
+            return this.appList.size();
         }
 
         public ArrayList<AppInfo> getAllSelected() {

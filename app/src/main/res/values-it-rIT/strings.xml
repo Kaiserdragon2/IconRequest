@@ -37,4 +37,5 @@
     <string name="MessageDialogCheck">Controlla il pacchetto di icone per voci duplicate o voci con icone mancanti.</string>
     <string name="duplicate">Controlla i duplicati</string>
     <string name="missingIcon">Controlla l\'icona mancante</string>
+    <string name="nothing">Niente da mostrare qui</string>
 </resources>

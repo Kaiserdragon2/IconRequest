@@ -37,4 +37,5 @@
     <string name="MessageDialogCheck">Prüfe das Icon Pack auf doppelte Einträge oder auf Einträge mit fehlendem Icon</string>
     <string name="duplicate">Prüfe auf Duplikate</string>
     <string name="missingIcon">Prüfe auf fehlendes Icon</string>
+    <string name="nothing">Nichts zu sehen hier</string>
 </resources>
