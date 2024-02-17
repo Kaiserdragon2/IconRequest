@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -165,12 +166,6 @@ public class RequestActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (DEBUG) Log.v(TAG, "onBackPressed");
-        finish();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -182,6 +177,15 @@ public class RequestActivity extends AppCompatActivity {
         SecondIcon = loadDataBool("SettingRow");
         Shortcut = loadDataBool("Shortcut");
         firstrun = false;
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Back is pressed... Finishing the activity
+                if (DEBUG) Log.v(TAG, "onBackPressed");
+                finish();
+            }
+        });
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
