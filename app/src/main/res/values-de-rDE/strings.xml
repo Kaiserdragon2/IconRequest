@@ -38,4 +38,5 @@
     <string name="duplicate">Prüfe auf Duplikate</string>
     <string name="missingIcon">Prüfe auf fehlendes Icon</string>
     <string name="nothing">Nichts zu sehen hier</string>
+    <string name="search">Suche</string>
 </resources>

@@ -33,6 +33,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 import androidx.core.content.FileProvider;
@@ -249,6 +250,8 @@ public class RequestActivity extends AppCompatActivity {
 
 
     public boolean onCreateOptionsMenu(Menu menu) {
+
+
         if ((OnlyNew || (mode >= 2 && mode <= 5)) && !IPackChoosen) {
             getMenuInflater().inflate(R.menu.menu_iconpack_chooser, menu);
         } else {
@@ -257,6 +260,9 @@ public class RequestActivity extends AppCompatActivity {
             MenuItem share = menu.findItem(R.id.action_share);
             MenuItem share_text = menu.findItem(R.id.action_sharetext);
             MenuItem copy = menu.findItem(R.id.action_copy);
+            MenuItem searchItem = menu.findItem(R.id.action_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
+
 
 
             if (updateOnly || (mode >= 2 && mode <= 5)) {
@@ -270,7 +276,27 @@ public class RequestActivity extends AppCompatActivity {
                 save.setVisible(true);
                 share.setVisible(true);
             }
+            // Set up search functionality
+            assert searchView != null;
+
+            searchView.setMaxWidth(700);
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    // Handle search query submission
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    // Handle search query text change
+                    adapter.filter(newText);
+                    return true;
+                }
+            });
         }
+
+
         return true;
     }
 
@@ -640,10 +666,28 @@ public class RequestActivity extends AppCompatActivity {
 
     public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         private final List<AppInfo> appList;
+        private List<AppInfo> filteredList;
 
         public AppAdapter(List<AppInfo> appList) {
             this.appList = appList;
+            this.filteredList = new ArrayList<>(appList);
         }
+
+        public void filter(String query) {
+            filteredList.clear();
+            if (query.isEmpty()) {
+                filteredList.addAll(appList);
+            } else {
+                String lowerCaseQuery = query.toLowerCase(Locale.getDefault());
+                for (AppInfo app : appList) {
+                    if (app.getLabel().toLowerCase(Locale.getDefault()).contains(lowerCaseQuery)) {
+                        filteredList.add(app);
+                    }
+                }
+            }
+            notifyDataSetChanged();
+        }
+
         public int AdapterSize(){
             return this.appList.size();
         }
@@ -663,17 +707,18 @@ public class RequestActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
+
         @NonNull
         @Override
         public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_item, parent, false);
-            return new AppViewHolder(v, appList);
+            return new AppViewHolder(v, filteredList);
         }
 
 
         @Override
         public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
-            AppInfo app = appList.get(position);
+            AppInfo app = filteredList.get(position);
             holder.labelView.setText(app.getLabel());
             holder.packageNameView.setText(app.packageName);
             holder.classNameView.setText(app.className);
@@ -689,7 +734,7 @@ public class RequestActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return appList.size();
+            return filteredList.size();
         }
     }
 

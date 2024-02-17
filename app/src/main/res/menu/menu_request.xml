@@ -2,12 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_copy"
+        android:id="@+id/action_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="true"
-        android:icon="?attr/actionModeCopyDrawable"
-        android:title="@string/copy"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_sharetext"
@@ -16,18 +17,27 @@
         android:enabled="true"
         android:icon="?attr/actionModeShareDrawable"
         android:title="@string/share"
+        android:visible="true"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/action_copy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_save_24"
-        android:title="@string/save"
+        android:icon="?attr/actionModeCopyDrawable"
+        android:title="@string/copy"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_share"
         android:enabled="true"
         android:icon="?attr/actionModeShareDrawable"
         android:title="@string/share_file"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_save"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_save_24"
+        android:title="@string/save"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/selectall"

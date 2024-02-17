@@ -63,6 +63,7 @@
     <string name="duplicate">Check for duplicates</string>
     <string name="missingIcon">Check for missing icon</string>
     <string name="nothing">Nothing to show here</string>
+    <string name="search">search</string>
 
 
 </resources>
