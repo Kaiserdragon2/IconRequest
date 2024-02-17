@@ -7,7 +7,7 @@ With this app you can share (via email, or other protocols like Owncloud, NFC, B
 the data for adding the icons missing in your icon pack.
 It just collects the app title, package name, activity name and the icon file without any theme of the apps you select.
 
-[<img src="https://camo.githubusercontent.com/35b4ec18c762358fb784f9e973f77cf6eb596f2240e69a4c6c093a836655d889/68747470733a2f2f692e6962622e636f2f71306d6463345a2f6765742d69742d6f6e2d6769746875622e706e67" alt="Get it on F-Droid" height="90">](https://github.com/Kaiserdragon2/IconRequest/releases) [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="90">](https://play.google.com/store/apps/details?id=de.kaiserdragon.iconrequest)<br>
+[<img src="docs/github_badge.png" alt="Get it on Github" height="90">](https://github.com/Kaiserdragon2/IconRequest/releases) [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="90">](https://play.google.com/store/apps/details?id=de.kaiserdragon.iconrequest)<br>
 [<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="90">](https://apt.izzysoft.de/fdroid/index/apk/de.kaiserdragon.iconrequest) [<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/AppGallery.png" alt="Get it on AppGallery" height="90">](https://appgallery.cloud.huawei.com/ag/n/app/C105875353?channelId=Github&id=274d18ba80fd41cb89a79e245a800805&s=5393CD4313043EAB59AC2E9FFAC623D7DF0EC49826C7B9D9F95A932AD1665906&detailType=0&v=&callType=AGDLINK&installType=0000)
 ## Features
 - save request as zipfile on your device
