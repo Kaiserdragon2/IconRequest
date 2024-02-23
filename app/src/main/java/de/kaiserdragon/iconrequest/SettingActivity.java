@@ -1,11 +1,9 @@
 package de.kaiserdragon.iconrequest;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.text.method.LinkMovementMethod;
@@ -26,7 +24,7 @@ public class SettingActivity extends AppCompatActivity {
         TextView PolicyView =  findViewById(R.id.PrivacyPolicy);
         PolicyView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        switch (loadData("DarkModeState")) {
+        switch (SettingsHelper.loadData("DarkModeState",this)) {
             case -1:
                 ((RadioGroup) findViewById(R.id.RadioTheme)).check(R.id.radioDefault);
                 break;
@@ -38,10 +36,10 @@ public class SettingActivity extends AppCompatActivity {
                 break;
         }
 
-        ((CheckBox) findViewById(R.id.checkBoxRows)).setChecked(loadDataBool("SettingRow"));
-        ((CheckBox) findViewById(R.id.checkBoxOnly)).setChecked(loadDataBool("SettingOnlyNew"));
-        ((CheckBox) findViewById(R.id.checkShortcut)).setChecked(loadDataBool("Shortcut"));
-        ((CheckBox) findViewById(R.id.checkActionMain)).setChecked(loadDataBool("ActionMain"));
+        ((CheckBox) findViewById(R.id.checkBoxRows)).setChecked(SettingsHelper.loadDataBool("SettingRow",this));
+        ((CheckBox) findViewById(R.id.checkBoxOnly)).setChecked(SettingsHelper.loadDataBool("SettingOnlyNew",this));
+        ((CheckBox) findViewById(R.id.checkShortcut)).setChecked(SettingsHelper.loadDataBool("Shortcut",this));
+        ((CheckBox) findViewById(R.id.checkActionMain)).setChecked(SettingsHelper.loadDataBool("ActionMain",this));
 
 
         Button setDark = findViewById(R.id.radioDark);
@@ -71,46 +69,22 @@ public class SettingActivity extends AppCompatActivity {
 
     public void start(View view, int update) {
         if (update != 0) {
-            saveData("DarkModeState", update);
+            SettingsHelper.saveData("DarkModeState", update,this);
             AppCompatDelegate.setDefaultNightMode(update);
         } else {
             if (view == (CheckBox) findViewById(R.id.checkBoxRows)) {
-                saveDataBool("SettingRow", ((CheckBox) view).isChecked());
+                SettingsHelper.saveDataBool("SettingRow", ((CheckBox) view).isChecked(),this);
             } else if (view == (CheckBox) findViewById(R.id.checkBoxOnly)) {
-                saveDataBool("SettingOnlyNew", ((CheckBox) view).isChecked());
+                SettingsHelper.saveDataBool("SettingOnlyNew", ((CheckBox) view).isChecked(),this);
             }
             else if (view == (CheckBox) findViewById(R.id.checkShortcut)) {
-                saveDataBool("Shortcut", ((CheckBox) view).isChecked());
+                SettingsHelper.saveDataBool("Shortcut", ((CheckBox) view).isChecked(),this);
             }
             else if (view == (CheckBox) findViewById(R.id.checkActionMain)) {
-                saveDataBool("ActionMain", ((CheckBox) view).isChecked());
+                SettingsHelper.saveDataBool("ActionMain", ((CheckBox) view).isChecked(),this);
             }
         }
 
-    }
-
-    public void saveData(String setting, int data) {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(setting, data);
-        editor.apply();
-    }
-
-    public void saveDataBool(String setting, boolean data) {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(setting, data);
-        editor.apply();
-    }
-
-    public int loadData(String setting) {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        return sharedPreferences.getInt(setting, -1);
-    }
-
-    public boolean loadDataBool(String setting) {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        return sharedPreferences.getBoolean(setting, false);
     }
 }
 

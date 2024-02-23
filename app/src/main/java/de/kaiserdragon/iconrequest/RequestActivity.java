@@ -174,10 +174,10 @@ public class RequestActivity extends AppCompatActivity {
         appListAll.clear();
         mode = getIntent().getIntExtra("update", 0);
         updateOnly = mode == 0;
-        OnlyNew = loadDataBool("SettingOnlyNew");
-        SecondIcon = loadDataBool("SettingRow");
-        Shortcut = loadDataBool("Shortcut");
-        ActionMain = loadDataBool("ActionMain");
+        OnlyNew = SettingsHelper.loadDataBool("SettingOnlyNew",this);
+        SecondIcon = SettingsHelper.loadDataBool("SettingRow",this);
+        Shortcut = SettingsHelper.loadDataBool("Shortcut",this);
+        ActionMain = SettingsHelper.loadDataBool("ActionMain",this);
         firstrun = false;
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -678,12 +678,6 @@ public class RequestActivity extends AppCompatActivity {
 
         }
     }
-
-    public boolean loadDataBool(String setting) {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        return sharedPreferences.getBoolean(setting, false);
-    }
-
     public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         private final List<AppInfo> appList;
         private List<AppInfo> filteredList;

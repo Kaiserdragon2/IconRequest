@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppCompatDelegate.setDefaultNightMode(loadData());
+        AppCompatDelegate.setDefaultNightMode(SettingsHelper.loadData("DarkModeState",this));
 
         setContentView(R.layout.activity_main);
 
@@ -94,11 +94,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
-
-    public int loadData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("SharedPrefs", MODE_PRIVATE);
-        return sharedPreferences.getInt("DarkModeState", -1);
-    }
-
-
 }
