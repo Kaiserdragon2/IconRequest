@@ -1,4 +1,4 @@
-package de.kaiserdragon.iconrequest;
+package de.kaiserdragon.iconrequest.helper;
 
 import static android.content.Context.MODE_PRIVATE;
 

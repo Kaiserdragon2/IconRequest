@@ -2,7 +2,6 @@ package de.kaiserdragon.iconrequest;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +13,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+
+import de.kaiserdragon.iconrequest.helper.SettingsHelper;
 
 
 public class MainActivity extends AppCompatActivity {

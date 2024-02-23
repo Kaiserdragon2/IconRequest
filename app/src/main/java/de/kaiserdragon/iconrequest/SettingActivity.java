@@ -14,6 +14,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.util.Objects;
 
+import de.kaiserdragon.iconrequest.helper.SettingsHelper;
+
 public class SettingActivity extends AppCompatActivity {
 
     @Override

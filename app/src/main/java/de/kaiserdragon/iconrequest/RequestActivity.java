@@ -1,19 +1,12 @@
 package de.kaiserdragon.iconrequest;
 
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,11 +18,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -37,39 +28,35 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
-import androidx.core.content.FileProvider;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.Collator;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+
+import de.kaiserdragon.iconrequest.helper.CommonHelper;
+import de.kaiserdragon.iconrequest.helper.DrawableHelper;
+import de.kaiserdragon.iconrequest.helper.SettingsHelper;
+import de.kaiserdragon.iconrequest.helper.ShareHelper;
+import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
 
 
 public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final boolean DEBUG = true;
-    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static boolean updateOnly = false;
     private static int mode;
     private static boolean OnlyNew;
@@ -78,7 +65,7 @@ public class RequestActivity extends AppCompatActivity {
     private static boolean ActionMain;
     private static boolean firstrun;
     private final Context context = this;
-    byte[] zipData = null;
+    public static byte[] zipData = null;
     private ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private boolean IPackChoosen = false;
@@ -216,7 +203,7 @@ public class RequestActivity extends AppCompatActivity {
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveext(actionSave(),zipData,result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,updateOnly,mode,context),zipData,result,context));
     }
 
     public void IPackSelect(String packageName) {
@@ -224,7 +211,7 @@ public class RequestActivity extends AppCompatActivity {
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             try {
-                parseXML(packageName);
+                XMLParserHelper.parseXML(packageName, SecondIcon || (mode >= 2 && mode <= 5), appListAll, context);
                 if (DEBUG) Log.v(TAG, packageName);
 
                 if (mode < 2 || mode > 5) {
@@ -309,16 +296,16 @@ public class RequestActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(actionSave(),zipData,context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter,updateOnly,mode,context),zipData,context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(actionSave(),context);
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,updateOnly,mode,context),context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            ShareHelper.actionCopy(actionSave(),context);
+            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,updateOnly,mode,context),context);
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
@@ -331,97 +318,6 @@ public class RequestActivity extends AppCompatActivity {
             super.onOptionsItemSelected(item);
             return true;
         }
-    }
-
-    public void makeToast(String text) {
-        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-    }
-    private String[] actionSave() {
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
-
-        ArrayList<AppInfo> arrayList = adapter.getAllSelected();
-        if (arrayList.size() == 0) {
-            // no apps are selected
-            makeToast(getString(R.string.request_toast_no_apps_selected));
-            return new String[]{null};
-        }
-
-        StringBuilder stringBuilderEmail = new StringBuilder();
-        StringBuilder stringBuilderXML = new StringBuilder();
-        stringBuilderEmail.append(getString(R.string.request_email_text));
-        ArrayList<String> LabelList = new ArrayList<>();
-        stringBuilderXML.append("<appfilter>\n\n");
-        // process selected apps
-        for (int i = 0; i < arrayList.size(); i++) {
-            //if (arrayList.get(i).selected) {
-            String iconName = arrayList.get(i).label.replaceAll("[^a-zA-Z0-9 ]+", "").replaceAll("[ ]+", "_").toLowerCase();
-            if (DEBUG) Log.i(TAG, "iconName: " + iconName);
-            if (!updateOnly) {
-
-
-                //if a name is a duplicate rename 1 so nothing gets replaced while saving
-                int n = 0;
-                while (LabelList.contains(iconName)) {
-                    n++;
-                    iconName = iconName + n;
-                }
-                LabelList.add(iconName);
-
-                try {
-                    Bitmap bitmap = getBitmapFromDrawable(arrayList.get(i).icon);
-                    ByteArrayOutputStream baosimg = new ByteArrayOutputStream();
-                    ZipEntry ze = new ZipEntry(iconName + ".png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baosimg);
-                    zos.putNextEntry(ze);
-                    zos.write(baosimg.toByteArray());
-                    zos.closeEntry();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-            if (DEBUG) Log.i(TAG, "iconName: " + iconName);
-            //check if icon is in an arraylist if not add else rename and check again
-            stringBuilderEmail.append(arrayList.get(i).label).append("\n");
-            stringBuilderXML.append("\t<!-- ").append(arrayList.get(i).label).append(" -->\n\t<item component=\"ComponentInfo{").append(arrayList.get(i).getCode()).append("}\" drawable=\"").append(iconName).append("\"/>").append("\n\n");
-
-        }
-        stringBuilderXML.append("</appfilter>");
-        // }
-        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
-        String zipName = date.format(new Date());
-        //xmlString = stringBuilderXML.toString();
-        if (updateOnly || mode >= 2) return new String[]{zipName, stringBuilderXML.toString()};
-
-        try {
-            ZipEntry entry = new ZipEntry("appfilter.xml");
-            zos.putNextEntry(entry);
-            // Write the contents of the file
-            byte[] data = stringBuilderXML.toString().getBytes();
-            zos.write(data, 0, data.length);
-
-            // Close the entry and the stream
-            zos.closeEntry();
-            zos.close();
-
-            // You can then access the contents of the ZIP file as a byte array
-            zipData = baos.toByteArray();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new String[]{zipName, stringBuilderEmail.toString()};
-    }
-
-    private Bitmap getBitmapFromDrawable(Drawable drawable) {
-        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        final Canvas canvas = new Canvas(bmp);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bmp;
     }
 
     private void parseXML(String packageName) {
@@ -442,7 +338,7 @@ public class RequestActivity extends AppCompatActivity {
                     xpp = factory.newPullParser();
                     xpp.setInput(appfilterstream, "utf-8");
                 } catch (IOException e1) {
-                    makeToast(getString(R.string.appfilter_assets));
+                    CommonHelper.makeToast(getString(R.string.appfilter_assets),context);
                     Log.v(TAG, "No appfilter.xml file");
                 }
             }
@@ -468,7 +364,7 @@ public class RequestActivity extends AppCompatActivity {
                                                 String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
                                                 Drawable icon = null;
                                                 if (SecondIcon || (mode >= 2 && mode <= 5)) {
-                                                    icon = loadDrawable(xmlLabel, iconPackres, packageName);
+                                                    icon = DrawableHelper.loadDrawable(xmlLabel, iconPackres, packageName);
                                                 }
                                                 appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
                                             }
@@ -484,18 +380,9 @@ public class RequestActivity extends AppCompatActivity {
                 }
             }
         } catch (Exception e) {
-            makeToast(getString(R.string.appfilter_assets));
+            CommonHelper.makeToast(getString(R.string.appfilter_assets),context);
             e.printStackTrace();
         }
-    }
-
-    //get the drawable for an app from the icon Pack
-    private Drawable loadDrawable(String drawableName, Resources iconPackres, String packageName) {
-        int id = iconPackres.getIdentifier(drawableName, "drawable", packageName);
-        if (id > 0) {
-            return ResourcesCompat.getDrawable(iconPackres, id, null);
-        }
-        return null;
     }
 
     private ArrayList<AppInfo> prepareData(boolean iPack) {
@@ -540,7 +427,7 @@ public class RequestActivity extends AppCompatActivity {
         if (DEBUG) Log.v(TAG, "list size: " + list.size());
 
         for (ResolveInfo resolveInfo : list) {
-            Drawable icon1 = getHighResIcon(pm, resolveInfo);
+            Drawable icon1 = DrawableHelper.getHighResIcon(pm, resolveInfo);
             AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
 
             if (SecondIcon && !iPack) {
@@ -567,32 +454,6 @@ public class RequestActivity extends AppCompatActivity {
         return sort(arrayList);
     }
 
-
-    private Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
-
-        Drawable icon;
-
-        try {
-            ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
-            int iconId = resolveInfo.getIconResource();//Get the resource Id for the activity icon
-            if (iconId != 0) {
-                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
-                return icon;
-            }
-            return resolveInfo.loadIcon(pm);
-        } catch (Exception e) {
-            try {
-                //fails return the normal icon
-                return resolveInfo.loadIcon(pm);
-            }catch(Exception exception){
-                Log.e(TAG, String.valueOf(exception));
-                return null;
-            }
-
-
-
-        }
-    }
     public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         private final List<AppInfo> appList;
         private List<AppInfo> filteredList;
@@ -667,7 +528,7 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    public class AppViewHolder extends RecyclerView.ViewHolder {
+    public  class AppViewHolder extends RecyclerView.ViewHolder {
         public TextView labelView;
         public TextView packageNameView;
         public TextView classNameView;
