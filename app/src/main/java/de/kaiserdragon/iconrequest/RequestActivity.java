@@ -75,6 +75,7 @@ public class RequestActivity extends AppCompatActivity {
     private static boolean OnlyNew;
     private static boolean SecondIcon;
     private static boolean Shortcut;
+    private static boolean ActionMain;
     private static boolean firstrun;
     private final Context context = this;
     byte[] zipData = null;
@@ -176,6 +177,7 @@ public class RequestActivity extends AppCompatActivity {
         OnlyNew = loadDataBool("SettingOnlyNew");
         SecondIcon = loadDataBool("SettingRow");
         Shortcut = loadDataBool("Shortcut");
+        ActionMain = loadDataBool("ActionMain");
         firstrun = false;
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -592,6 +594,8 @@ public class RequestActivity extends AppCompatActivity {
         } else if (Shortcut) {
             intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
             intent.addCategory("android.intent.category.DEFAULT");
+        } else if (ActionMain) {
+            intent = new Intent("android.intent.action.MAIN", null);
         } else {
             intent = new Intent("android.intent.action.MAIN", null);
             intent.addCategory("android.intent.category.LAUNCHER");
@@ -607,11 +611,15 @@ public class RequestActivity extends AppCompatActivity {
                 intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
                 intent.addCategory("android.intent.category.DEFAULT");
             }
-            else if ( mode <= 1 ){
+            else if ( mode <= 1 && ActionMain){
                     intent = new Intent("android.intent.action.MAIN", null);
-                    intent.addCategory("android.intent.category.LAUNCHER");
-                }
+            }
+            else if ( mode <= 1 ){
+                intent = new Intent("android.intent.action.MAIN", null);
+                intent.addCategory("android.intent.category.LAUNCHER");
+            }
             list = pm.queryIntentActivities(intent, 0);
+
         }
 
         if (DEBUG) Log.v(TAG, "list size: " + list.size());

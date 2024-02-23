@@ -39,4 +39,5 @@
     <string name="missingIcon">Controlla l\'icona mancante</string>
     <string name="nothing">Niente da mostrare qui</string>
     <string name="search">ricerca</string>
+    <string name="MainNoLaunch">Mostra le app che non utilizzano la categoria Launcher</string>
 </resources>

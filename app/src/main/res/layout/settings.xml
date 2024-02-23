@@ -124,7 +124,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/AppsOrShortcutWidgets" />
-
+            <CheckBox
+                android:id="@+id/checkActionMain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/MainNoLaunch" />
         </LinearLayout>
     </ScrollView>
 

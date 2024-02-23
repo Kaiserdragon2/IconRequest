@@ -39,4 +39,5 @@
     <string name="missingIcon">Prüfe auf fehlendes Icon</string>
     <string name="nothing">Nichts zu sehen hier</string>
     <string name="search">Suche</string>
+    <string name="MainNoLaunch">Zeige Apps die nicht in der Launcher Kategorie sind</string>
 </resources>

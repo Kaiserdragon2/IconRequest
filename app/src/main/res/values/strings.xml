@@ -64,6 +64,7 @@
     <string name="missingIcon">Check for missing icon</string>
     <string name="nothing">Nothing to show here</string>
     <string name="search">search</string>
+    <string name="MainNoLaunch">Show Apps that don\'t use the Launcher Category</string>
 
 
 </resources>
