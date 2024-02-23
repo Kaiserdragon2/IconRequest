@@ -216,7 +216,7 @@ public class RequestActivity extends AppCompatActivity {
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> actionSaveext(actionSave(), result));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveext(actionSave(),zipData,result,context));
     }
 
     public void IPackSelect(String packageName) {
@@ -309,16 +309,16 @@ public class RequestActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            actionSend(actionSave());
+            ShareHelper.actionSend(actionSave(),zipData,context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
-            actionSendSave();
+            ShareHelper.actionSendSave(activityResultLauncher);
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            actionSendText(actionSave());
+            ShareHelper.actionSendText(actionSave(),context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            actionCopy(actionSave());
+            ShareHelper.actionCopy(actionSave(),context);
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
@@ -336,91 +336,6 @@ public class RequestActivity extends AppCompatActivity {
     public void makeToast(String text) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
-
-    private boolean actionCopy(String[] array) {
-        if (array[0] == null) return false;
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Icon Request", array[1]);
-        clipboard.setPrimaryClip(clip);
-        makeToast("Your icon request has been saved to the clipboard.");
-        return true;
-    }
-
-    private boolean actionSend(String[] array) {
-        if (array[0] == null) return false;
-        final File ZipLocation = new File(context.getFilesDir() + "/share");
-        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-        intent.setType("application/zip");
-        deleteDirectory(ZipLocation);
-        ZipLocation.mkdir();
-
-        File file = new File(ZipLocation, array[0] + ".zip");
-
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(zipData);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra("android.intent.extra.SUBJECT", getString(R.string.request_email_subject));
-        intent.putExtra("android.intent.extra.TEXT", array[1]);
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            startActivity(Intent.createChooser(intent, null));
-        } catch (Exception e) {
-            makeToast(getString(R.string.no_email_clients));
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-    private boolean actionSendText(String[] array) {
-        if (array[0] == null) return false;
-        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, array[1]);
-        try {
-            startActivity(Intent.createChooser(intent, null));
-        } catch (Exception e) {
-            makeToast(getString(R.string.no_email_clients));
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-    private boolean actionSaveext(String[] array, ActivityResult result) {
-        if (array[0] == null) return false;
-        if (DEBUG) Log.i(TAG, String.valueOf(result));
-        Intent data = result.getData();
-        if (data != null) {
-            try (InputStream is = new ByteArrayInputStream(zipData); OutputStream os = getContentResolver().openOutputStream(data.getData())) {
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = is.read(buffer)) > 0) {
-                    os.write(buffer, 0, length);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return true;
-    }
-
-    private void actionSendSave() {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/zip");
-        SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
-        String zipName = date.format(new Date());
-        intent.putExtra(Intent.EXTRA_TITLE, "IconRequest_" + zipName);
-        activityResultLauncher.launch(intent);
-    }
-
     private String[] actionSave() {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
