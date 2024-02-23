@@ -599,7 +599,7 @@ public class RequestActivity extends AppCompatActivity {
 
         List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
 
-        if (list.size() < 1){
+        if (list.size() < 1 && iPack){
             OnlyNew =false;
             SecondIcon=false;
             iPack = false;
@@ -657,9 +657,17 @@ public class RequestActivity extends AppCompatActivity {
                 return icon;
             }
             return resolveInfo.loadIcon(pm);
-        } catch (PackageManager.NameNotFoundException e) {
-            //fails return the normal icon
-            return resolveInfo.loadIcon(pm);
+        } catch (Exception e) {
+            try {
+                //fails return the normal icon
+                return resolveInfo.loadIcon(pm);
+            }catch(Exception exception){
+                Log.e(TAG, String.valueOf(exception));
+                return null;
+            }
+
+
+
         }
     }
 
