@@ -9,15 +9,9 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
@@ -45,12 +39,14 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import de.kaiserdragon.iconrequest.helper.CommonHelper;
 import de.kaiserdragon.iconrequest.helper.DrawableHelper;
 import de.kaiserdragon.iconrequest.helper.SettingsHelper;
 import de.kaiserdragon.iconrequest.helper.ShareHelper;
 import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
+
 
 
 public class RequestActivity extends AppCompatActivity {
@@ -72,20 +68,7 @@ public class RequestActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private AppAdapter adapter;
 
-    public static void deleteDirectory(File path) {
-        if (path.exists()) {
-            File[] files = path.listFiles();
-            assert files != null;
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectory(file);
-                } else {
-                    file.delete();
-                }
-            }
-        }
-        path.delete();
-    }
+
 
     private ArrayList<AppInfo> compare() {
         ArrayList<AppInfo> newList = new ArrayList<>();
@@ -189,11 +172,11 @@ public class RequestActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
-            if (OnlyNew || SecondIcon || (mode >= 2 && mode <= 5)) {
-                adapter = new AppAdapter(prepareData(true));
-            } else adapter = new AppAdapter(prepareData(false)); //show all apps
+            if (((OnlyNew || SecondIcon)&& !Shortcut) || (mode >= 2 && mode <= 5)) {
+                adapter = new AppAdapter(prepareData(true),true,false,this);
+            } else adapter = new AppAdapter(prepareData(false),false,false,this); //show all apps
             runOnUiThread(() -> {
-                if (!OnlyNew && !SecondIcon && (mode < 2 || mode > 5))
+                if ((!OnlyNew && !SecondIcon||Shortcut )&& (mode < 2 || mode > 5))
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
                 if(adapter.AdapterSize() < 1){
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
@@ -215,10 +198,10 @@ public class RequestActivity extends AppCompatActivity {
                 if (DEBUG) Log.v(TAG, packageName);
 
                 if (mode < 2 || mode > 5) {
-                    adapter = new AppAdapter(prepareData(false));
+                    adapter = new AppAdapter(prepareData(false),false,SecondIcon||mode==3,this);
                 }
                 if (!(mode <= 1) && (mode != 2 && mode != 3 || firstrun)) {
-                    adapter = new AppAdapter(compare());
+                    adapter = new AppAdapter(compare(),false,false,this);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -241,11 +224,10 @@ public class RequestActivity extends AppCompatActivity {
         });
     }
 
-
     public boolean onCreateOptionsMenu(Menu menu) {
 
 
-        if ((OnlyNew || (mode >= 2 && mode <= 5)) && !IPackChoosen) {
+        if (((OnlyNew && !Shortcut)|| (mode >= 2 && mode <= 5)) && !IPackChoosen) {
             getMenuInflater().inflate(R.menu.menu_iconpack_chooser, menu);
         } else {
             getMenuInflater().inflate(R.menu.menu_request, menu);
@@ -320,71 +302,6 @@ public class RequestActivity extends AppCompatActivity {
         }
     }
 
-    private void parseXML(String packageName) {
-        // load appfilter.xml from the icon pack package
-        Resources iconPackres;
-        PackageManager pm = getPackageManager();
-
-        try {
-            iconPackres = pm.getResourcesForApplication(packageName);
-            XmlPullParser xpp = null;
-            int appfilterid = iconPackres.getIdentifier("appfilter", "xml", packageName);
-            if (appfilterid > 0) {
-                xpp = iconPackres.getXml(appfilterid);
-            } else {
-                try {
-                    InputStream appfilterstream = iconPackres.getAssets().open("appfilter.xml");
-                    XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                    xpp = factory.newPullParser();
-                    xpp.setInput(appfilterstream, "utf-8");
-                } catch (IOException e1) {
-                    CommonHelper.makeToast(getString(R.string.appfilter_assets),context);
-                    Log.v(TAG, "No appfilter.xml file");
-                }
-            }
-            //write content of icon pack appfilter to the appListAll arraylist
-            if (xpp != null) {
-                int activity = xpp.getEventType();
-                while (activity != XmlPullParser.END_DOCUMENT) {
-                    String name = xpp.getName();
-                    switch (activity) {
-                        case XmlPullParser.END_TAG:
-                            break;
-                        case XmlPullParser.START_TAG:
-                            if (name.equals("item")) {
-                                try {
-                                    String xmlLabel = xpp.getAttributeValue(null, "drawable");
-                                    if (xmlLabel != null) {
-                                        String xmlComponent = xpp.getAttributeValue(null, "component");
-                                        if (xmlComponent != null) {
-
-                                            String[] xmlCode = xmlComponent.split("/");
-                                            if (xmlCode.length > 1) {
-                                                String xmlPackage = xmlCode[0].substring(14);
-                                                String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                                Drawable icon = null;
-                                                if (SecondIcon || (mode >= 2 && mode <= 5)) {
-                                                    icon = DrawableHelper.loadDrawable(xmlLabel, iconPackres, packageName);
-                                                }
-                                                appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
-                                            }
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            break;
-                    }
-                    activity = xpp.next();
-                }
-            }
-        } catch (Exception e) {
-            CommonHelper.makeToast(getString(R.string.appfilter_assets),context);
-            e.printStackTrace();
-        }
-    }
-
     private ArrayList<AppInfo> prepareData(boolean iPack) {
         // sort the apps
         ArrayList<AppInfo> arrayList = new ArrayList<>();
@@ -454,110 +371,4 @@ public class RequestActivity extends AppCompatActivity {
         return sort(arrayList);
     }
 
-    public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
-        private final List<AppInfo> appList;
-        private List<AppInfo> filteredList;
-
-        public AppAdapter(List<AppInfo> appList) {
-            this.appList = appList;
-            this.filteredList = new ArrayList<>(appList);
-        }
-
-        public void filter(String query) {
-            filteredList.clear();
-            if (query.isEmpty()) {
-                filteredList.addAll(appList);
-            } else {
-                String lowerCaseQuery = query.toLowerCase(Locale.getDefault());
-                for (AppInfo app : appList) {
-                    if (app.getLabel().toLowerCase(Locale.getDefault()).contains(lowerCaseQuery)) {
-                        filteredList.add(app);
-                    }
-                }
-            }
-            notifyDataSetChanged();
-        }
-
-        public int AdapterSize(){
-            return this.appList.size();
-        }
-
-        public ArrayList<AppInfo> getAllSelected() {
-            ArrayList<AppInfo> arrayList = new ArrayList<>();
-            for (AppInfo app : appList) {
-                if (app.selected) arrayList.add(app);
-            }
-            return arrayList;
-        }
-
-        public void setAllSelected(boolean selected) {
-            for (AppInfo app : appList) {
-                app.setSelected(selected);
-            }
-            notifyDataSetChanged();
-        }
-
-
-        @NonNull
-        @Override
-        public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_item, parent, false);
-            return new AppViewHolder(v, filteredList);
-        }
-
-
-        @Override
-        public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
-            AppInfo app = filteredList.get(position);
-            holder.labelView.setText(app.getLabel());
-            holder.packageNameView.setText(app.packageName);
-            holder.classNameView.setText(app.className);
-            holder.imageView.setImageDrawable(app.getIcon());
-            if (app.selected) holder.checkBox.setDisplayedChild(1);
-            else holder.checkBox.setDisplayedChild(0);
-            if ((SecondIcon || mode == 3 || mode == 4) && IPackChoosen && !(mode == 2)) {
-                holder.apkIconView.setVisibility(View.VISIBLE);
-                holder.apkIconView.setImageDrawable(app.getIcon2());
-            }
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return filteredList.size();
-        }
-    }
-
-    public  class AppViewHolder extends RecyclerView.ViewHolder {
-        public TextView labelView;
-        public TextView packageNameView;
-        public TextView classNameView;
-        public ImageView imageView;
-        public ImageView apkIconView;
-        public ViewSwitcher checkBox;
-
-        public AppViewHolder(View v, List<AppInfo> appList) {
-            super(v);
-            labelView = v.findViewById(R.id.label_view);
-            packageNameView = v.findViewById(R.id.packagename_view);
-            classNameView = v.findViewById(R.id.classname_view);
-            imageView = v.findViewById(R.id.icon_view);
-            apkIconView = v.findViewById(R.id.apkicon_view);
-            checkBox = v.findViewById(R.id.SwitcherChecked);
-
-            v.setOnClickListener(v1 -> {
-                int position = getAdapterPosition();
-                AppInfo app = appList.get(position);
-                app.setSelected(!app.isSelected());
-                if (!IPackChoosen && (OnlyNew || SecondIcon || (mode >= 2 && mode <= 5)))
-                    IPackSelect(app.packageName);
-                Animation aniIn = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_1);
-                Animation aniOut = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_2);
-                checkBox.setInAnimation(aniIn);
-                checkBox.setOutAnimation(aniOut);
-                checkBox.showNext();
-
-            });
-        }
-    }
 }

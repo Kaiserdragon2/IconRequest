@@ -1,7 +1,7 @@
 package de.kaiserdragon.iconrequest.helper;
 
 import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
-import static de.kaiserdragon.iconrequest.RequestActivity.deleteDirectory;
+import static de.kaiserdragon.iconrequest.helper.CommonHelper.makeToast;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -33,6 +33,7 @@ import java.util.zip.ZipOutputStream;
 import de.kaiserdragon.iconrequest.AppInfo;
 import de.kaiserdragon.iconrequest.R;
 import de.kaiserdragon.iconrequest.RequestActivity;
+import de.kaiserdragon.iconrequest.AppAdapter;
 
 public class ShareHelper {
     private static final String TAG = "ShareHelper";
@@ -41,7 +42,7 @@ public class ShareHelper {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Icon Request", array[1]);
         clipboard.setPrimaryClip(clip);
-        CommonHelper.makeToast("Your icon request has been saved to the clipboard.",context);
+        makeToast("Your icon request has been saved to the clipboard.",context);
     }
 
     public static void actionSend(String[] array,byte[] zipData, Context context) {
@@ -71,7 +72,7 @@ public class ShareHelper {
         try {
             context.startActivity(Intent.createChooser(intent, null));
         } catch (Exception e) {
-            CommonHelper.makeToast(context.getString(R.string.no_email_clients),context);
+            makeToast(context.getString(R.string.no_email_clients),context);
             e.printStackTrace();
         }
     }
@@ -84,7 +85,7 @@ public class ShareHelper {
         try {
             context.startActivity(Intent.createChooser(intent, null));
         } catch (Exception e) {
-            CommonHelper.makeToast(context.getString(R.string.no_email_clients),context);
+            makeToast(context.getString(R.string.no_email_clients),context);
             e.printStackTrace();
         }
     }
@@ -116,15 +117,14 @@ public class ShareHelper {
         intent.putExtra(Intent.EXTRA_TITLE, "IconRequest_" + zipName);
         activityResultLauncher.launch(intent);
     }
-    public static String[] actionSave(RequestActivity.AppAdapter adapter, Boolean updateOnly, int mode, Context context) {
-
+    public static String[] actionSave(AppAdapter adapter, Boolean updateOnly, int mode, Context context) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
         if (arrayList.size() == 0) {
             // no apps are selected
-            CommonHelper.makeToast(context.getString(R.string.request_toast_no_apps_selected),context);
+            makeToast(context.getString(R.string.request_toast_no_apps_selected),context);
             return new String[]{null};
         }
 
@@ -192,6 +192,21 @@ public class ShareHelper {
             e.printStackTrace();
         }
         return new String[]{zipName, stringBuilderEmail.toString()};
+    }
+
+    private static void deleteDirectory(File path) {
+        if (path.exists()) {
+            File[] files = path.listFiles();
+            assert files != null;
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+        path.delete();
     }
 
 }
