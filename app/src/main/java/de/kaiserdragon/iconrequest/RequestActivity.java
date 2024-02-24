@@ -1,11 +1,12 @@
 package de.kaiserdragon.iconrequest;
 
 
+import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,21 +26,11 @@ import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import de.kaiserdragon.iconrequest.helper.CommonHelper;
 import de.kaiserdragon.iconrequest.helper.DrawableHelper;
@@ -49,88 +40,25 @@ import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
 
 
 
+
 public class RequestActivity extends AppCompatActivity {
     private static final String TAG = "RequestActivity";
     private static final boolean DEBUG = true;
-    private static ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static boolean updateOnly = false;
     private static int mode;
     private static boolean OnlyNew;
     private static boolean SecondIcon;
     private static boolean Shortcut;
     private static boolean ActionMain;
-    private static boolean firstrun;
+    private static boolean firstRun;
     private final Context context = this;
     public static byte[] zipData = null;
     private ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
-    private boolean IPackChoosen = false;
+    private boolean IPackChosen = false;
     private RecyclerView recyclerView;
     private AppAdapter adapter;
-
-
-
-    private ArrayList<AppInfo> compare() {
-        ArrayList<AppInfo> newList = new ArrayList<>();
-        ArrayList<AppInfo> Listdopp = new ArrayList<>();
-
-        if (mode == 2) {
-            for (AppInfo appInfo : appListAll) {
-                if (newList.contains(appInfo)) {
-                    newList.remove(appInfo);
-                } else newList.add(appInfo);
-            }
-            return sort(newList);
-        }
-        if (mode == 3) {
-            for (AppInfo appInfo : appListAll) {
-                if (!newList.contains(appInfo)) {
-                    newList.add(appInfo);
-                } else {
-                    AppInfo geticon = newList.get(newList.indexOf(appInfo));  //get the element by passing the index of the element
-                    appInfo.icon2 = geticon.icon;
-                    Listdopp.add(appInfo);
-                }
-            }
-
-            return sort(Listdopp);
-        }
-        if (mode == 4) {
-            for (AppInfo appInfo : appListAll) {
-                if (!newList.contains(appInfo)) {
-                    newList.add(appInfo);
-                } else {
-                    AppInfo geticon = newList.get(newList.indexOf(appInfo));  //get the element by passing the index of the element
-                    appInfo.icon2 = geticon.icon;
-                    Listdopp.add(appInfo);
-                }
-            }
-
-            return sort(Listdopp);
-        }
-        if (mode == 5) {
-            for (AppInfo appInfo : appListAll) {
-                if (appInfo.icon == null) newList.add(appInfo);
-            }
-            return sort(newList);
-        }
-        return null;
-    }
-
-    private ArrayList<AppInfo> sort(ArrayList<AppInfo> chaos) {
-        Collections.sort(chaos, (object1, object2) -> {
-            Locale locale = Locale.getDefault();
-            Collator collator = Collator.getInstance(locale);
-            collator.setStrength(Collator.TERTIARY);
-
-            if (DEBUG)
-                Log.v(TAG, "Comparing \"" + object1.label + "\" to \"" + object2.label + "\"");
-
-            return collator.compare(object1.label, object2.label);
-        });
-        return chaos;
-    }
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onSaveInstanceState");
@@ -148,7 +76,7 @@ public class RequestActivity extends AppCompatActivity {
         SecondIcon = SettingsHelper.loadDataBool("SettingRow",this);
         Shortcut = SettingsHelper.loadDataBool("Shortcut",this);
         ActionMain = SettingsHelper.loadDataBool("ActionMain",this);
-        firstrun = false;
+        firstRun = false;
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -195,13 +123,11 @@ public class RequestActivity extends AppCompatActivity {
         executor.execute(() -> {
             try {
                 XMLParserHelper.parseXML(packageName, SecondIcon || (mode >= 2 && mode <= 5), appListAll, context);
-                if (DEBUG) Log.v(TAG, packageName);
-
                 if (mode < 2 || mode > 5) {
                     adapter = new AppAdapter(prepareData(false),false,SecondIcon||mode==3,this);
                 }
-                if (!(mode <= 1) && (mode != 2 && mode != 3 || firstrun)) {
-                    adapter = new AppAdapter(compare(),false,false,this);
+                if (!(mode <= 1) && (mode != 2 && mode != 3 || firstRun)) {
+                    adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -209,12 +135,12 @@ public class RequestActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 // Show IPack chooser a second Time
-                if (mode != 2 && mode != 3 || firstrun) {
+                if (mode != 2 && mode != 3 || firstRun) {
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                    IPackChoosen = true;
+                    IPackChosen = true;
                     invalidateOptionsMenu();
                 }
-                firstrun = true;
+                firstRun = true;
                 if(adapter.AdapterSize() < 1){
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
                 }
@@ -227,7 +153,7 @@ public class RequestActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
 
-        if (((OnlyNew && !Shortcut)|| (mode >= 2 && mode <= 5)) && !IPackChoosen) {
+        if (((OnlyNew && !Shortcut)|| (mode >= 2 && mode <= 5)) && !IPackChosen) {
             getMenuInflater().inflate(R.menu.menu_iconpack_chooser, menu);
         } else {
             getMenuInflater().inflate(R.menu.menu_request, menu);
@@ -359,16 +285,13 @@ public class RequestActivity extends AppCompatActivity {
             if (OnlyNew && !iPack) {
                 if (!appListAll.contains(appInfo)) {
                     arrayList.add(appInfo);
-                    if (DEBUG) Log.i(TAG, "Added app: " + resolveInfo.loadLabel(pm));
-                } else {
-                    if (DEBUG) Log.v(TAG, "Removed app: " + resolveInfo.loadLabel(pm));
                 }
             } else {
                 arrayList.add(appInfo);
             }
         }
 
-        return sort(arrayList);
+        return CommonHelper.sort(arrayList);
     }
 
 }

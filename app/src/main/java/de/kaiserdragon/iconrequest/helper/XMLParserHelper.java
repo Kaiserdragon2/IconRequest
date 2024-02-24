@@ -1,7 +1,6 @@
 package de.kaiserdragon.iconrequest.helper;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -19,72 +18,77 @@ import de.kaiserdragon.iconrequest.R;
 
 public class XMLParserHelper {
     private static final String TAG = "XMLParserHelper";
-    public static void parseXML(String packageName, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Context context) {
-        // load appfilter.xml from the icon pack package
-        Resources iconPackRes;
-        PackageManager pm = context.getPackageManager();
-        try {
-            iconPackRes = pm.getResourcesForApplication(packageName);
-            XmlPullParser xpp = getAppfilterFile(packageName,iconPackRes,context);
-            //write content of icon pack appfilter to the appListAll arraylist
-            if (xpp != null) {
-                int activity = xpp.getEventType();
-                while (activity != XmlPullParser.END_DOCUMENT) {
-                    String name = xpp.getName();
-                    switch (activity) {
-                        case XmlPullParser.END_TAG:
-                            break;
-                        case XmlPullParser.START_TAG:
-                            if (name.equals("item")) {
-                                try {
-                                    String xmlLabel = xpp.getAttributeValue(null, "drawable");
-                                    if (xmlLabel != null) {
-                                        String xmlComponent = xpp.getAttributeValue(null, "component");
-                                        if (xmlComponent != null) {
 
-                                            String[] xmlCode = xmlComponent.split("/");
-                                            if (xmlCode.length > 1) {
-                                                String xmlPackage = xmlCode[0].substring(14);
-                                                String xmlClass = xmlCode[1].substring(0, xmlCode[1].length() - 1);
-                                                Drawable icon = null;
-                                                if (loadSecondIcon) {
-                                                    icon = DrawableHelper.loadDrawable(xmlLabel, iconPackRes, packageName);
-                                                }
-                                                appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
-                                            }
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            break;
-                    }
-                    activity = xpp.next();
-                }
+    private static XmlPullParserFactory xmlPullParserFactory;
+
+    public static void parseXML(String packageName, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Context context) {
+        try {
+            Resources iconPackRes = context.getPackageManager().getResourcesForApplication(packageName);
+            XmlPullParser xpp = getAppfilterFile(packageName, iconPackRes, context);
+            if (xpp != null) {
+                parseXmlContent(xpp, loadSecondIcon, appListAll, iconPackRes, packageName);
             }
         } catch (Exception e) {
-            CommonHelper.makeToast(context.getString(R.string.appfilter_assets),context);
-            e.printStackTrace();
+            handleParsingException(context, e);
         }
     }
 
-    private static XmlPullParser getAppfilterFile(String packageName,Resources iconPackRes ,Context context){
-            XmlPullParser xpp = null;
-            int appFilterId = iconPackRes.getIdentifier("appfilter", "xml", packageName);
-            if (appFilterId > 0) {
-                xpp = iconPackRes.getXml(appFilterId);
-            } else {
-                try {
-                    InputStream appFilterStream = iconPackRes.getAssets().open("appfilter.xml");
-                    XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-                    xpp = factory.newPullParser();
-                    xpp.setInput(appFilterStream, "utf-8");
-                } catch (IOException | XmlPullParserException e1) {
-                    CommonHelper.makeToast(context.getString(R.string.appfilter_assets), context);
-                    Log.v(TAG, "No appfilter.xml file");
+    private static void parseXmlContent(XmlPullParser xpp, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Resources iconPackRes, String packageName) throws XmlPullParserException, IOException {
+        final String startTag = "item";
+        final String drawableAttribute = "drawable";
+        final String componentAttribute = "component";
+        final int packageSubstringLength = 14;
+        final char slash = '/';
+        int eventType = xpp.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.START_TAG && startTag.equals(xpp.getName())) {
+                String xmlLabel = xpp.getAttributeValue(null, drawableAttribute);
+                String xmlComponent = xpp.getAttributeValue(null, componentAttribute);
+                if (xmlLabel != null && xmlComponent != null) {
+                    int slashIndex = xmlComponent.indexOf(slash);
+                    int endIndex = xmlComponent.length() - 1;
+                    if (slashIndex > 0 && slashIndex < endIndex) {
+                        String xmlPackage = xmlComponent.substring(packageSubstringLength, slashIndex);
+                        String xmlClass = xmlComponent.substring(slashIndex + 1, endIndex);
+                        Drawable icon = loadSecondIcon ? DrawableHelper.loadDrawable(xmlLabel, iconPackRes, packageName) : null;
+                        appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
+                    }
                 }
             }
-            return xpp;
+            eventType = xpp.next();
+        }
+    }
+
+
+    private static void handleParsingException(Context context, Exception e) {
+        CommonHelper.makeToast(context.getString(R.string.appfilter_assets), context);
+        Log.e(TAG, "Error parsing XML", e);
+    }
+
+
+    private static synchronized XmlPullParserFactory getXmlPullParserFactory() throws XmlPullParserException {
+        if (xmlPullParserFactory == null) {
+            xmlPullParserFactory = XmlPullParserFactory.newInstance();
+        }
+        return xmlPullParserFactory;
+    }
+
+    private static XmlPullParser getAppfilterFile(String packageName, Resources iconPackRes, Context context) {
+        XmlPullParser xpp = null;
+        int appFilterId = iconPackRes.getIdentifier("appfilter", "xml", packageName);
+        if (appFilterId > 0) {
+            xpp = iconPackRes.getXml(appFilterId);
+        } else {
+            try {
+                InputStream appFilterStream = iconPackRes.getAssets().open("appfilter.xml");
+                xpp = getXmlPullParserFactory().newPullParser();
+                xpp.setInput(appFilterStream, "utf-8");
+            } catch (IOException | XmlPullParserException e) {
+                CommonHelper.makeToast(context.getString(R.string.appfilter_assets), context);
+                Log.e(TAG, "Error opening appfilter.xml", e);
+            }
+        }
+        return xpp;
     }
 }
+
