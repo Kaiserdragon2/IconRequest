@@ -1,6 +1,7 @@
 package de.kaiserdragon.iconrequest.helper;
 
 import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -28,6 +29,27 @@ public class DrawableHelper {
             try {
                 //fails return the normal icon
                 return resolveInfo.loadIcon(pm);
+            }catch(Exception exception){
+                Log.e(TAG, String.valueOf(exception));
+                return null;
+            }
+        }
+    }
+    public static Drawable getHighResIcon(PackageManager pm, ActivityInfo activityInfo) {
+
+        Drawable icon;
+        try {
+            ComponentName componentName = new ComponentName(activityInfo.packageName, activityInfo.name);
+            int iconId = activityInfo.getIconResource();//Get the resource Id for the activity icon
+            if (iconId != 0) {
+                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
+                return icon;
+            }
+            return activityInfo.loadIcon(pm);
+        } catch (Exception e) {
+            try {
+                //fails return the normal icon
+                return activityInfo.loadIcon(pm);
             }catch(Exception exception){
                 Log.e(TAG, String.valueOf(exception));
                 return null;

@@ -127,6 +127,12 @@
                 android:text="@string/checkButton"
                 android:textSize="20sp" />
 
+            <Button
+                android:id="@+id/allActivities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="all Activities" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

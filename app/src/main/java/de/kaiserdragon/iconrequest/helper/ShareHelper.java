@@ -37,6 +37,7 @@ import de.kaiserdragon.iconrequest.AppAdapter;
 
 public class ShareHelper {
     private static final String TAG = "ShareHelper";
+    public static byte[] zipData = null;
     public static void actionCopy(String[] array,Context context) {
         if (array[0] == null) return;
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -185,7 +186,7 @@ public class ShareHelper {
             zos.close();
 
             // You can then access the contents of the ZIP file as a byte array
-            RequestActivity.zipData  = baos.toByteArray();
+            zipData  = baos.toByteArray();
 
             return new String[]{zipName, stringBuilderEmail.toString()};
         } catch (IOException e) {

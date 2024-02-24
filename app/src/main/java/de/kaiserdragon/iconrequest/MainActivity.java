@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
         Button check = findViewById(R.id.CheckIconPack);
         check.setOnClickListener(view -> setDialog(getString(R.string.checkButton), getString(R.string.MessageDialogCheck), getString(R.string.duplicate), getString(R.string.missingIcon), check_duplicate, check_missing_icon));
 
+        Button allActivity = findViewById(R.id.allActivities);
+        allActivity.setOnClickListener(view -> startAll(requestNew));
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
@@ -83,6 +86,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra("update", update);
         intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".RequestActivity"));
+        startActivity(intent);
+    }
+    public void startAll(int update) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra("update", update);
+        intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".AllPackagesActivity"));
         startActivity(intent);
     }
 
