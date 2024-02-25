@@ -105,7 +105,7 @@ public class AllPackagesActivity extends AppCompatActivity {
             });
         });
         executor.shutdown();
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,updateOnly,mode,context),ShareHelper.zipData,result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,false,mode,context),ShareHelper.zipData,result,context));
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -122,17 +122,13 @@ public class AllPackagesActivity extends AppCompatActivity {
 
 
 
-            if (updateOnly || (mode >= 2 && mode <= 5)) {
-                save.setVisible(false);
-                share.setVisible(false);
-                share_text.setVisible(true);
-                copy.setVisible(true);
-            } else {
-                share_text.setVisible(false);
-                copy.setVisible(false);
+
                 save.setVisible(true);
                 share.setVisible(true);
-            }
+                share_text.setVisible(true);
+                copy.setVisible(true);
+
+
             // Set up search functionality
             assert searchView != null;
 
@@ -160,16 +156,16 @@ public class AllPackagesActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,updateOnly,mode,context),ShareHelper.zipData,context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter,false,mode,context),ShareHelper.zipData,context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,updateOnly,mode,context),context);
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,true,mode,context),context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,updateOnly,mode,context),context);
+            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,true,mode,context),context);
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
