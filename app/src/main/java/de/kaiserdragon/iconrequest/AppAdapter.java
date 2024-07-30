@@ -1,5 +1,6 @@
 package de.kaiserdragon.iconrequest;
 
+import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +19,13 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     private final boolean iPackMode;
     private final boolean secondIcon;
 
-    private RequestActivity requestActivity;
+    private final Activity activity;
 
-    public AppAdapter(List<AppInfo> appList,Boolean iPacksMode,Boolean SecondIcon,RequestActivity RequestActivity) {
+    public AppAdapter(List<AppInfo> appList,Boolean iPacksMode,Boolean SecondIcon,Activity activity) {
         this.appList = appList;
         this.filteredList = new ArrayList<>(appList);
         iPackMode = iPacksMode;
-        requestActivity =RequestActivity;
+        this.activity =activity;
         secondIcon = SecondIcon;
     }
 
@@ -67,7 +68,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     @Override
     public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_item, parent, false);
-        return new AppViewHolder(v, filteredList,iPackMode,requestActivity);
+        return new AppViewHolder(v, filteredList,iPackMode, activity);
     }
 
 

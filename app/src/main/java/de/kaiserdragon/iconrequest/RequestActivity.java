@@ -1,7 +1,7 @@
 package de.kaiserdragon.iconrequest;
 
 
-import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
+
 
 import android.content.Context;
 import android.content.Intent;

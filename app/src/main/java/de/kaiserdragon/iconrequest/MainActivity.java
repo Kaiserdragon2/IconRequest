@@ -70,10 +70,10 @@ public class MainActivity extends AppCompatActivity {
         // Set custom buttons for the dialog
         Button button1 = view.findViewById(R.id.button1);
         button1.setText(button1text);
-        button1.setOnClickListener(v -> start(opt1));
+        button1.setOnClickListener(v -> start2(opt1));
         Button button2 = view.findViewById(R.id.button2);
         button2.setText(button2text);
-        button2.setOnClickListener(v -> start(opt2));
+        button2.setOnClickListener(v -> start2(opt2));
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -85,7 +85,12 @@ public class MainActivity extends AppCompatActivity {
         intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".RequestActivity"));
         startActivity(intent);
     }
-
+    public void start2(int update) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra("update", update);
+        intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".IPackSelectActivity"));
+        startActivity(intent);
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.settings) {
