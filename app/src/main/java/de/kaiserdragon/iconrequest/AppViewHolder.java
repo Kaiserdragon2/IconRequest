@@ -34,7 +34,7 @@ public class AppViewHolder extends RecyclerView.ViewHolder {
             int position = getAdapterPosition();
             AppInfo app = appList.get(position);
             app.setSelected(!app.isSelected());
-            if (iPackMode)//(!IPackChoosen && (OnlyNew || SecondIcon || (mode >= 2 && mode <= 5)))
+            if (iPackMode)
                 listener.onAppSelected(app.packageName);
             Animation aniIn = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_1);
             Animation aniOut = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_2);

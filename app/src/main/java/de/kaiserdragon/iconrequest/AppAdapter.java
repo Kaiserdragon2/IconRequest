@@ -43,6 +43,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
                 }
             }
         }
+        //notifyItemRangeChanged(0, filteredList.size());
         notifyDataSetChanged();
     }
 
@@ -70,7 +71,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         for (AppInfo app : appList) {
             app.setSelected(selected);
         }
-        notifyDataSetChanged();
+        notifyItemRangeChanged(0, appList.size());
+        //notifyDataSetChanged();
     }
 
 
@@ -91,7 +93,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         holder.imageView.setImageDrawable(app.getIcon());
         if (app.selected) holder.checkBox.setDisplayedChild(1);
         else holder.checkBox.setDisplayedChild(0);
-        if (secondIcon) { //((SecondIcon || mode == 3 || mode == 4) && IPackChoosen && !(mode == 2))
+        if (secondIcon) {
             holder.apkIconView.setVisibility(View.VISIBLE);
             holder.apkIconView.setImageDrawable(app.getIcon2());
         }
