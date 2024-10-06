@@ -43,7 +43,6 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static int mode;
     public static byte[] zipData = null;
-    private static final boolean updateOnly = false;
     private final Context context = this;
 
     @Override
@@ -101,7 +100,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,updateOnly,mode,context),zipData,result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,false,mode,context),zipData,result,context));
 
     }
 
@@ -129,6 +128,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
     }
 
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
             getMenuInflater().inflate(R.menu.menu_request, menu);
             MenuItem save = menu.findItem(R.id.action_save);

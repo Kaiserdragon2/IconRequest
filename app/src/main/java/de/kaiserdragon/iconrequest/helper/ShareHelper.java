@@ -185,6 +185,7 @@ public class ShareHelper {
             zos.close();
 
             // You can then access the contents of the ZIP file as a byte array
+            //todo: needs to be accessible in different activity
             RequestActivity.zipData  = baos.toByteArray();
 
             return new String[]{zipName, stringBuilderEmail.toString()};
