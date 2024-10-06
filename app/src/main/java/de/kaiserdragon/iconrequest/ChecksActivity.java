@@ -33,9 +33,8 @@ import de.kaiserdragon.iconrequest.helper.ShareHelper;
 import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
 import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
 
-public class CompareActivity extends AppCompatActivity implements OnAppSelectedListener {
-
-    private static final String TAG = "CompareActivity";
+public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedListener {
+    private static final String TAG = "ChecksActivity";
     private ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private RecyclerView recyclerView;
@@ -43,17 +42,15 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static int mode;
     public static byte[] zipData = null;
-    private static final boolean updateOnly = false;
+    private static boolean updateOnly = false;
     private final Context context = this;
 
     @Override
     public void onAppSelected(String packageName) {
-        //IPackSelect(packageName);
-        if(adapter.getSelectedItemCount() == 2) {
-            Log.i(TAG, "onAppSelected: " + packageName);
-            switcherLoad.showNext();
-            startCompareIconPacksDifference();
-        }
+
+        Log.i(TAG, "onAppSelected: " + packageName);
+        switcherLoad.showNext();
+        startChecks(packageName);
     }
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
@@ -74,6 +71,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         });
         mode = getIntent().getIntExtra("update", 0);
         appListAll.clear();
+        ArrayList<String> IconPacks = getIntent().getStringArrayListExtra("list");
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -101,18 +99,15 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,updateOnly,mode,context),zipData,result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,true,mode,context),zipData,result,context));
 
     }
 
-    private void startCompareIconPacksDifference(){
-        ArrayList<AppInfo> arrayList = adapter.getAllSelected();
+    private void startChecks(String packageName){
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             try {
-                for (AppInfo appInfo : arrayList) {
-                    XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
-                }
+                XMLParserHelper.parseXML(packageName, true, appListAll, context);
                 adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
 
             } catch (Exception e) {
@@ -128,38 +123,37 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         });
 
     }
-
     public boolean onCreateOptionsMenu(Menu menu) {
-            getMenuInflater().inflate(R.menu.menu_request, menu);
-            MenuItem save = menu.findItem(R.id.action_save);
-            MenuItem share = menu.findItem(R.id.action_share);
-            MenuItem share_text = menu.findItem(R.id.action_sharetext);
-            MenuItem copy = menu.findItem(R.id.action_copy);
-            MenuItem searchItem = menu.findItem(R.id.action_search);
-            SearchView searchView = (SearchView) searchItem.getActionView();
-            //    save.setVisible(false);
-            //    share.setVisible(false);
-           //     share_text.setVisible(true);
-            //    copy.setVisible(true);
+        getMenuInflater().inflate(R.menu.menu_request, menu);
+        MenuItem save = menu.findItem(R.id.action_save);
+        MenuItem share = menu.findItem(R.id.action_share);
+        MenuItem share_text = menu.findItem(R.id.action_sharetext);
+        MenuItem copy = menu.findItem(R.id.action_copy);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        save.setVisible(false);
+        share.setVisible(false);
+        share_text.setVisible(true);
+        copy.setVisible(true);
 
-            // Set up search functionality
-            assert searchView != null;
+        // Set up search functionality
+        assert searchView != null;
 
-            searchView.setMaxWidth(700);
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    // Handle search query submission
-                    return true;
-                }
+        searchView.setMaxWidth(700);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Handle search query submission
+                return true;
+            }
 
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    // Handle search query text change
-                    adapter.filter(newText);
-                    return true;
-                }
-            });
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Handle search query text change
+                adapter.filter(newText);
+                return true;
+            }
+        });
 
         return true;
     }
@@ -167,13 +161,13 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,false,mode,context),zipData,context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter,true,mode,context),zipData,context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,true,mode,context),context);
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,false,mode,context),context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
             ShareHelper.actionCopy(ShareHelper.actionSave(adapter,true,mode,context),context);
@@ -190,5 +184,4 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
             return true;
         }
     }
-
 }

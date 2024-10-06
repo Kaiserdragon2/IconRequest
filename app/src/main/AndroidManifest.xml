@@ -21,7 +21,7 @@
                 android:value="de.kaiserdragon.iconrequest.MainActivity" />
         </activity>
         <activity
-            android:name="de.kaiserdragon.iconrequest.IPackSelectActivity"
+            android:name="de.kaiserdragon.iconrequest.ChecksActivity"
             android:theme="@style/AppTheme"
             android:exported="false">
             <meta-data
@@ -38,7 +38,6 @@
         </activity>
         <activity
             android:name="de.kaiserdragon.iconrequest.SettingActivity"
-            android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -46,8 +45,7 @@
         </activity>
         <activity
             android:name="de.kaiserdragon.iconrequest.MainActivity"
-            android:exported="true"
-            android:label="@string/app_name">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
+
 public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     private final List<AppInfo> appList;
     private final List<AppInfo> filteredList;
@@ -48,7 +50,15 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         return this.appList.size();
     }
 
-    public ArrayList<AppInfo> getAllSelected() {
+    public int getSelectedItemCount() {
+        int count = 0;
+        for (AppInfo app : appList) {
+            if (app.selected) count++;
+        }
+        return count;
+    }
+
+    public  ArrayList<AppInfo> getAllSelected() {
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         for (AppInfo app : appList) {
             if (app.selected) arrayList.add(app);
@@ -68,7 +78,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     @Override
     public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_item, parent, false);
-        return new AppViewHolder(v, filteredList,iPackMode, activity);
+        return new AppViewHolder(v, filteredList,iPackMode, (OnAppSelectedListener) activity);
     }
 
 

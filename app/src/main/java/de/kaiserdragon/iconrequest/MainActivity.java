@@ -33,17 +33,23 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        Button startNew = findViewById(R.id.start_new);
+        Button startNew = findViewById(R.id.ButtonStart_new);
         startNew.setOnClickListener(view -> start(requestNew));
 
-        Button startUpdate = findViewById(R.id.start_update);
+        Button startUpdate = findViewById(R.id.ButtonStart_update);
         startUpdate.setOnClickListener(view -> start(updateExisting));
 
-        Button CompareIconPacks = findViewById(R.id.CompareIconPacks);
-        CompareIconPacks.setOnClickListener(view -> setDialog(getString(R.string.CompareIconPacks), getString(R.string.MessageDialogCompare), getString(R.string.difference), getString(R.string.similarities), compareIconPack_diff, compareIconPack_sim));
+        Button Similarities = findViewById(R.id.ButtonSimilarities);
+        Similarities.setOnClickListener(view -> start2(compareIconPack_sim));
 
-        Button check = findViewById(R.id.CheckIconPack);
-        check.setOnClickListener(view -> setDialog(getString(R.string.checkButton), getString(R.string.MessageDialogCheck), getString(R.string.duplicate), getString(R.string.missingIcon), check_duplicate, check_missing_icon));
+        Button Differences = findViewById(R.id.ButtonDifference);
+        Differences.setOnClickListener(view -> start2(compareIconPack_diff));
+
+        Button missingIcon = findViewById(R.id.ButtonMissingIcon);
+        missingIcon.setOnClickListener(view -> start3(check_missing_icon));
+
+        Button duplicate = findViewById(R.id.ButtonDuplicates);
+        duplicate.setOnClickListener(view -> start3(check_duplicate));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -88,7 +94,13 @@ public class MainActivity extends AppCompatActivity {
     public void start2(int update) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra("update", update);
-        intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".IPackSelectActivity"));
+        intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".CompareActivity"));
+        startActivity(intent);
+    }
+    public void start3(int update) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra("update", update);
+        intent.setComponent(new ComponentName(getPackageName(), getPackageName() + ".ChecksActivity"));
         startActivity(intent);
     }
     @Override

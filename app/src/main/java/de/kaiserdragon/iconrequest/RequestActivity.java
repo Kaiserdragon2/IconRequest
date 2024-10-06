@@ -1,13 +1,10 @@
 package de.kaiserdragon.iconrequest;
 
 
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,21 +24,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.kaiserdragon.iconrequest.helper.CommonHelper;
-import de.kaiserdragon.iconrequest.helper.DrawableHelper;
+import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
 import de.kaiserdragon.iconrequest.helper.SettingsHelper;
 import de.kaiserdragon.iconrequest.helper.ShareHelper;
 import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
+import de.kaiserdragon.iconrequest.helper.PrepareRequestData;
 
 
 
 
-public class RequestActivity extends AppCompatActivity {
+public class RequestActivity extends AppCompatActivity implements OnAppSelectedListener {
     private static final String TAG = "RequestActivity";
     private static final boolean DEBUG = true;
     private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
@@ -65,6 +62,10 @@ public class RequestActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    @Override
+    public void onAppSelected(String packageName) {
+        IPackSelect(packageName);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,12 +101,18 @@ public class RequestActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
-            if (((OnlyNew || SecondIcon)&& !Shortcut) || (mode >= 2 && mode <= 5)) {
-                adapter = new AppAdapter(prepareData(true),true,false,this);
-            } else adapter = new AppAdapter(prepareData(false),false,false,this); //show all apps
+            if (Shortcut) {
+                adapter = new AppAdapter(PrepareRequestData.prepareDataShortcuts(this,appListAll,false,false),true,false,this);
+            }
+            else if ((OnlyNew || SecondIcon) || (mode >= 2 && mode <= 5)) {
+                adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this,appListAll),true,false,this);
+            } else if (ActionMain) {
+                adapter = new AppAdapter(PrepareRequestData.prepareDataActionMain(this,appListAll,false,false),false,false,this); //show all apps
+            }else adapter = new AppAdapter(PrepareRequestData.prepareDataIcons(this,appListAll,false,false),false,false,this); //show all apps
             runOnUiThread(() -> {
-                if ((!OnlyNew && !SecondIcon||Shortcut )&& (mode < 2 || mode > 5))
+                if ((!OnlyNew && !SecondIcon||Shortcut )&& (mode < 2 || mode > 5)) {
                     findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
+                }
                 if(adapter.AdapterSize() < 1){
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
                 }
@@ -119,12 +126,16 @@ public class RequestActivity extends AppCompatActivity {
 
     public void IPackSelect(String packageName) {
         switcherLoad.showNext();
+        PackageManager pm = getPackageManager();
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             try {
                 XMLParserHelper.parseXML(packageName, SecondIcon || (mode >= 2 && mode <= 5), appListAll, context);
                 if (mode < 2 || mode > 5) {
-                    adapter = new AppAdapter(prepareData(false),false,SecondIcon||mode==3,this);
+                    if(ActionMain){
+                        adapter = new AppAdapter(PrepareRequestData.prepareDataActionMain(this,appListAll,OnlyNew,SecondIcon),false,SecondIcon||mode==3,this);
+                    }
+                    else adapter = new AppAdapter(PrepareRequestData.prepareDataIcons(this,appListAll,OnlyNew,SecondIcon),false,SecondIcon||mode==3,this);
                 }
                 if (!(mode <= 1) && (mode != 2 && mode != 3 || firstRun)) {
                     adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
@@ -204,16 +215,16 @@ public class RequestActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,updateOnly,mode,context),zipData,context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter,true,mode,context),zipData,context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,updateOnly,mode,context),context);
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,false,mode,context),context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,updateOnly,mode,context),context);
+            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,true,mode,context),context);
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
@@ -226,72 +237,6 @@ public class RequestActivity extends AppCompatActivity {
             super.onOptionsItemSelected(item);
             return true;
         }
-    }
-
-    private ArrayList<AppInfo> prepareData(boolean iPack) {
-        // sort the apps
-        ArrayList<AppInfo> arrayList = new ArrayList<>();
-        PackageManager pm = getPackageManager();
-        Intent intent;
-
-        if (iPack) {
-            intent = new Intent("org.adw.launcher.THEMES", null);
-        } else if (Shortcut) {
-            intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
-            intent.addCategory("android.intent.category.DEFAULT");
-        } else if (ActionMain) {
-            intent = new Intent("android.intent.action.MAIN", null);
-        } else {
-            intent = new Intent("android.intent.action.MAIN", null);
-            intent.addCategory("android.intent.category.LAUNCHER");
-        }
-
-        List<ResolveInfo> list = pm.queryIntentActivities(intent, 0);
-
-        if (list.size() < 1 && iPack){
-            OnlyNew =false;
-            SecondIcon=false;
-            iPack = false;
-            if (Shortcut && mode <= 1) {
-                intent = new Intent("android.intent.action.CREATE_SHORTCUT", null);
-                intent.addCategory("android.intent.category.DEFAULT");
-            }
-            else if ( mode <= 1 && ActionMain){
-                    intent = new Intent("android.intent.action.MAIN", null);
-            }
-            else if ( mode <= 1 ){
-                intent = new Intent("android.intent.action.MAIN", null);
-                intent.addCategory("android.intent.category.LAUNCHER");
-            }
-            list = pm.queryIntentActivities(intent, 0);
-
-        }
-
-        if (DEBUG) Log.v(TAG, "list size: " + list.size());
-
-        for (ResolveInfo resolveInfo : list) {
-            Drawable icon1 = DrawableHelper.getHighResIcon(pm, resolveInfo);
-            AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
-
-            if (SecondIcon && !iPack) {
-                Drawable icon2 = null;
-                if (appListAll.contains(appInfo)) {
-                    AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));
-                    icon2 = geticon.icon;
-                }
-                appInfo = new AppInfo(icon1, icon2, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
-            }
-
-            if (OnlyNew && !iPack) {
-                if (!appListAll.contains(appInfo)) {
-                    arrayList.add(appInfo);
-                }
-            } else {
-                arrayList.add(appInfo);
-            }
-        }
-
-        return CommonHelper.sort(arrayList);
     }
 
 }

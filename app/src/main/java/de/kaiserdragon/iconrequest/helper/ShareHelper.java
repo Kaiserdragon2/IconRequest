@@ -171,7 +171,7 @@ public class ShareHelper {
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         //xmlString = stringBuilderXML.toString();
-        if (updateOnly || mode >= 2) return new String[]{zipName, stringBuilderXML.toString()};
+        if (updateOnly) return new String[]{zipName, stringBuilderXML.toString()};
 
         try {
             ZipEntry entry = new ZipEntry("appfilter.xml");
