@@ -3,7 +3,7 @@ package de.kaiserdragon.iconrequest;
 import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
 
 import android.content.Context;
-import android.content.Intent;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -12,8 +12,7 @@ import android.view.View;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -36,13 +35,11 @@ import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
 public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedListener {
     private static final String TAG = "ChecksActivity";
     private ViewSwitcher switcherLoad;
-    private ActivityResultLauncher<Intent> activityResultLauncher;
+    //private ActivityResultLauncher<Intent> activityResultLauncher;
     private RecyclerView recyclerView;
     private AppAdapter adapter;
     private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static int mode;
-    public static byte[] zipData = null;
-    private static boolean updateOnly = false;
     private final Context context = this;
 
     @Override
@@ -71,7 +68,6 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
         });
         mode = getIntent().getIntExtra("update", 0);
         appListAll.clear();
-        ArrayList<String> IconPacks = getIntent().getStringArrayListExtra("list");
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -99,7 +95,7 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,true,mode,context),zipData,result,context));
+        //activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,true,mode,context),zipData,result,context));
 
     }
 
@@ -111,7 +107,7 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
                 adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "startChecks: ", e);
             }
             runOnUiThread(() -> {
                 if(adapter.AdapterSize() < 1){
@@ -160,13 +156,14 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,true,mode,context),zipData,context);
-            return true;
-        } else if (item.getItemId() == R.id.action_save) {
-            ShareHelper.actionSendSave(activityResultLauncher);
-            return true;
-        } else if (item.getItemId() == R.id.action_sharetext) {
+        //if (item.getItemId() == R.id.action_share) {
+        //    ShareHelper.actionSend(ShareHelper.actionSave(adapter,true,mode,context),zipData,context);
+        //    return true;
+        //} else if (item.getItemId() == R.id.action_save) {
+        //    ShareHelper.actionSendSave(activityResultLauncher);
+        //    return true;
+        // } else
+        if (item.getItemId() == R.id.action_sharetext) {
             ShareHelper.actionSendText(ShareHelper.actionSave(adapter,false,mode,context),context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {

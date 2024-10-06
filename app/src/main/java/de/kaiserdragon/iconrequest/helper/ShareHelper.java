@@ -34,6 +34,7 @@ import de.kaiserdragon.iconrequest.AppInfo;
 import de.kaiserdragon.iconrequest.R;
 import de.kaiserdragon.iconrequest.RequestActivity;
 import de.kaiserdragon.iconrequest.AppAdapter;
+import de.kaiserdragon.iconrequest.ZipData;
 
 public class ShareHelper {
     private static final String TAG = "ShareHelper";
@@ -122,7 +123,7 @@ public class ShareHelper {
         ZipOutputStream zos = new ZipOutputStream(baos);
 
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
-        if (arrayList.size() == 0) {
+        if (arrayList.isEmpty()) {
             // no apps are selected
             makeToast(context.getString(R.string.request_toast_no_apps_selected),context);
             return new String[]{null};
@@ -185,8 +186,9 @@ public class ShareHelper {
             zos.close();
 
             // You can then access the contents of the ZIP file as a byte array
-            //todo: needs to be accessible in different activity
-            RequestActivity.zipData  = baos.toByteArray();
+            //todo: needs to be accessible in different activities
+            ZipData zip = (ZipData) context.getApplicationContext();
+            zip.setZipData(baos.toByteArray());
 
             return new String[]{zipName, stringBuilderEmail.toString()};
         } catch (IOException e) {

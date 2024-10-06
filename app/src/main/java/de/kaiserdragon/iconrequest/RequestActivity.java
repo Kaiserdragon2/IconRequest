@@ -1,9 +1,7 @@
 package de.kaiserdragon.iconrequest;
 
-
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -35,9 +33,6 @@ import de.kaiserdragon.iconrequest.helper.ShareHelper;
 import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
 import de.kaiserdragon.iconrequest.helper.PrepareRequestData;
 
-
-
-
 public class RequestActivity extends AppCompatActivity implements OnAppSelectedListener {
     private static final String TAG = "RequestActivity";
     private static final boolean DEBUG = true;
@@ -50,12 +45,13 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
     private static boolean ActionMain;
     private static boolean firstRun;
     private final Context context = this;
-    public static byte[] zipData = null;
     private ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private boolean IPackChosen = false;
     private RecyclerView recyclerView;
     private AppAdapter adapter;
+    private ZipData zip;
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onSaveInstanceState");
@@ -88,6 +84,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
             }
         });
 
+        zip = (ZipData) getApplicationContext();
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
 
@@ -121,12 +118,11 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,updateOnly,mode,context),zipData,result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,updateOnly,mode,context),zip.getZipData(),result,context));
     }
 
     public void IPackSelect(String packageName) {
         switcherLoad.showNext();
-        PackageManager pm = getPackageManager();
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             try {
@@ -141,7 +137,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
                     adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "IPackSelect: ", e);
             }
 
             runOnUiThread(() -> {
@@ -164,7 +160,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
     public boolean onCreateOptionsMenu(Menu menu) {
 
 
-        if (((OnlyNew && !Shortcut)|| (mode >= 2 && mode <= 5)) && !IPackChosen) {
+        if ((OnlyNew && !Shortcut) && !IPackChosen) {
             getMenuInflater().inflate(R.menu.menu_iconpack_chooser, menu);
         } else {
             getMenuInflater().inflate(R.menu.menu_request, menu);
@@ -175,9 +171,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
             MenuItem searchItem = menu.findItem(R.id.action_search);
             SearchView searchView = (SearchView) searchItem.getActionView();
 
-
-
-            if (updateOnly || (mode >= 2 && mode <= 5)) {
+            if (updateOnly) {
                 save.setVisible(false);
                 share.setVisible(false);
                 share_text.setVisible(true);
@@ -207,15 +201,13 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
                 }
             });
         }
-
-
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,true,mode,context),zipData,context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter,true,mode,context),zip.getZipData(),context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);

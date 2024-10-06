@@ -42,8 +42,8 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     private AppAdapter adapter;
     private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
     private static int mode;
-    public static byte[] zipData = null;
     private final Context context = this;
+    private ZipData zip;
 
     @Override
     public void onAppSelected(String packageName) {
@@ -73,6 +73,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         });
         mode = getIntent().getIntExtra("update", 0);
         appListAll.clear();
+        zip = (ZipData) getApplicationContext();
 
         setContentView(R.layout.activity_request);
         switcherLoad = findViewById(R.id.viewSwitcherLoadingMain);
@@ -100,7 +101,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,false,mode,context),zipData,result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,false,mode,context),zip.getZipData(),result,context));
 
     }
 
@@ -115,7 +116,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
                 adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "startCompareIconPacksDifference: ", e);
             }
             runOnUiThread(() -> {
                 if(adapter.AdapterSize() < 1){
@@ -137,10 +138,10 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
             MenuItem copy = menu.findItem(R.id.action_copy);
             MenuItem searchItem = menu.findItem(R.id.action_search);
             SearchView searchView = (SearchView) searchItem.getActionView();
-            //    save.setVisible(false);
-            //    share.setVisible(false);
-           //     share_text.setVisible(true);
-            //    copy.setVisible(true);
+            save.setVisible(true);
+            share.setVisible(true);
+            share_text.setVisible(true);
+            copy.setVisible(true);
 
             // Set up search functionality
             assert searchView != null;
@@ -167,7 +168,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,false,mode,context),zipData,context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter,false,mode,context),zip.getZipData(),context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
