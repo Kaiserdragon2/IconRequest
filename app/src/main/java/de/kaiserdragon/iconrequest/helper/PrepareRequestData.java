@@ -101,7 +101,7 @@ public class PrepareRequestData {
 
         for (ResolveInfo resolveInfo : list) {
             Drawable icon1 = DrawableHelper.getHighResIcon(pm, resolveInfo);
-            AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
+            AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false,null,null);
 
             if (SecondIcon) {
                 Drawable icon2 = null;
@@ -109,7 +109,7 @@ public class PrepareRequestData {
                     AppInfo geticon = appListAll.get(appListAll.indexOf(appInfo));
                     icon2 = geticon.icon;
                 }
-                appInfo = new AppInfo(icon1, icon2, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
+                appInfo = new AppInfo(icon1, icon2, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false,null,null);
             }
 
             if (OnlyNew) {

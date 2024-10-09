@@ -3,7 +3,10 @@ package de.kaiserdragon.iconrequest;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -98,6 +101,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
+            Looper.prepare();
             if (Shortcut) {
                 adapter = new AppAdapter(PrepareRequestData.prepareDataShortcuts(this,appListAll,false,false),true,false,this);
             }
@@ -125,8 +129,12 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
         switcherLoad.showNext();
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
+            Looper.prepare();
             try {
-                XMLParserHelper.parseXML(packageName, SecondIcon || (mode >= 2 && mode <= 5), appListAll, context);
+                PackageManager pm = getPackageManager();
+                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_META_DATA);
+                String label = packageInfo.applicationInfo.loadLabel(pm).toString();
+                XMLParserHelper.parseXML(packageName, label,SecondIcon || (mode >= 2 && mode <= 5), appListAll, context);
                 if (mode < 2 || mode > 5) {
                     if(ActionMain){
                         adapter = new AppAdapter(PrepareRequestData.prepareDataActionMain(this,appListAll,OnlyNew,SecondIcon),false,SecondIcon||mode==3,this);

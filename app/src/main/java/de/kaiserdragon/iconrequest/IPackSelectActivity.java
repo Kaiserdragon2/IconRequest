@@ -91,7 +91,7 @@ public class IPackSelectActivity extends AppCompatActivity {
 
         for (ResolveInfo resolveInfo : list) {
             Drawable icon1 = DrawableHelper.getHighResIcon(pm, resolveInfo);
-            AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false);
+            AppInfo appInfo = new AppInfo(icon1, null, resolveInfo.loadLabel(pm).toString(), resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name, false,null,null);
             arrayList.add(appInfo);
         }
         return CommonHelper.sort(arrayList);

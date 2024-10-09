@@ -9,14 +9,19 @@ public class AppInfo {
     public boolean selected;
     String packageName;
     String className;
+    String IconPackName;
+    String IconPackPackageName;
 
-    public AppInfo(Drawable icon, Drawable icon2, String label, String packageName, String className, boolean selected) {
+
+    public AppInfo(Drawable icon, Drawable icon2, String label, String packageName, String className, boolean selected,String IconPackName,String IconPackPackageName) {
         this.icon = icon;
         this.icon2 = icon2;
         this.label = label;
         this.packageName = packageName;
         this.className = className;
         this.selected = selected;
+        this.IconPackName = IconPackName;
+        this.IconPackPackageName = IconPackPackageName;
     }
 
     public String getCode() {
@@ -25,6 +30,10 @@ public class AppInfo {
 
     public String getLabel() {
         return label;
+    }
+
+    public String getIconPackPackageName() {
+        return IconPackPackageName;
     }
 
     public void setLabel(String label) {

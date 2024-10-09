@@ -5,6 +5,7 @@ import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,12 +45,14 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     private static int mode;
     private final Context context = this;
     private ZipData zip;
+    private String iconPackPackageName;
 
     @Override
     public void onAppSelected(String packageName) {
         //IPackSelect(packageName);
+        Log.i(TAG, "onAppSelected: " + packageName);
         if(adapter.getSelectedItemCount() == 2) {
-            Log.i(TAG, "onAppSelected: " + packageName);
+            iconPackPackageName = packageName;
             switcherLoad.showNext();
             startCompareIconPacksDifference();
         }
@@ -90,6 +93,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
+            Looper.prepare();
             adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this,appListAll),true,false,this);
             runOnUiThread(() -> {
                 findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
@@ -109,11 +113,13 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
+            Looper.prepare();
             try {
                 for (AppInfo appInfo : arrayList) {
-                    XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
+                    XMLParserHelper.parseXML(appInfo.packageName,appInfo.label, true, appListAll, context);
                 }
                 adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
+                adapter.showIPack(iconPackPackageName);
 
             } catch (Exception e) {
                 Log.e(TAG, "startCompareIconPacksDifference: ", e);

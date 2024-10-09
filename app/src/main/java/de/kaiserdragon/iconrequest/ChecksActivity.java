@@ -4,7 +4,11 @@ import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
 
 import android.content.Context;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -84,17 +88,24 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
 
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
-            adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this,appListAll),true,false,this);
-            runOnUiThread(() -> {
+            // Prepare your data in a background thread
+            Looper.prepare();
+            adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this, appListAll), true, false, this);
+
+            // Create a Handler for the main Looper
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+
+            // Post the UI updates to the main thread
+            mainHandler.post(() -> {
                 findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                if(adapter.AdapterSize() < 1){
+                if(adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
-
             });
         });
+
         //activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,true,mode,context),zipData,result,context));
 
     }
@@ -103,7 +114,11 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             try {
-                XMLParserHelper.parseXML(packageName, true, appListAll, context);
+                Looper.prepare();
+                PackageManager pm = getPackageManager();
+                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_META_DATA);
+                String label = packageInfo.applicationInfo.loadLabel(pm).toString();
+                XMLParserHelper.parseXML(packageName,label, true, appListAll, context);
                 adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
 
             } catch (Exception e) {
