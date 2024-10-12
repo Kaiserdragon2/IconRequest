@@ -23,10 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingTop="15dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="15dp"
+                android:padding="10dp"
                 android:text="@string/with_this_tool"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textSize="16sp"
@@ -91,6 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:padding="10dp"
                 android:text="@string/CompareIconPacks"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textSize="20sp"
@@ -101,6 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:padding="10dp"
                 android:text="@string/CompareIPacksText"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textSize="16sp" />
@@ -108,26 +107,27 @@
             <androidx.constraintlayout.widget.ConstraintLayout
 
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:padding="10dp">
 
                 <Button
                     android:id="@+id/ButtonDifference"
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:background="@color/primary"
                     android:insetTop="10dp"
                     android:insetBottom="10dp"
+                    android:minWidth="70dip"
                     android:paddingStart="20dp"
-                    android:paddingLeft="20dp"
                     android:paddingEnd="20dp"
-                    android:paddingRight="20dp"
                     android:text="@string/difference"
+                    android:textAlignment="center"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ButtonSimilarities"
+                    app:layout_constraintHorizontal_bias="0.2"
                     app:layout_constraintStart_toStartOf="parent" />
 
                 <Button
@@ -135,15 +135,14 @@
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
                     android:background="@color/primary"
                     android:insetTop="10dp"
                     android:insetBottom="10dp"
+                    android:minWidth="70dip"
                     android:paddingStart="20dp"
-                    android:paddingLeft="20dp"
                     android:paddingEnd="20dp"
-                    android:paddingRight="20dp"
                     android:text="@string/similarities"
+                    android:textAlignment="center"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -156,6 +155,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:padding="10dp"
                 android:text="@string/checkButton"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textSize="20sp"
@@ -166,13 +166,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:padding="10dp"
                 android:text="@string/checkIconPack"
                 android:textAppearance="@android:style/TextAppearance.Material.Medium"
                 android:textSize="16sp" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:padding="10dp">
 
                 <Button
                     android:id="@+id/ButtonMissingIcon"

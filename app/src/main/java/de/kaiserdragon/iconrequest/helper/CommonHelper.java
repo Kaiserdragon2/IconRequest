@@ -6,69 +6,75 @@ import android.widget.Toast;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import de.kaiserdragon.iconrequest.AppInfo;
 
 public class CommonHelper {
-    private static final String TAG = "CommonHelper";
 
     public static void makeToast(String text, Context context) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
-    public static ArrayList<AppInfo> compareNew(int mode, ArrayList<AppInfo> appListAll) {
+    public static ArrayList<AppInfo> findUnique(ArrayList<AppInfo> appListAll) {
+        // Using a LinkedHashSet to maintain insertion order and avoid duplicates
+        Set<String> seenCodes = new LinkedHashSet<>();
         ArrayList<AppInfo> newList = new ArrayList<>();
-        ArrayList<AppInfo> Listdopp = new ArrayList<>();
-        HashSet<String> set = new HashSet<>();
-        if (mode == 2) {
-            for (AppInfo appInfo : appListAll) {
-                if (set.contains(appInfo.getCode())) {
-                    set.remove(appInfo.getCode());
-                    newList.remove(appInfo);
-                } else {
-                    set.add(appInfo.getCode());
-                    newList.add(appInfo);
-                }
+
+        for (AppInfo appInfo : appListAll) {
+            // Check if the code has been seen before
+            if (seenCodes.add(appInfo.getCode())) {
+                // If the code is unique, add the appInfo to the newList
+                newList.add(appInfo);
             }
-            return sort(newList);
-        }
-        if (mode == 3 || mode == 4) {
-            for (AppInfo appInfo : appListAll) {
-                if (set.contains(appInfo.getCode())) {
-                    AppInfo existingApp = findExistingApp(newList, appInfo);
-                    assert existingApp != null;
-                    appInfo.icon2 = existingApp.icon;
-                    Listdopp.add(appInfo);
-                } else {
-                    set.add(appInfo.getCode());
-                    newList.add(appInfo);
-                }
-            }
-        }
-        if (mode == 5) {
-            ArrayList<AppInfo> filteredList = new ArrayList<>();
-            for (AppInfo appInfo : appListAll) {
-                if (appInfo.icon == null) {
-                    filteredList.add(appInfo);
-                }
-            }
-            return sort(filteredList);
         }
 
-        return sort(Listdopp);
+        // Return the sorted list of unique AppInfo objects
+        return sort(newList);
     }
 
-    private static AppInfo findExistingApp(ArrayList<AppInfo> list, AppInfo target) {
-        for (AppInfo appInfo : list) {
-            if (appInfo.equals(target)) {
-                return appInfo;
+
+    public static ArrayList<AppInfo> findDuplicates(ArrayList<AppInfo> appListAll) {
+        //ArrayList<AppInfo> uniqueApps = new ArrayList<>();
+        ArrayList<AppInfo> duplicateApps = new ArrayList<>();
+        HashSet<String> seenCodes = new HashSet<>();
+        HashMap<String, AppInfo> codeToAppMap = new HashMap<>();
+
+        // Iterate through the original app list
+        for (AppInfo appInfo : appListAll) {
+            String code = appInfo.getCode();
+
+            // Check for duplicate code
+            if (seenCodes.contains(code)) {
+                AppInfo existingApp = codeToAppMap.get(code);
+                if (existingApp != null) {
+                    appInfo.SetIcon2(existingApp.getIcon()); // Link duplicate app's icon
+                    duplicateApps.add(appInfo);
+                }
+            } else {
+                // First time seeing this code
+                seenCodes.add(code);
+                //uniqueApps.add(appInfo);
+                codeToAppMap.put(code, appInfo); // Map the code to the original app
             }
         }
-        return null; // Or throw an exception if not found, depending on your requirements.
+
+        return sort(duplicateApps); // Return sorted list of duplicates
     }
 
+    public static ArrayList<AppInfo> MissingIcon(ArrayList<AppInfo> appListAll) {
+        ArrayList<AppInfo> filteredList = new ArrayList<>();
+        for (AppInfo appInfo : appListAll) {
+            if (appInfo.getIcon() == null) {
+                filteredList.add(appInfo);
+            }
+        }
+        return sort(filteredList);
+    }
 
     public static ArrayList<AppInfo> sort(ArrayList<AppInfo> chaos) {
         Collections.sort(chaos, (object1, object2) -> {

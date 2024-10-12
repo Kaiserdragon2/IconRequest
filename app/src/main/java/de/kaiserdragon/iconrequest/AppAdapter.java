@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,21 +16,20 @@ import java.util.Locale;
 import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
 
 public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
+    private static final String TAG = "AppAdapter";
     private final List<AppInfo> appList;
     private final List<AppInfo> filteredList;
     private final List<AppInfo> iPackList;
     private final boolean iPackMode;
     private final boolean secondIcon;
-    private static final String TAG = "AppAdapter";
-
     private final Activity activity;
 
-    public AppAdapter(List<AppInfo> appList,Boolean iPacksMode,Boolean SecondIcon,Activity activity) {
+    public AppAdapter(List<AppInfo> appList, Boolean iPacksMode, Boolean SecondIcon, Activity activity) {
         this.appList = appList;
         this.filteredList = new ArrayList<>(appList);
         this.iPackList = new ArrayList<>(appList);
         iPackMode = iPacksMode;
-        this.activity =activity;
+        this.activity = activity;
         secondIcon = SecondIcon;
     }
 
@@ -49,6 +47,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         }
         Log.i(TAG, "filter: " + filteredList.size());
         //notifyItemRangeChanged(0, filteredList.size());
+        //Todo:dataset change invoke
         notifyDataSetChanged();
     }
 
@@ -66,10 +65,11 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         Log.i(TAG, "showIPack: " + iPackList.size());
         //notifyItemRangeChanged(0, filteredList.size());
         //notifyDataSetChanged();
+        //Todo:filter is ignored after this
         filter("");
     }
 
-    public int AdapterSize(){
+    public int AdapterSize() {
         return this.appList.size();
     }
 
@@ -81,7 +81,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         return count;
     }
 
-    public  ArrayList<AppInfo> getAllSelected() {
+    public ArrayList<AppInfo> getAllSelected() {
         ArrayList<AppInfo> arrayList = new ArrayList<>();
         for (AppInfo app : appList) {
             if (app.selected) arrayList.add(app);
@@ -102,7 +102,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     @Override
     public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_item, parent, false);
-        return new AppViewHolder(v, filteredList,iPackMode, (OnAppSelectedListener) activity);
+        return new AppViewHolder(v, filteredList, iPackMode, (OnAppSelectedListener) activity);
     }
 
 

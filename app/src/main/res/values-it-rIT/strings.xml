@@ -12,16 +12,13 @@
     <string name="notes">Le seguenti opzioni ti fanno scegliere uno dei tuoi pacchetti di icone installati da usare per queste opzioni. La prima opzione prende abbastanza potenza della cpu e quindi ci mette un po\' di tempo. Se non ti serve disabilitala.</string>
     <string name="ShowSecondRow">Mostra seconda icona da un altro pacchetto di icone</string>
     <string name="ShowOnly">Mostra solo applicazioni che non hanno un\'icona  personalizzata al momento</string>
-    <string name="savesetting">Salva</string>
-    <string name="chooseipack">"Scegli un pacchetto di icone"</string>
+    <string name="chooseIPack">"Scegli un pacchetto di icone"</string>
     <string name="with_this_tool">Con questo strumento puoi richiedere icone per applicazioni che mancano dai pacchetti di icone.</string>
     <string name="icon_update">Seleziona questa opzione se pensi che una delle tue applicazioni debba avere un\'icona, ma non ce l\'ha, o se alcune delle tue icone si sono rotte dopo un\'aggiornamento.\nDevi solo copiare e incollare del testo per questa opzione.</string>
     <string name="icon_new">Seleziona questa opzione se vuoi inviare una nuova richiesta di icone. Dovrai inviare un file con le icone richieste.</string>
     <string name="no_email_clients">Non sono installati programmi di posta elettronica.</string>
     <string name="appfilter_assets">Impossibile ottenere il file appfilter dal pacchetto di icone.</string>
-    <string name="request_dummy_text">Ciao mondo!</string>
-    <string name="loading">Caricamento...</string>
-    <string name="request_send_request">Invia Richiesta</string>
+    <string name="loading">Caricamento…</string>
     <string name="request_toast_no_apps_selected">Nessuna applicazione selezionata. Selezionane almeno una.</string>
     <string name="request_email_text">Mancano alcune icone di applicazioni sul mio dispositivo\n\n</string>
     <string name="CompareIconPacks">Confronta Pacchetti di Icone</string>
@@ -31,13 +28,14 @@
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
     <string name="checkIconPack">Controlla il pacchetto di icone per le voci duplicate o le voci con l\'icona mancante</string>
     <string name="checkButton">verificare pacchetti di icone</string>
-    <string name="MessageDialogCompare">Seleziona come vuoi confrontare i pacchetti di icone</string>
     <string name="difference">Mostra differenze</string>
     <string name="similarities">Mostra somiglianze</string>
-    <string name="MessageDialogCheck">Controlla il pacchetto di icone per voci duplicate o voci con icone mancanti.</string>
     <string name="duplicate">Controlla i duplicati</string>
     <string name="missingIcon">Controlla l\'icona mancante</string>
     <string name="nothing">Niente da mostrare qui</string>
     <string name="search">ricerca</string>
     <string name="MainNoLaunch">Mostra le app che non utilizzano la categoria Launcher</string>
+    <string name="ShowIconPack">Show Icon Pack</string>
+    <string name="All">All</string>
+    <string name="choose2IPack">Choose two icon packs</string>
 </resources>

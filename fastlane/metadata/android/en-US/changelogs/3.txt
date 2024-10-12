@@ -1,4 +1,0 @@
-Release 1.2
-New Features
-- Change Darkmode settings for the app specifically
-- minor Improvements

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
@@ -37,26 +38,36 @@ import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
 public class CompareActivity extends AppCompatActivity implements OnAppSelectedListener {
 
     private static final String TAG = "CompareActivity";
+    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static int mode;
+    private final Context context = this;
     private ViewSwitcher switcherLoad;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private RecyclerView recyclerView;
     private AppAdapter adapter;
-    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
-    private static int mode;
-    private final Context context = this;
     private ZipData zip;
-    private String iconPackPackageName;
+    private String iconPack1PackageName;
+    private String iconPack2PackageName;
+    private MenuItem IconPack1;
+    private MenuItem IconPack2;
 
     @Override
-    public void onAppSelected(String packageName) {
+    public void onAppSelected(String packageName, String label) {
         //IPackSelect(packageName);
         Log.i(TAG, "onAppSelected: " + packageName);
-        if(adapter.getSelectedItemCount() == 2) {
-            iconPackPackageName = packageName;
-            switcherLoad.showNext();
-            startCompareIconPacksDifference();
+        switch (adapter.getSelectedItemCount()) {
+            case 1:
+                IconPack1.setTitle(label);
+                iconPack1PackageName = packageName;
+                break;
+            case 2:
+                IconPack2.setTitle(label);
+                iconPack2PackageName = packageName;
+                switcherLoad.showNext();
+                startCompareIconPacksDifference();
         }
     }
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onSaveInstanceState");
@@ -94,38 +105,45 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             Looper.prepare();
-            adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this,appListAll),true,false,this);
+            adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this, appListAll), true, false, this);
             runOnUiThread(() -> {
-                findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                if(adapter.AdapterSize() < 1){
+                if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
+                }
+                TextView ipackChooserTextView = findViewById(R.id.text_iPack_chooser);
+                if (ipackChooserTextView != null) {
+                    ipackChooserTextView.setText(R.string.choose2IPack);
                 }
                 recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
 
             });
         });
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter,false,mode,context),zip.getZipData(),result,context));
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> ShareHelper.actionSaveExt(ShareHelper.actionSave(adapter, false, context), zip.getZipData(), result, context));
 
     }
 
-    private void startCompareIconPacksDifference(){
+    private void startCompareIconPacksDifference() {
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             Looper.prepare();
             try {
                 for (AppInfo appInfo : arrayList) {
-                    XMLParserHelper.parseXML(appInfo.packageName,appInfo.label, true, appListAll, context);
+                    XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
                 }
-                adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
-                adapter.showIPack(iconPackPackageName);
+                if (mode == 2) {
+                    adapter = new AppAdapter(CommonHelper.findUnique(appListAll), false, false, this);
+                } else if (mode == 3) {
+                    adapter = new AppAdapter(CommonHelper.findDuplicates(appListAll), false, true, this);
+                } else CommonHelper.makeToast("Error", this);
 
             } catch (Exception e) {
                 Log.e(TAG, "startCompareIconPacksDifference: ", e);
             }
             runOnUiThread(() -> {
-                if(adapter.AdapterSize() < 1){
+                findViewById(R.id.text_iPack_chooser).setVisibility(View.GONE);
+                if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
@@ -137,36 +155,40 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-            getMenuInflater().inflate(R.menu.menu_request, menu);
-            MenuItem save = menu.findItem(R.id.action_save);
-            MenuItem share = menu.findItem(R.id.action_share);
-            MenuItem share_text = menu.findItem(R.id.action_sharetext);
-            MenuItem copy = menu.findItem(R.id.action_copy);
-            MenuItem searchItem = menu.findItem(R.id.action_search);
-            SearchView searchView = (SearchView) searchItem.getActionView();
-            save.setVisible(true);
-            share.setVisible(true);
-            share_text.setVisible(true);
-            copy.setVisible(true);
+        getMenuInflater().inflate(R.menu.menu_request, menu);
+        MenuItem save = menu.findItem(R.id.action_save);
+        MenuItem share = menu.findItem(R.id.action_share);
+        MenuItem share_text = menu.findItem(R.id.action_sharetext);
+        MenuItem copy = menu.findItem(R.id.action_copy);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        MenuItem ShowIconPacks = menu.findItem(R.id.ShowIconPack);
+        IconPack1 = menu.findItem(R.id.IconPack1);
+        IconPack2 = menu.findItem(R.id.IconPack2);
+        ShowIconPacks.setVisible(true);
+        save.setVisible(true);
+        share.setVisible(true);
+        share_text.setVisible(true);
+        copy.setVisible(true);
 
-            // Set up search functionality
-            assert searchView != null;
+        // Set up search functionality
+        assert searchView != null;
 
-            searchView.setMaxWidth(700);
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    // Handle search query submission
-                    return true;
-                }
+        searchView.setMaxWidth(700);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Handle search query submission
+                return true;
+            }
 
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    // Handle search query text change
-                    adapter.filter(newText);
-                    return true;
-                }
-            });
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Handle search query text change
+                adapter.filter(newText);
+                return true;
+            }
+        });
 
         return true;
     }
@@ -174,16 +196,16 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter,false,mode,context),zip.getZipData(),context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter, false, context), zip.getZipData(), context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
         } else if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,true,mode,context),context);
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,true,mode,context),context);
+            ShareHelper.actionCopy(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
@@ -191,6 +213,15 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         } else if (item.getItemId() == R.id.selectall) {
             adapter.setAllSelected(!item.isChecked());
             item.setChecked(!item.isChecked());
+            return true;
+        } else if (item.getItemId() == R.id.IconPack1) {
+            adapter.showIPack(iconPack1PackageName);
+            return true;
+        } else if (item.getItemId() == R.id.IconPack2) {
+            adapter.showIPack(iconPack2PackageName);
+            return true;
+        } else if (item.getItemId() == R.id.IconPackAll) {
+            adapter.showIPack("");
             return true;
         } else {
             super.onOptionsItemSelected(item);

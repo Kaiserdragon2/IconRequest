@@ -30,23 +30,23 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import de.kaiserdragon.iconrequest.AppAdapter;
 import de.kaiserdragon.iconrequest.AppInfo;
 import de.kaiserdragon.iconrequest.R;
-import de.kaiserdragon.iconrequest.RequestActivity;
-import de.kaiserdragon.iconrequest.AppAdapter;
 import de.kaiserdragon.iconrequest.ZipData;
 
 public class ShareHelper {
     private static final String TAG = "ShareHelper";
-    public static void actionCopy(String[] array,Context context) {
+
+    public static void actionCopy(String[] array, Context context) {
         if (array[0] == null) return;
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Icon Request", array[1]);
         clipboard.setPrimaryClip(clip);
-        makeToast("Your icon request has been saved to the clipboard.",context);
+        makeToast("Your icon request has been saved to the clipboard.", context);
     }
 
-    public static void actionSend(String[] array,byte[] zipData, Context context) {
+    public static void actionSend(String[] array, byte[] zipData, Context context) {
         if (array[0] == null) return;
         final File ZipLocation = new File(context.getFilesDir() + "/share");
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
@@ -59,7 +59,7 @@ public class ShareHelper {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(zipData);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "actionSend: ", e);
         }
 
         Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
@@ -73,12 +73,12 @@ public class ShareHelper {
         try {
             context.startActivity(Intent.createChooser(intent, null));
         } catch (Exception e) {
-            makeToast(context.getString(R.string.no_email_clients),context);
-            e.printStackTrace();
+            makeToast(context.getString(R.string.no_email_clients), context);
+            Log.e(TAG, "actionSend: ", e);
         }
     }
 
-    public static void actionSendText(String[] array,Context context) {
+    public static void actionSendText(String[] array, Context context) {
         if (array[0] == null) return;
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -86,8 +86,8 @@ public class ShareHelper {
         try {
             context.startActivity(Intent.createChooser(intent, null));
         } catch (Exception e) {
-            makeToast(context.getString(R.string.no_email_clients),context);
-            e.printStackTrace();
+            makeToast(context.getString(R.string.no_email_clients), context);
+            Log.e(TAG, "actionSendText: ", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class ShareHelper {
                     os.write(buffer, 0, length);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "actionSaveExt: ", e);
             }
         }
     }
@@ -118,14 +118,15 @@ public class ShareHelper {
         intent.putExtra(Intent.EXTRA_TITLE, "IconRequest_" + zipName);
         activityResultLauncher.launch(intent);
     }
-    public static String[] actionSave(AppAdapter adapter, Boolean updateOnly, int mode, Context context) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
+
+    public static String[] actionSave(AppAdapter adapter, Boolean updateOnly, Context context) {
+        ByteArrayOutputStream BaOs = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(BaOs);
 
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
         if (arrayList.isEmpty()) {
             // no apps are selected
-            makeToast(context.getString(R.string.request_toast_no_apps_selected),context);
+            makeToast(context.getString(R.string.request_toast_no_apps_selected), context);
             return new String[]{null};
         }
 
@@ -149,15 +150,15 @@ public class ShareHelper {
                 LabelList.add(iconName);
 
                 try {
-                    Bitmap bitmap = DrawableHelper.getBitmapFromDrawable(arrayList.get(i).icon);
-                    ByteArrayOutputStream baosimg = new ByteArrayOutputStream();
+                    Bitmap bitmap = DrawableHelper.getBitmapFromDrawable(arrayList.get(i).getIcon());
+                    ByteArrayOutputStream BaOsImg = new ByteArrayOutputStream();
                     ZipEntry ze = new ZipEntry(iconName + ".png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baosimg);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, BaOsImg);
                     zos.putNextEntry(ze);
-                    zos.write(baosimg.toByteArray());
+                    zos.write(BaOsImg.toByteArray());
                     zos.closeEntry();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "actionSave: ", e);
                 }
 
             }
@@ -188,11 +189,11 @@ public class ShareHelper {
             // You can then access the contents of the ZIP file as a byte array
             //todo: needs to be accessible in different activities
             ZipData zip = (ZipData) context.getApplicationContext();
-            zip.setZipData(baos.toByteArray());
+            zip.setZipData(BaOs.toByteArray());
 
             return new String[]{zipName, stringBuilderEmail.toString()};
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "actionSave: ", e);
         }
         return new String[]{zipName, stringBuilderEmail.toString()};
     }

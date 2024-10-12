@@ -21,19 +21,19 @@ public class XMLParserHelper {
 
     private static XmlPullParserFactory xmlPullParserFactory;
 
-    public static void parseXML(String packageName,String label, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Context context) {
+    public static void parseXML(String packageName, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Context context) {
         try {
             Resources iconPackRes = context.getPackageManager().getResourcesForApplication(packageName);
             XmlPullParser xpp = getAppfilterFile(packageName, iconPackRes, context);
             if (xpp != null) {
-                parseXmlContent(context,xpp, loadSecondIcon, appListAll, iconPackRes, packageName,label);
+                parseXmlContent(context, xpp, loadSecondIcon, appListAll, iconPackRes, packageName);
             }
         } catch (Exception e) {
             handleParsingException(context, e);
         }
     }
 
-    private static void parseXmlContent(Context context,XmlPullParser xpp, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Resources iconPackRes, String packageName, String label) throws XmlPullParserException, IOException {
+    private static void parseXmlContent(Context context, XmlPullParser xpp, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Resources iconPackRes, String packageName) throws XmlPullParserException, IOException {
         final String startTag = "item";
         final String drawableAttribute = "drawable";
         final String componentAttribute = "component";
@@ -52,11 +52,11 @@ public class XMLParserHelper {
                             String xmlPackage = xmlComponent.substring(packageSubstringLength, slashIndex);
                             String xmlClass = xmlComponent.substring(slashIndex + 1, endIndex);
                             Drawable icon = loadSecondIcon ? DrawableHelper.loadDrawable(xmlLabel, iconPackRes, packageName) : null;
-                            appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false,label,packageName));
+                            appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false, packageName));
                         }
                     }
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 handleParsingException(context, e);
             }
 

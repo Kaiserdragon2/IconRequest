@@ -3,9 +3,6 @@ package de.kaiserdragon.iconrequest;
 import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
 
 import android.content.Context;
-
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,7 +13,6 @@ import android.view.View;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -36,23 +32,24 @@ import de.kaiserdragon.iconrequest.helper.ShareHelper;
 import de.kaiserdragon.iconrequest.helper.XMLParserHelper;
 import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
 
-public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedListener {
+public class ChecksActivity extends AppCompatActivity implements OnAppSelectedListener {
     private static final String TAG = "ChecksActivity";
+    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
+    private static int mode;
+    private final Context context = this;
     private ViewSwitcher switcherLoad;
     //private ActivityResultLauncher<Intent> activityResultLauncher;
     private RecyclerView recyclerView;
     private AppAdapter adapter;
-    private static final ArrayList<AppInfo> appListAll = new ArrayList<>();
-    private static int mode;
-    private final Context context = this;
 
     @Override
-    public void onAppSelected(String packageName) {
+    public void onAppSelected(String packageName, String label) {
 
         Log.i(TAG, "onAppSelected: " + packageName);
         switcherLoad.showNext();
         startChecks(packageName);
     }
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         if (DEBUG) Log.v(TAG, "onSaveInstanceState");
@@ -97,8 +94,7 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
 
             // Post the UI updates to the main thread
             mainHandler.post(() -> {
-                findViewById(R.id.text_ipack_chooser).setVisibility(View.GONE);
-                if(adapter.AdapterSize() < 1) {
+                if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
@@ -110,22 +106,24 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
 
     }
 
-    private void startChecks(String packageName){
+    private void startChecks(String packageName) {
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             try {
                 Looper.prepare();
-                PackageManager pm = getPackageManager();
-                PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_META_DATA);
-                String label = packageInfo.applicationInfo.loadLabel(pm).toString();
-                XMLParserHelper.parseXML(packageName,label, true, appListAll, context);
-                adapter = new AppAdapter(CommonHelper.compareNew(mode,appListAll),false,mode==4||mode==3,this);
+                XMLParserHelper.parseXML(packageName, true, appListAll, context);
+                if (mode == 4) {
+                    adapter = new AppAdapter(CommonHelper.findDuplicates(appListAll), false, true, this);
+                } else if (mode == 5) {
+                    adapter = new AppAdapter(CommonHelper.MissingIcon(appListAll), false, false, this);
+                } else CommonHelper.makeToast("Error", this);
 
             } catch (Exception e) {
                 Log.e(TAG, "startChecks: ", e);
             }
             runOnUiThread(() -> {
-                if(adapter.AdapterSize() < 1){
+                findViewById(R.id.text_iPack_chooser).setVisibility(View.GONE);
+                if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
@@ -134,6 +132,7 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
         });
 
     }
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_request, menu);
         MenuItem save = menu.findItem(R.id.action_save);
@@ -142,6 +141,9 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
         MenuItem copy = menu.findItem(R.id.action_copy);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
+        MenuItem ShowIconPacks = menu.findItem(R.id.ShowIconPack);
+
+        ShowIconPacks.setVisible(false);
         save.setVisible(false);
         share.setVisible(false);
         share_text.setVisible(true);
@@ -179,10 +181,10 @@ public class ChecksActivity  extends AppCompatActivity implements OnAppSelectedL
         //    return true;
         // } else
         if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(ShareHelper.actionSave(adapter,false,mode,context),context);
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            ShareHelper.actionCopy(ShareHelper.actionSave(adapter,true,mode,context),context);
+            ShareHelper.actionCopy(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);

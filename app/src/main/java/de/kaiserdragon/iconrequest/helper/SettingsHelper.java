@@ -26,7 +26,7 @@ public class SettingsHelper {
         return sharedPreferences.getInt(setting, -1);
     }
 
-    public static boolean loadDataBool(String setting,Context context) {
+    public static boolean loadDataBool(String setting, Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("SharedPrefs", MODE_PRIVATE);
         return sharedPreferences.getBoolean(setting, false);
     }

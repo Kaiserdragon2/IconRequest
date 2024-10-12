@@ -12,7 +12,8 @@ import android.util.Log;
 import androidx.core.content.res.ResourcesCompat;
 
 public class DrawableHelper {
-    private static final String TAG ="DrawableHelper";
+    private static final String TAG = "DrawableHelper";
+
     public static Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
 
         Drawable icon;
@@ -28,7 +29,7 @@ public class DrawableHelper {
             try {
                 //fails return the normal icon
                 return resolveInfo.loadIcon(pm);
-            }catch(Exception exception){
+            } catch (Exception exception) {
                 Log.e(TAG, String.valueOf(exception));
                 return null;
             }

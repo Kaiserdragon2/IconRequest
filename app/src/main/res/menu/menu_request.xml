@@ -46,4 +46,19 @@
         android:title="@android:string/selectAll"
         app:buttonTint="?attr/colorOnPrimary"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/ShowIconPack"
+        android:title="@string/ShowIconPack">
+        <menu>
+            <item
+                android:id="@+id/IconPack1"
+                android:title="@string/IconPack1" />
+            <item
+                android:id="@+id/IconPack2"
+                android:title="@string/IconPack2" />
+            <item
+                android:id="@+id/IconPackAll"
+                android:title="@string/All" />
+        </menu>
+    </item>
 </menu>
