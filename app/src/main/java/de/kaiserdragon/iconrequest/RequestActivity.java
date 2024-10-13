@@ -96,7 +96,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
         executor.execute(() -> {
             Looper.prepare();
             if (Shortcut) {
-                adapter = new AppAdapter(PrepareRequestData.prepareDataShortcuts(this, appListAll, false, false), true, false, this);
+                adapter = new AppAdapter(PrepareRequestData.prepareDataShortcuts(this, appListAll, false, false), false, false, this);
             } else if (OnlyNew || SecondIcon) {
                 adapter = new AppAdapter(PrepareRequestData.prepareDataIPack(this, appListAll), true, false, this);
             } else if (ActionMain) {

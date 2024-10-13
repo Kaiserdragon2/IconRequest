@@ -90,13 +90,13 @@ public class SettingActivity extends AppCompatActivity {
         resetButtonColors();
         switch (SettingsHelper.loadData("DarkModeState", this)) {
             case -1:
-                setDefault.setBackgroundColor(Color.BLUE);
+                setDefault.setBackgroundColor(getResources().getColor(R.color.secondary));
                 break;
             case 1:
-                setLight.setBackgroundColor(Color.BLUE);
+                setLight.setBackgroundColor(getResources().getColor(R.color.secondary));
                 break;
             case 2:
-                setDark.setBackgroundColor(Color.BLUE);
+                setDark.setBackgroundColor(getResources().getColor(R.color.secondary));
                 break;
         }
 

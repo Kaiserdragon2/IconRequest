@@ -4,12 +4,12 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primaryDark</item>
+        <item name="colorPrimaryVariant">@color/primaryVariant</item>
         <item name="colorOnPrimary">@color/onPrimary</item>
         <item name="colorAccent">@color/primary</item>
 
-        <item name="colorSecondary">@color/primaryBlack</item>
-        <item name="colorSecondaryVariant">@color/primaryDarkBlack</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorSecondaryVariant">@color/secondaryVariant</item>
         <item name="colorOnSecondary">@color/onPrimary</item>
         <item name="android:statusBarColor" >@color/primary</item>
         <item name="android:navigationBarColor" >@color/primary</item>
@@ -19,12 +19,12 @@
 
     <style name="Base_ToolbarStyle" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
         <item name="android:background">@color/primary</item>
-        <item name="titleTextAppearance">@color/textPrimary</item>
-        <item name="subtitleTextAppearance">@color/textPrimary</item>
+        <item name="titleTextAppearance">@color/onPrimary</item>
+        <item name="subtitleTextAppearance">@color/onPrimary</item>
         <!-- Color used for the title of the Toolbar - as long as not overridden -->
-        <item name="android:textColorPrimary">@color/textPrimary</item>
+        <item name="android:textColorPrimary">@color/onPrimary</item>
         <!-- Used to color back button and three dots -->
-        <item name="android:textColorSecondary">@color/textPrimary</item>
+        <item name="android:textColorSecondary">@color/onPrimary</item>
     </style>
     <style name="PopupMenuListView" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
         <item name="android:dividerHeight">2dp</item>
