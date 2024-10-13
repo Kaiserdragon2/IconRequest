@@ -12,7 +12,8 @@ import android.util.Log;
 import androidx.core.content.res.ResourcesCompat;
 
 public class DrawableHelper {
-    private static final String TAG ="DrawableHelper";
+    private static final String TAG = "DrawableHelper";
+
     public static Drawable getHighResIcon(PackageManager pm, ResolveInfo resolveInfo) {
 
         Drawable icon;
@@ -20,7 +21,7 @@ public class DrawableHelper {
             ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
             int iconId = resolveInfo.getIconResource();//Get the resource Id for the activity icon
             if (iconId != 0) {
-                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
+                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null);
                 return icon;
             }
             return resolveInfo.loadIcon(pm);
@@ -28,7 +29,7 @@ public class DrawableHelper {
             try {
                 //fails return the normal icon
                 return resolveInfo.loadIcon(pm);
-            }catch(Exception exception){
+            } catch (Exception exception) {
                 Log.e(TAG, String.valueOf(exception));
                 return null;
             }
@@ -44,10 +45,10 @@ public class DrawableHelper {
     }
 
     //get the drawable for an app from the icon Pack
-    public static Drawable loadDrawable(String drawableName, Resources iconPackres, String packageName) {
-        int id = iconPackres.getIdentifier(drawableName, "drawable", packageName);
+    public static Drawable loadDrawable(String drawableName, Resources iconPackRes, String packageName) {
+        int id = iconPackRes.getIdentifier(drawableName, "drawable", packageName);
         if (id > 0) {
-            return ResourcesCompat.getDrawable(iconPackres, id, null);
+            return ResourcesCompat.getDrawable(iconPackRes, id, null);
         }
         return null;
     }

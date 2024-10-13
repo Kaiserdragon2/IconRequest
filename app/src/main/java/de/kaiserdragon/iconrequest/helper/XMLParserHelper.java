@@ -26,38 +26,47 @@ public class XMLParserHelper {
             Resources iconPackRes = context.getPackageManager().getResourcesForApplication(packageName);
             XmlPullParser xpp = getAppfilterFile(packageName, iconPackRes, context);
             if (xpp != null) {
-                parseXmlContent(xpp, loadSecondIcon, appListAll, iconPackRes, packageName);
+                parseXmlContent(context, xpp, loadSecondIcon, appListAll, iconPackRes, packageName);
             }
         } catch (Exception e) {
             handleParsingException(context, e);
         }
     }
 
-    private static void parseXmlContent(XmlPullParser xpp, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Resources iconPackRes, String packageName) throws XmlPullParserException, IOException {
+    private static void parseXmlContent(Context context, XmlPullParser xpp, Boolean loadSecondIcon, ArrayList<AppInfo> appListAll, Resources iconPackRes, String packageName) throws XmlPullParserException, IOException {
         final String startTag = "item";
         final String drawableAttribute = "drawable";
         final String componentAttribute = "component";
         final int packageSubstringLength = 14;
         final char slash = '/';
         int eventType = xpp.getEventType();
+        Log.v(TAG, "parseXmlContent" + packageName);
         while (eventType != XmlPullParser.END_DOCUMENT) {
-            if (eventType == XmlPullParser.START_TAG && startTag.equals(xpp.getName())) {
-                String xmlLabel = xpp.getAttributeValue(null, drawableAttribute);
-                String xmlComponent = xpp.getAttributeValue(null, componentAttribute);
-                if (xmlLabel != null && xmlComponent != null) {
-                    int slashIndex = xmlComponent.indexOf(slash);
-                    int endIndex = xmlComponent.length() - 1;
-                    if (slashIndex > 0 && slashIndex < endIndex) {
-                        String xmlPackage = xmlComponent.substring(packageSubstringLength, slashIndex);
-                        String xmlClass = xmlComponent.substring(slashIndex + 1, endIndex);
-                        Drawable icon = loadSecondIcon ? DrawableHelper.loadDrawable(xmlLabel, iconPackRes, packageName) : null;
-                        appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false));
+            try {
+                if (eventType == XmlPullParser.START_TAG && startTag.equals(xpp.getName())) {
+                    String xmlLabel = xpp.getAttributeValue(null, drawableAttribute);
+                    String xmlComponent = xpp.getAttributeValue(null, componentAttribute);
+                    if (xmlLabel != null && xmlComponent != null) {
+                        int slashIndex = xmlComponent.indexOf(slash);
+                        int endIndex = xmlComponent.length() - 1;
+                        if (slashIndex > 0 && slashIndex < endIndex) {
+                            String xmlPackage = xmlComponent.substring(packageSubstringLength, slashIndex);
+                            String xmlClass = xmlComponent.substring(slashIndex + 1, endIndex);
+                            Drawable icon = loadSecondIcon ? DrawableHelper.loadDrawable(xmlLabel, iconPackRes, packageName) : null;
+                            appListAll.add(new AppInfo(icon, null, xmlLabel, xmlPackage, xmlClass, false, packageName));
+                        }
                     }
                 }
+            } catch (Exception e) {
+                handleParsingException(context, e);
             }
+
             eventType = xpp.next();
         }
+        Log.v(TAG, "parseXmlContent done");
     }
+
+
 
 
     private static void handleParsingException(Context context, Exception e) {

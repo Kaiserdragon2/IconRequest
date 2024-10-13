@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 34
-    buildToolsVersion = '34.0.0'
+    compileSdk 35
+    buildToolsVersion = '35.0.0'
 
     defaultConfig {
         applicationId 'de.kaiserdragon.iconrequest'
         minSdkVersion 21
-        targetSdk 34
-        versionName '2.3.0'
-        versionCode 22
+        targetSdk 35
+        versionName '2.5.1'
+        versionCode 23
     }
 
     buildTypes {
@@ -17,9 +17,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            zipAlignEnabled true
-        }
+        debug {}
         applicationVariants.all{
             variant ->
                 variant.outputs.each{
@@ -37,11 +35,14 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
     namespace 'de.kaiserdragon.iconrequest'
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.7.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.annotation:annotation:1.8.2'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core:1.13.1'
+    implementation 'com.google.android.material:material:1.12.0'
 }

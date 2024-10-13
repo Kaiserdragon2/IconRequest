@@ -1,1 +1,0 @@
-Added option to select all apps at once.

@@ -2,10 +2,10 @@ With this app you can share the data for adding the icons missing in your icon p
 
 #### Features:
 
-- save request as zipfile on your device
+- save request as zip file on your device
 - share request with compatible apps
-- copy only the compomnent info to your clipboard
-- share the compomnent info over other apps
+- copy only the component info to your clipboard
+- share the component info over other apps
 - choose an installed icon pack from your device
 	- show only icons that aren't in this icon pack
 	- show a second icon beside the standard icon from this icon pack

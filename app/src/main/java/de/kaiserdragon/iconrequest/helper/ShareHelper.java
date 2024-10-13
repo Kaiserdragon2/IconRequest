@@ -30,54 +30,55 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import de.kaiserdragon.iconrequest.AppAdapter;
 import de.kaiserdragon.iconrequest.AppInfo;
 import de.kaiserdragon.iconrequest.R;
-import de.kaiserdragon.iconrequest.RequestActivity;
-import de.kaiserdragon.iconrequest.AppAdapter;
+import de.kaiserdragon.iconrequest.ZipData;
 
 public class ShareHelper {
     private static final String TAG = "ShareHelper";
-    public static void actionCopy(String[] array,Context context) {
+
+    public static void actionCopy(String[] array, Context context) {
         if (array[0] == null) return;
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Icon Request", array[1]);
         clipboard.setPrimaryClip(clip);
-        makeToast("Your icon request has been saved to the clipboard.",context);
+        makeToast("Your icon request has been saved to the clipboard.", context);
     }
 
-    public static void actionSend(String[] array,byte[] zipData, Context context) {
+    public static void actionSend(String[] array, byte[] zipData, Context context) {
         if (array[0] == null) return;
         final File ZipLocation = new File(context.getFilesDir() + "/share");
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("application/zip");
         deleteDirectory(ZipLocation);
-        ZipLocation.mkdir();
+        if(ZipLocation.mkdir()){
+            File file = new File(ZipLocation, array[0] + ".zip");
 
-        File file = new File(ZipLocation, array[0] + ".zip");
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(zipData);
+            } catch (IOException e) {
+                Log.e(TAG, "actionSend: ", e);
+            }
 
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(zipData);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra("android.intent.extra.SUBJECT", context.getString(R.string.request_email_subject));
+            intent.putExtra("android.intent.extra.TEXT", array[1]);
 
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra("android.intent.extra.SUBJECT", context.getString(R.string.request_email_subject));
-        intent.putExtra("android.intent.extra.TEXT", array[1]);
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(Intent.createChooser(intent, null));
-        } catch (Exception e) {
-            makeToast(context.getString(R.string.no_email_clients),context);
-            e.printStackTrace();
-        }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                context.startActivity(Intent.createChooser(intent, null));
+            } catch (Exception e) {
+                makeToast(context.getString(R.string.no_email_clients), context);
+                Log.e(TAG, "actionSend: ", e);
+            }
+        }else CommonHelper.makeToast("Something went wrong", context);
     }
 
-    public static void actionSendText(String[] array,Context context) {
+    public static void actionSendText(String[] array, Context context) {
         if (array[0] == null) return;
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -85,8 +86,8 @@ public class ShareHelper {
         try {
             context.startActivity(Intent.createChooser(intent, null));
         } catch (Exception e) {
-            makeToast(context.getString(R.string.no_email_clients),context);
-            e.printStackTrace();
+            makeToast(context.getString(R.string.no_email_clients), context);
+            Log.e(TAG, "actionSendText: ", e);
         }
     }
 
@@ -103,7 +104,7 @@ public class ShareHelper {
                     os.write(buffer, 0, length);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "actionSaveExt: ", e);
             }
         }
     }
@@ -117,14 +118,15 @@ public class ShareHelper {
         intent.putExtra(Intent.EXTRA_TITLE, "IconRequest_" + zipName);
         activityResultLauncher.launch(intent);
     }
-    public static String[] actionSave(AppAdapter adapter, Boolean updateOnly, int mode, Context context) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
+
+    public static String[] actionSave(AppAdapter adapter, Boolean updateOnly, Context context) {
+        ByteArrayOutputStream BaOs = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(BaOs);
 
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
-        if (arrayList.size() == 0) {
+        if (arrayList.isEmpty()) {
             // no apps are selected
-            makeToast(context.getString(R.string.request_toast_no_apps_selected),context);
+            makeToast(context.getString(R.string.request_toast_no_apps_selected), context);
             return new String[]{null};
         }
 
@@ -148,15 +150,15 @@ public class ShareHelper {
                 LabelList.add(iconName);
 
                 try {
-                    Bitmap bitmap = DrawableHelper.getBitmapFromDrawable(arrayList.get(i).icon);
-                    ByteArrayOutputStream baosimg = new ByteArrayOutputStream();
+                    Bitmap bitmap = DrawableHelper.getBitmapFromDrawable(arrayList.get(i).getIcon());
+                    ByteArrayOutputStream BaOsImg = new ByteArrayOutputStream();
                     ZipEntry ze = new ZipEntry(iconName + ".png");
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, baosimg);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, BaOsImg);
                     zos.putNextEntry(ze);
-                    zos.write(baosimg.toByteArray());
+                    zos.write(BaOsImg.toByteArray());
                     zos.closeEntry();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "actionSave: ", e);
                 }
 
             }
@@ -171,7 +173,7 @@ public class ShareHelper {
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
         //xmlString = stringBuilderXML.toString();
-        if (updateOnly || mode >= 2) return new String[]{zipName, stringBuilderXML.toString()};
+        if (updateOnly) return new String[]{zipName, stringBuilderXML.toString()};
 
         try {
             ZipEntry entry = new ZipEntry("appfilter.xml");
@@ -184,12 +186,12 @@ public class ShareHelper {
             zos.closeEntry();
             zos.close();
 
-            // You can then access the contents of the ZIP file as a byte array
-            RequestActivity.zipData  = baos.toByteArray();
+            ZipData zip = (ZipData) context.getApplicationContext();
+            zip.setZipData(BaOs.toByteArray());
 
             return new String[]{zipName, stringBuilderEmail.toString()};
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "actionSave: ", e);
         }
         return new String[]{zipName, stringBuilderEmail.toString()};
     }
@@ -201,12 +203,16 @@ public class ShareHelper {
             for (File file : files) {
                 if (file.isDirectory()) {
                     deleteDirectory(file);
-                } else {
-                    file.delete();
-                }
+                } else if(file.delete()){
+                    Log.i(TAG, "deleteDirectory: " + file.getName());
+                }else Log.e(TAG, "deleteDirectory: ", new IOException());
             }
         }
-        path.delete();
+        if(path.delete()){
+            Log.i(TAG, "deleteDirectory: " + path.getName());
+        }else {
+            Log.e(TAG, "deleteDirectory: ", new IOException());
+        }
     }
 
 }

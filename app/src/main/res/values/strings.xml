@@ -10,10 +10,10 @@
     <string name="save">Save File</string>
     <string name="settings">Settings</string>
 
-    <string name="Theme" translatable="false">Theme</string>
-    <string name="DarkMode" translatable="false">DarkMode</string>
-    <string name="LightMode" translatable="false">LightMode</string>
-    <string name="ThemeDevice">Device Default</string>
+    <string name="Theme">Theme</string>
+    <string name="DarkMode">Dark</string>
+    <string name="LightMode">Light</string>
+    <string name="ThemeDevice">System</string>
 
     <string name="Other">Other</string>
     <string name="notes">The following options let you choose one of your installed icon packs to use
@@ -21,9 +21,8 @@
         if you don\'t need it disable it. </string>
     <string name="ShowSecondRow">Show second icon from an icon pack</string>
     <string name="ShowOnly">Show only apps that currently doesn\'t have an themed icon</string>
-    <string name="savesetting">Save</string>
 
-    <string name="chooseipack">Choose an icon pack</string>
+    <string name="chooseIPack">Choose an icon pack</string>
 
     <string name="IconDescriber" translatable="false">Show Icon</string>
     <string name="IconSelectDescriber" translatable="false">Show Icon selected</string>
@@ -41,30 +40,29 @@
     <string name="no_email_clients">There are no email clients installed.</string>
     <string name="appfilter_assets">Couldn\'t get appfilter from the icon pack</string>
 
-    <string name="request_dummy_text">Hello world!</string>
     <string name="loading">Loading…</string>
-    <string name="request_send_request">Send Request</string>
     <string name="request_toast_no_apps_selected">No apps selected. Select at least one app.</string>
     <string name="request_email_subject" translatable="false">Icon Request</string>
     <string name="request_email_text">Some app icons are missing on my device.\n\n</string>
     <string name="CompareIconPacks">Compare Icon Packs</string>
     <string name="CompareIPacksText">Compare two Icon Packs. Show the different items or the similar items.</string>
     <string name="Experimental">Experimental</string>
-    <string name="AppsOrShortcutWidgets">Show shortcut widgets insted of apps</string>
+    <string name="AppsOrShortcutWidgets">Show shortcut widgets instead of apps</string>
     <string name="PrivacyPolicy"><a href="https://github.com/Kaiserdragon2/IconRequest/blob/main/Privacy_Policy.md">Privacy Policy</a></string>
     <string name="checkIconPack">Check the icon pack for duplicate entries or entries with missing icon</string>
-    <string name="checkButton">Check</string>
-    <string name="buttondialog1" translatable="false">buttondialog1</string>
-    <string name="buttondialog2" translatable="false">buttondialog2</string>
-    <string name="MessageDialogCompare">Select how you want to compare the icon packs</string>
-    <string name="difference">Show differences</string>
-    <string name="similarities">Show similarities</string>
-    <string name="MessageDialogCheck">Check icon pack for duplicate entries or entries with a missing icons.</string>
-    <string name="duplicate">Check for duplicates</string>
-    <string name="missingIcon">Check for missing icon</string>
+    <string name="checkButton">Check Icon Pack</string>
+    <string name="difference">Differences</string>
+    <string name="similarities">Similarities</string>
+    <string name="duplicate">Duplicates</string>
+    <string name="missingIcon">Missing icon</string>
     <string name="nothing">Nothing to show here</string>
     <string name="search">search</string>
     <string name="MainNoLaunch">Show Apps that don\'t use the Launcher Category</string>
+    <string name="ShowIconPack">Show Icon Pack</string>
+    <string name="IconPack1" translatable="false">IconPack1</string>
+    <string name="IconPack2" translatable="false">IconPack2</string>
+    <string name="All">All</string>
+    <string name="choose2IPack">Choose two icon packs</string>
 
 
 </resources>

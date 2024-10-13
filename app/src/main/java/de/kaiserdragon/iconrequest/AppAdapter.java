@@ -1,9 +1,10 @@
 package de.kaiserdragon.iconrequest;
 
+import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,39 +13,74 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.kaiserdragon.iconrequest.interfaces.OnAppSelectedListener;
+
 public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
+    private static final String TAG = "AppAdapter";
     private final List<AppInfo> appList;
     private final List<AppInfo> filteredList;
+    private final List<AppInfo> iPackList;
     private final boolean iPackMode;
     private final boolean secondIcon;
+    private final Activity activity;
+    private String LastQuery = "";
 
-    private RequestActivity requestActivity;
-
-    public AppAdapter(List<AppInfo> appList,Boolean iPacksMode,Boolean SecondIcon,RequestActivity RequestActivity) {
+    public AppAdapter(List<AppInfo> appList, Boolean iPacksMode, Boolean SecondIcon, Activity activity) {
         this.appList = appList;
         this.filteredList = new ArrayList<>(appList);
+        this.iPackList = new ArrayList<>(appList);
         iPackMode = iPacksMode;
-        requestActivity =RequestActivity;
+        this.activity = activity;
         secondIcon = SecondIcon;
     }
 
     public void filter(String query) {
+        LastQuery = query;
+        List<AppInfo> previousFilteredList = new ArrayList<>(filteredList);
         filteredList.clear();
+
         if (query.isEmpty()) {
-            filteredList.addAll(appList);
+            filteredList.addAll(iPackList);
         } else {
             String lowerCaseQuery = query.toLowerCase(Locale.getDefault());
-            for (AppInfo app : appList) {
+            for (AppInfo app : iPackList) {
                 if (app.getLabel().toLowerCase(Locale.getDefault()).contains(lowerCaseQuery)) {
                     filteredList.add(app);
                 }
             }
         }
-        notifyDataSetChanged();
+        notifyItemRangeRemoved(0, previousFilteredList.size());
+        notifyItemRangeInserted(0, filteredList.size());
+
+        Log.i(TAG, "filter: " + filteredList.size());
     }
 
-    public int AdapterSize(){
+
+    public void showIPack(String IconPackPackageName) {
+        iPackList.clear();
+        if (IconPackPackageName.isEmpty()) {
+            iPackList.addAll(appList);
+        } else {
+            for (AppInfo app : appList) {
+                if (app.getIconPackPackageName().contains(IconPackPackageName)) {
+                    iPackList.add(app);
+                }
+            }
+        }
+        Log.i(TAG, "showIPack: " + iPackList.size());
+        filter(LastQuery);
+    }
+
+    public int AdapterSize() {
         return this.appList.size();
+    }
+
+    public int getSelectedItemCount() {
+        int count = 0;
+        for (AppInfo app : appList) {
+            if (app.selected) count++;
+        }
+        return count;
     }
 
     public ArrayList<AppInfo> getAllSelected() {
@@ -56,10 +92,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     }
 
     public void setAllSelected(boolean selected) {
-        for (AppInfo app : appList) {
+        for (AppInfo app : filteredList) {
             app.setSelected(selected);
         }
-        notifyDataSetChanged();
+        notifyItemRangeChanged(0, filteredList.size());
     }
 
 
@@ -67,7 +103,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     @Override
     public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.app_item, parent, false);
-        return new AppViewHolder(v, filteredList,iPackMode,requestActivity);
+        return new AppViewHolder(v, filteredList, iPackMode, (OnAppSelectedListener) activity);
     }
 
 
@@ -80,7 +116,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         holder.imageView.setImageDrawable(app.getIcon());
         if (app.selected) holder.checkBox.setDisplayedChild(1);
         else holder.checkBox.setDisplayedChild(0);
-        if (secondIcon) { //((SecondIcon || mode == 3 || mode == 4) && IPackChoosen && !(mode == 2))
+        if (secondIcon) {
             holder.apkIconView.setVisibility(View.VISIBLE);
             holder.apkIconView.setImageDrawable(app.getIcon2());
         }

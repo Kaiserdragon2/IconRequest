@@ -1,8 +1,0 @@
-Release 1.7.0
-
-New Features
-Instead of using the currently applied icon pack now you can choose one of your installed icon packs
-- check if your apps exist in an econ pack and only show non-existing
-- show an second icon beside the standard app icon from an icon pack
-
-note: you may have to close the app to get the second icon correct loaded
