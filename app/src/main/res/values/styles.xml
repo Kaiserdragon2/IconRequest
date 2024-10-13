@@ -5,29 +5,30 @@
 
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primaryDark</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorAccent">@color/primary</item>
 
         <item name="colorSecondary">@color/primaryBlack</item>
         <item name="colorSecondaryVariant">@color/primaryDarkBlack</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="android:statusBarColor" >?attr/colorPrimaryVariant</item>
+        <item name="colorOnSecondary">@color/onPrimary</item>
+        <item name="android:statusBarColor" >@color/primary</item>
+        <item name="android:navigationBarColor" >@color/primary</item>
+
 
     </style>
 
     <style name="Base_ToolbarStyle" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
-        <item name="android:background">?colorPrimary</item>
-        <item name="titleTextAppearance">@color/black</item>
-        <item name="subtitleTextAppearance">@color/black</item>
+        <item name="android:background">@color/primary</item>
+        <item name="titleTextAppearance">@color/textPrimary</item>
+        <item name="subtitleTextAppearance">@color/textPrimary</item>
         <!-- Color used for the title of the Toolbar - as long as not overridden -->
-        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorPrimary">@color/textPrimary</item>
         <!-- Used to color back button and three dots -->
-        <item name="android:textColorSecondary">@color/black</item>
+        <item name="android:textColorSecondary">@color/textPrimary</item>
     </style>
     <style name="PopupMenuListView" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
-        <item name="android:divider">?colorOnPrimary</item>
         <item name="android:dividerHeight">2dp</item>
-        <item name="android:background">@color/white</item>
-        <item name="android:buttonTint">?colorOnPrimary</item>
+        <item name="android:background">?android:popupBackground</item>
     </style>
 
 

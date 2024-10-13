@@ -4,7 +4,9 @@
     <color name="primaryDark">#1B5E20</color>
     <color name="primaryBlack">#33691E</color>
     <color name="primaryDarkBlack">#1B5E20</color>
+    <color name="onPrimary">@color/white</color>
 
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="textPrimary">@color/white</color>
+    <color name="windowBackground">@color/black</color>"
+
 </resources>
