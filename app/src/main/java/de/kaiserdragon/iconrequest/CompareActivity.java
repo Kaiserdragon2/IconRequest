@@ -25,9 +25,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import de.kaiserdragon.iconrequest.helper.CommonHelper;
 import de.kaiserdragon.iconrequest.helper.PrepareRequestData;
@@ -105,7 +109,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             Looper.prepare();
-            adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this, appListAll), true, false, this);
+            adapter = new AppAdapter(PrepareRequestData.prepareDataIPack(this, appListAll), true, false, this);
             runOnUiThread(() -> {
                 if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
@@ -129,9 +133,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         executor.execute(() -> {
             Looper.prepare();
             try {
-                for (AppInfo appInfo : arrayList) {
-                    XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
-                }
+                parseAppsInParallel(arrayList, context);
                 if (mode == 2) {
                     adapter = new AppAdapter(CommonHelper.findUnique(appListAll), false, false, this);
                 } else if (mode == 3) {
@@ -153,12 +155,38 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
 
     }
 
+    public void parseAppsInParallel(List<AppInfo> arrayList, Context context) {
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<Future<Void>> futures = new ArrayList<>();
+
+        for (AppInfo appInfo : arrayList) {
+            Callable<Void> task = () -> {
+                XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
+                return null; // or some result if needed
+            };
+            futures.add(executor.submit(task));
+        }
+
+        // Shutdown the executor
+        executor.shutdown();
+
+        // Optionally wait for all tasks to complete and handle results or exceptions
+        for (Future<Void> future : futures) {
+            try {
+                future.get(); // This will block until the task is complete
+            } catch (InterruptedException | ExecutionException e) {
+                // Handle exceptions
+                Log.e(TAG, "parseAppsInParallel: ", e);
+            }
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_request, menu);
         MenuItem save = menu.findItem(R.id.action_save);
         MenuItem share = menu.findItem(R.id.action_share);
-        MenuItem share_text = menu.findItem(R.id.action_sharetext);
+        MenuItem share_text = menu.findItem(R.id.action_shareText);
         MenuItem copy = menu.findItem(R.id.action_copy);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -201,7 +229,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
-        } else if (item.getItemId() == R.id.action_sharetext) {
+        } else if (item.getItemId() == R.id.action_shareText) {
             ShareHelper.actionSendText(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
@@ -210,7 +238,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
-        } else if (item.getItemId() == R.id.selectall) {
+        } else if (item.getItemId() == R.id.selectAll) {
             adapter.setAllSelected(!item.isChecked());
             item.setChecked(!item.isChecked());
             return true;

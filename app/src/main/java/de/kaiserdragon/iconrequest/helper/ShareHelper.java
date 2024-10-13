@@ -52,30 +52,30 @@ public class ShareHelper {
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("application/zip");
         deleteDirectory(ZipLocation);
-        ZipLocation.mkdir();
+        if(ZipLocation.mkdir()){
+            File file = new File(ZipLocation, array[0] + ".zip");
 
-        File file = new File(ZipLocation, array[0] + ".zip");
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(zipData);
+            } catch (IOException e) {
+                Log.e(TAG, "actionSend: ", e);
+            }
 
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(zipData);
-        } catch (IOException e) {
-            Log.e(TAG, "actionSend: ", e);
-        }
+            Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra("android.intent.extra.SUBJECT", context.getString(R.string.request_email_subject));
+            intent.putExtra("android.intent.extra.TEXT", array[1]);
 
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra("android.intent.extra.SUBJECT", context.getString(R.string.request_email_subject));
-        intent.putExtra("android.intent.extra.TEXT", array[1]);
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(Intent.createChooser(intent, null));
-        } catch (Exception e) {
-            makeToast(context.getString(R.string.no_email_clients), context);
-            Log.e(TAG, "actionSend: ", e);
-        }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                context.startActivity(Intent.createChooser(intent, null));
+            } catch (Exception e) {
+                makeToast(context.getString(R.string.no_email_clients), context);
+                Log.e(TAG, "actionSend: ", e);
+            }
+        }else CommonHelper.makeToast("Something went wrong", context);
     }
 
     public static void actionSendText(String[] array, Context context) {
@@ -186,8 +186,6 @@ public class ShareHelper {
             zos.closeEntry();
             zos.close();
 
-            // You can then access the contents of the ZIP file as a byte array
-            //todo: needs to be accessible in different activities
             ZipData zip = (ZipData) context.getApplicationContext();
             zip.setZipData(BaOs.toByteArray());
 
@@ -205,12 +203,16 @@ public class ShareHelper {
             for (File file : files) {
                 if (file.isDirectory()) {
                     deleteDirectory(file);
-                } else {
-                    file.delete();
-                }
+                } else if(file.delete()){
+                    Log.i(TAG, "deleteDirectory: " + file.getName());
+                }else Log.e(TAG, "deleteDirectory: ", new IOException());
             }
         }
-        path.delete();
+        if(path.delete()){
+            Log.i(TAG, "deleteDirectory: " + path.getName());
+        }else {
+            Log.e(TAG, "deleteDirectory: ", new IOException());
+        }
     }
 
 }

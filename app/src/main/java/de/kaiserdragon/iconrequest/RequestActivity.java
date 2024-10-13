@@ -98,7 +98,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
             if (Shortcut) {
                 adapter = new AppAdapter(PrepareRequestData.prepareDataShortcuts(this, appListAll, false, false), true, false, this);
             } else if (OnlyNew || SecondIcon) {
-                adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this, appListAll), true, false, this);
+                adapter = new AppAdapter(PrepareRequestData.prepareDataIPack(this, appListAll), true, false, this);
             } else if (ActionMain) {
                 adapter = new AppAdapter(PrepareRequestData.prepareDataActionMain(this, appListAll, false, false), false, false, this); //show all apps
             } else
@@ -127,9 +127,10 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
                 XMLParserHelper.parseXML(packageName, SecondIcon, appListAll, context);
                 if (ActionMain) {
                     adapter = new AppAdapter(PrepareRequestData.prepareDataActionMain(this, appListAll, OnlyNew, SecondIcon), false, SecondIcon, this);
-                } else
+                } else {
+                    Log.v(TAG, "Get System Icons");
                     adapter = new AppAdapter(PrepareRequestData.prepareDataIcons(this, appListAll, OnlyNew, SecondIcon), false, SecondIcon, this);
-
+                }
             } catch (Exception e) {
                 Log.e(TAG, "IPackSelect: ", e);
             }
@@ -156,7 +157,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
             getMenuInflater().inflate(R.menu.menu_request, menu);
             MenuItem save = menu.findItem(R.id.action_save);
             MenuItem share = menu.findItem(R.id.action_share);
-            MenuItem share_text = menu.findItem(R.id.action_sharetext);
+            MenuItem share_text = menu.findItem(R.id.action_shareText);
             MenuItem copy = menu.findItem(R.id.action_copy);
             MenuItem searchItem = menu.findItem(R.id.action_search);
             SearchView searchView = (SearchView) searchItem.getActionView();
@@ -199,13 +200,13 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            ShareHelper.actionSend(ShareHelper.actionSave(adapter, true, context), zip.getZipData(), context);
+            ShareHelper.actionSend(ShareHelper.actionSave(adapter, false, context), zip.getZipData(), context);
             return true;
         } else if (item.getItemId() == R.id.action_save) {
             ShareHelper.actionSendSave(activityResultLauncher);
             return true;
-        } else if (item.getItemId() == R.id.action_sharetext) {
-            ShareHelper.actionSendText(ShareHelper.actionSave(adapter, false, context), context);
+        } else if (item.getItemId() == R.id.action_shareText) {
+            ShareHelper.actionSendText(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
             ShareHelper.actionCopy(ShareHelper.actionSave(adapter, true, context), context);
@@ -213,7 +214,7 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
-        } else if (item.getItemId() == R.id.selectall) {
+        } else if (item.getItemId() == R.id.selectAll) {
             adapter.setAllSelected(!item.isChecked());
             item.setChecked(!item.isChecked());
             return true;

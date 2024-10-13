@@ -15,7 +15,6 @@ import java.util.Set;
 import de.kaiserdragon.iconrequest.AppInfo;
 
 public class CommonHelper {
-
     public static void makeToast(String text, Context context) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }

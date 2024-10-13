@@ -23,6 +23,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     private final boolean iPackMode;
     private final boolean secondIcon;
     private final Activity activity;
+    private String LastQuery = "";
 
     public AppAdapter(List<AppInfo> appList, Boolean iPacksMode, Boolean SecondIcon, Activity activity) {
         this.appList = appList;
@@ -34,7 +35,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
     }
 
     public void filter(String query) {
+        LastQuery = query;
+        List<AppInfo> previousFilteredList = new ArrayList<>(filteredList);
         filteredList.clear();
+
         if (query.isEmpty()) {
             filteredList.addAll(iPackList);
         } else {
@@ -45,11 +49,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
                 }
             }
         }
+        notifyItemRangeRemoved(0, previousFilteredList.size());
+        notifyItemRangeInserted(0, filteredList.size());
+
         Log.i(TAG, "filter: " + filteredList.size());
-        //notifyItemRangeChanged(0, filteredList.size());
-        //Todo:dataset change invoke
-        notifyDataSetChanged();
     }
+
 
     public void showIPack(String IconPackPackageName) {
         iPackList.clear();
@@ -63,10 +68,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
             }
         }
         Log.i(TAG, "showIPack: " + iPackList.size());
-        //notifyItemRangeChanged(0, filteredList.size());
-        //notifyDataSetChanged();
-        //Todo:filter is ignored after this
-        filter("");
+        filter(LastQuery);
     }
 
     public int AdapterSize() {
@@ -94,7 +96,6 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
             app.setSelected(selected);
         }
         notifyItemRangeChanged(0, filteredList.size());
-        //notifyDataSetChanged();
     }
 
 

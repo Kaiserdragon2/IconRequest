@@ -11,7 +11,7 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_sharetext"
+        android:id="@+id/action_shareText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="true"
@@ -40,7 +40,7 @@
         android:title="@string/save"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/selectall"
+        android:id="@+id/selectAll"
         android:checkable="true"
         android:checked="false"
         android:title="@android:string/selectAll"

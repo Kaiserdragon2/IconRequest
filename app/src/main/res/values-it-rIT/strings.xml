@@ -7,6 +7,9 @@
     <string name="share_file">Condividi File</string>
     <string name="save">Salva File</string>
     <string name="settings">Impostazioni</string>
+    <string name="Theme">Theme</string>
+    <string name="DarkMode">Dark</string>
+    <string name="LightMode">Light</string>
     <string name="ThemeDevice">Predefinito di Sistema</string>
     <string name="Other">Altro</string>
     <string name="notes">Le seguenti opzioni ti fanno scegliere uno dei tuoi pacchetti di icone installati da usare per queste opzioni. La prima opzione prende abbastanza potenza della cpu e quindi ci mette un po\' di tempo. Se non ti serve disabilitala.</string>

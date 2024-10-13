@@ -6,7 +6,10 @@
     <string name="share_file">Datei teilen</string>
     <string name="save">Datei speichern</string>
     <string name="settings">Einstellungen</string>
-    <string name="ThemeDevice">Gerätestandard</string>
+    <string name="Theme">Thema</string>
+    <string name="DarkMode">Dunkel</string>
+    <string name="LightMode">Hell</string>
+    <string name="ThemeDevice">System</string>
     <string name="Other">Weiteres</string>
     <string name="request_toast_no_apps_selected">Keine Apps ausgewaehlt. Waehle mindestens eine App</string>
     <string name="request_email_text">Ein paar App Symbole fehlen au f meinem Geraet</string>

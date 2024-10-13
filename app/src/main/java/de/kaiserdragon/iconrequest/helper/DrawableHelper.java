@@ -21,7 +21,7 @@ public class DrawableHelper {
             ComponentName componentName = new ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
             int iconId = resolveInfo.getIconResource();//Get the resource Id for the activity icon
             if (iconId != 0) {
-                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null); //loads unthemed
+                icon = ResourcesCompat.getDrawable(pm.getResourcesForActivity(componentName), iconId, null);
                 return icon;
             }
             return resolveInfo.loadIcon(pm);
@@ -45,10 +45,10 @@ public class DrawableHelper {
     }
 
     //get the drawable for an app from the icon Pack
-    public static Drawable loadDrawable(String drawableName, Resources iconPackres, String packageName) {
-        int id = iconPackres.getIdentifier(drawableName, "drawable", packageName);
+    public static Drawable loadDrawable(String drawableName, Resources iconPackRes, String packageName) {
+        int id = iconPackRes.getIdentifier(drawableName, "drawable", packageName);
         if (id > 0) {
-            return ResourcesCompat.getDrawable(iconPackres, id, null);
+            return ResourcesCompat.getDrawable(iconPackRes, id, null);
         }
         return null;
     }

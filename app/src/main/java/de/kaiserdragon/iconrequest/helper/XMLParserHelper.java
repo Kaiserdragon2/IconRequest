@@ -40,6 +40,7 @@ public class XMLParserHelper {
         final int packageSubstringLength = 14;
         final char slash = '/';
         int eventType = xpp.getEventType();
+        Log.v(TAG, "parseXmlContent" + packageName);
         while (eventType != XmlPullParser.END_DOCUMENT) {
             try {
                 if (eventType == XmlPullParser.START_TAG && startTag.equals(xpp.getName())) {
@@ -62,7 +63,10 @@ public class XMLParserHelper {
 
             eventType = xpp.next();
         }
+        Log.v(TAG, "parseXmlContent done");
     }
+
+
 
 
     private static void handleParsingException(Context context, Exception e) {

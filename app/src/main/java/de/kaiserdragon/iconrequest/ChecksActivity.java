@@ -87,7 +87,7 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
         executor.execute(() -> {
             // Prepare your data in a background thread
             Looper.prepare();
-            adapter = new AppAdapter(PrepareRequestData.prepareDataIpack(this, appListAll), true, false, this);
+            adapter = new AppAdapter(PrepareRequestData.prepareDataIPack(this, appListAll), true, false, this);
 
             // Create a Handler for the main Looper
             Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -137,7 +137,7 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
         getMenuInflater().inflate(R.menu.menu_request, menu);
         MenuItem save = menu.findItem(R.id.action_save);
         MenuItem share = menu.findItem(R.id.action_share);
-        MenuItem share_text = menu.findItem(R.id.action_sharetext);
+        MenuItem share_text = menu.findItem(R.id.action_shareText);
         MenuItem copy = menu.findItem(R.id.action_copy);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -180,7 +180,7 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
         //    ShareHelper.actionSendSave(activityResultLauncher);
         //    return true;
         // } else
-        if (item.getItemId() == R.id.action_sharetext) {
+        if (item.getItemId() == R.id.action_shareText) {
             ShareHelper.actionSendText(ShareHelper.actionSave(adapter, true, context), context);
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
@@ -189,7 +189,7 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
         } else if (item.getItemId() == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
-        } else if (item.getItemId() == R.id.selectall) {
+        } else if (item.getItemId() == R.id.selectAll) {
             adapter.setAllSelected(!item.isChecked());
             item.setChecked(!item.isChecked());
             return true;

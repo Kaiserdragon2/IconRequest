@@ -10,10 +10,10 @@
     <string name="save">Save File</string>
     <string name="settings">Settings</string>
 
-    <string name="Theme" translatable="false">Theme</string>
-    <string name="DarkMode" translatable="false">DarkMode</string>
-    <string name="LightMode" translatable="false">LightMode</string>
-    <string name="ThemeDevice">Device Default</string>
+    <string name="Theme">Theme</string>
+    <string name="DarkMode">Dark</string>
+    <string name="LightMode">Light</string>
+    <string name="ThemeDevice">System</string>
 
     <string name="Other">Other</string>
     <string name="notes">The following options let you choose one of your installed icon packs to use
