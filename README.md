@@ -21,10 +21,7 @@ It just collects the app title, package name, activity name and the icon file wi
 ## Screenshots
 <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Main.png" height="500" alt=""> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ListNormal.png" height="500" alt=""> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/Settings.png" height="500" alt="">
 
-<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/IPackChooser.png" height="500" alt=""> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/List2Icon.png" height="500" alt=""> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/ShowOnlyNew.png" height="500" alt="">
-
-<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/shareinfo.png" height="500" alt=""> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/shareicon.png" height="500" alt="">
-
+<img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/IPackChooser.png" height="500" alt=""> <img src="https://raw.githubusercontent.com/Kaiserdragon2/IconRequest/main/docs/List2Icon.png" height="500" alt=""> 
 ## License
 
 [<img src="https://www.gnu.org/graphics/gplv3-127x51.png" />](https://www.gnu.org/licenses/gpl-3.0.html)
