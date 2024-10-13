@@ -1,4 +1,5 @@
 With this app you can share the data for adding the icons missing in your icon pack. It just collects the app title, package name, activity name and the icon file without any theme of the apps you select.
+You can also compare Icon Packs and perform som checks on them.
 
 #### Features:
 
