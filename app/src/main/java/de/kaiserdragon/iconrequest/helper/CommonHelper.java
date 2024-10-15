@@ -23,15 +23,19 @@ public class CommonHelper {
     public static ArrayList<AppInfo> findUnique(ArrayList<AppInfo> appListAll) {
         // Using a LinkedHashSet to maintain insertion order and avoid duplicates
         Set<String> seenCodes = new LinkedHashSet<>();
+        Set<String> duplicateCodes = new LinkedHashSet<>();
         ArrayList<AppInfo> newList = new ArrayList<>();
+        for (AppInfo appInfo : appListAll) {
+            if(!seenCodes.add(appInfo.getCode())){
+                duplicateCodes.add(appInfo.getCode());
+            }
+        }
 
         for (AppInfo appInfo : appListAll) {
             // Check if the code has been seen before
-            if (seenCodes.add(appInfo.getCode())) {
-                // If the code is unique, add the appInfo to the newList
-                newList.add(appInfo);
-            }else
-                newList.remove(appInfo);
+            if (!duplicateCodes.contains(appInfo.getCode())) {
+            newList.add(appInfo);
+            }
         }
 
         // Return the sorted list of unique AppInfo objects
@@ -78,6 +82,7 @@ public class CommonHelper {
     }
 
     public static ArrayList<AppInfo> sort(ArrayList<AppInfo> chaos) {
+        Log.i("CommonHelper", "Begin sort");
         Collections.sort(chaos, (object1, object2) -> {
             Locale locale = Locale.getDefault();
             Collator collator = Collator.getInstance(locale);
