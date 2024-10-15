@@ -1,6 +1,7 @@
 package de.kaiserdragon.iconrequest.helper;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.text.Collator;
@@ -29,7 +30,8 @@ public class CommonHelper {
             if (seenCodes.add(appInfo.getCode())) {
                 // If the code is unique, add the appInfo to the newList
                 newList.add(appInfo);
-            }
+            }else
+                newList.remove(appInfo);
         }
 
         // Return the sorted list of unique AppInfo objects

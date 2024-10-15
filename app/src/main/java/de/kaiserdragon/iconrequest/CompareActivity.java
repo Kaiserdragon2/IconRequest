@@ -135,6 +135,7 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
             try {
                 parseAppsInParallel(arrayList, context);
                 if (mode == 2) {
+                    Log.i(TAG, "startCompareIconPacksDifference: " + appListAll.size());
                     adapter = new AppAdapter(CommonHelper.findUnique(appListAll), false, false, this);
                 } else if (mode == 3) {
                     adapter = new AppAdapter(CommonHelper.findDuplicates(appListAll), false, true, this);
@@ -160,11 +161,13 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         List<Future<Void>> futures = new ArrayList<>();
 
         for (AppInfo appInfo : arrayList) {
-            Callable<Void> task = () -> {
-                XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
-                return null; // or some result if needed
-            };
-            futures.add(executor.submit(task));
+            futures.add(executor.submit(() -> {
+                // Synchronize access to appListAll when calling parseXML
+                synchronized (appListAll) {
+                    XMLParserHelper.parseXML(appInfo.packageName, true, appListAll, context);
+                }
+                return null; // No need for a return value here
+            }));
         }
 
         // Shutdown the executor
@@ -174,6 +177,9 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         for (Future<Void> future : futures) {
             try {
                 future.get(); // This will block until the task is complete
+                if (future.isDone()){
+                    Log.i(TAG, "parseAppsInParallel: done");
+                }
             } catch (InterruptedException | ExecutionException e) {
                 // Handle exceptions
                 Log.e(TAG, "parseAppsInParallel: ", e);
