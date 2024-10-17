@@ -6,10 +6,11 @@ android {
 
     defaultConfig {
         applicationId 'de.kaiserdragon.iconrequest'
+        vectorDrawables.generatedDensities = []
         minSdkVersion 23
         targetSdk 35
-        versionName '2.5.4'
-        versionCode 26
+        versionName '2.5.5'
+        versionCode 27
     }
 
     buildTypes {
