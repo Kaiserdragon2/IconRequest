@@ -9,8 +9,8 @@ android {
         vectorDrawables.generatedDensities = []
         minSdkVersion 23
         targetSdk 35
-        versionName '2.5.5'
-        versionCode 27
+        versionName '2.5.6'
+        versionCode 28
     }
 
     dependenciesInfo {
