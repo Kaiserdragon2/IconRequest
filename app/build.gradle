@@ -13,6 +13,13 @@ android {
         versionCode 27
     }
 
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        includeInBundle = false
+    }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -42,8 +49,8 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.8.2'
+    implementation 'androidx.annotation:annotation:1.9.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.core:core:1.15.0'
     implementation 'com.google.android.material:material:1.12.0'
 }
