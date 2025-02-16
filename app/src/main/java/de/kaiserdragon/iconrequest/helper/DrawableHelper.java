@@ -6,10 +6,15 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.core.content.res.ResourcesCompat;
+
+import sarsamurmu.adaptiveicon.AdaptiveIcon;
+
 
 public class DrawableHelper {
     private static final String TAG = "DrawableHelper";
@@ -37,6 +42,13 @@ public class DrawableHelper {
     }
 
     public static Bitmap getBitmapFromDrawable(Drawable drawable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable instanceof AdaptiveIconDrawable) {
+            return new AdaptiveIcon()
+                    .setDrawable((AdaptiveIconDrawable) drawable)
+                    .setPath(AdaptiveIcon.PATH_SQUARE)
+                    .setSize(256)
+                    .render();
+        }
         final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(bmp);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());

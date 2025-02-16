@@ -1,5 +1,7 @@
 package de.kaiserdragon.iconrequest;
 
+import static de.kaiserdragon.iconrequest.helper.DrawableHelper.getBitmapFromDrawable;
+
 import android.app.Activity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -113,12 +115,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppViewHolder> {
         holder.labelView.setText(app.getLabel());
         holder.packageNameView.setText(app.packageName);
         holder.classNameView.setText(app.className);
-        holder.imageView.setImageDrawable(app.getIcon());
+        holder.imageView.setImageBitmap(getBitmapFromDrawable(app.getIcon()));
         if (app.selected) holder.checkBox.setDisplayedChild(1);
         else holder.checkBox.setDisplayedChild(0);
         if (secondIcon) {
             holder.apkIconView.setVisibility(View.VISIBLE);
-            holder.apkIconView.setImageDrawable(app.getIcon2());
+            holder.apkIconView.setImageBitmap(getBitmapFromDrawable(app.getIcon2()));
         }
 
     }

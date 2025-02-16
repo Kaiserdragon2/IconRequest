@@ -8,6 +8,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
 
@@ -52,7 +53,7 @@ public class ShareHelper {
         Intent intent = new Intent(android.content.Intent.ACTION_SEND);
         intent.setType("application/zip");
         deleteDirectory(ZipLocation);
-        if(ZipLocation.mkdir()){
+        if (ZipLocation.mkdir()) {
             File file = new File(ZipLocation, array[0] + ".zip");
 
             try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -75,7 +76,7 @@ public class ShareHelper {
                 makeToast(context.getString(R.string.no_email_clients), context);
                 Log.e(TAG, "actionSend: ", e);
             }
-        }else CommonHelper.makeToast("Something went wrong", context);
+        } else CommonHelper.makeToast("Something went wrong", context);
     }
 
     public static void actionSendText(String[] array, Context context) {
@@ -150,7 +151,8 @@ public class ShareHelper {
                 LabelList.add(iconName);
 
                 try {
-                    Bitmap bitmap = DrawableHelper.getBitmapFromDrawable(arrayList.get(i).getIcon());
+                    Drawable drawable = arrayList.get(i).getIcon();
+                    Bitmap bitmap = DrawableHelper.getBitmapFromDrawable(drawable);
                     ByteArrayOutputStream BaOsImg = new ByteArrayOutputStream();
                     ZipEntry ze = new ZipEntry(iconName + ".png");
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, BaOsImg);
@@ -203,14 +205,14 @@ public class ShareHelper {
             for (File file : files) {
                 if (file.isDirectory()) {
                     deleteDirectory(file);
-                } else if(file.delete()){
+                } else if (file.delete()) {
                     Log.i(TAG, "deleteDirectory: " + file.getName());
-                }else Log.e(TAG, "deleteDirectory: ", new IOException());
+                } else Log.e(TAG, "deleteDirectory: ", new IOException());
             }
         }
-        if(path.delete()){
+        if (path.delete()) {
             Log.i(TAG, "deleteDirectory: " + path.getName());
-        }else {
+        } else {
             Log.e(TAG, "deleteDirectory: ", new IOException());
         }
     }

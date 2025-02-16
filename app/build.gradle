@@ -9,8 +9,8 @@ android {
         vectorDrawables.generatedDensities = []
         minSdkVersion 23
         targetSdk 35
-        versionName '2.5.6'
-        versionCode 28
+        versionName '2.5.7'
+        versionCode 29
     }
 
     dependenciesInfo {
@@ -53,4 +53,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.core:core:1.15.0'
     implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.github.sarsamurmu:AdaptiveIconBitmap:1.0.2'
 }
