@@ -42,6 +42,9 @@ public class DrawableHelper {
     }
 
     public static Bitmap getBitmapFromDrawable(Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable instanceof AdaptiveIconDrawable) {
             return new AdaptiveIcon()
                     .setDrawable((AdaptiveIconDrawable) drawable)
