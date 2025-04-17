@@ -38,6 +38,7 @@ public class SettingActivity extends AppCompatActivity {
         ((CheckBox) findViewById(R.id.checkBoxOnly)).setChecked(SettingsHelper.loadDataBool("SettingOnlyNew", this));
         ((CheckBox) findViewById(R.id.checkShortcut)).setChecked(SettingsHelper.loadDataBool("Shortcut", this));
         ((CheckBox) findViewById(R.id.checkActionMain)).setChecked(SettingsHelper.loadDataBool("ActionMain", this));
+        ((CheckBox) findViewById(R.id.exclude_appfilter_line)).setChecked(SettingsHelper.loadDataBool("exclude_appfilter_line", this));
 
 
         //Button setDark = findViewById(R.id.radioDark);
@@ -59,6 +60,8 @@ public class SettingActivity extends AppCompatActivity {
         Shortcut.setOnClickListener(view -> start(view, 0));
         CheckBox ActionMain = findViewById(R.id.checkActionMain);
         ActionMain.setOnClickListener(view -> start(view, 0));
+        CheckBox exclude_appfilter_line = findViewById(R.id.exclude_appfilter_line);
+        exclude_appfilter_line.setOnClickListener(view -> start(view, 0));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -82,6 +85,8 @@ public class SettingActivity extends AppCompatActivity {
                 SettingsHelper.saveDataBool("Shortcut", ((CheckBox) view).isChecked(), this);
             } else if (view == findViewById(R.id.checkActionMain)) {
                 SettingsHelper.saveDataBool("ActionMain", ((CheckBox) view).isChecked(), this);
+            } else if (view == findViewById(R.id.exclude_appfilter_line)) {
+                SettingsHelper.saveDataBool("exclude_appfilter_line", ((CheckBox) view).isChecked(), this);
             }
         }
 

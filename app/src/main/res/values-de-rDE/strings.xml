@@ -41,4 +41,5 @@
     <string name="ShowIconPack">Zeige Icon Pack</string>
     <string name="All">Alle</string>
     <string name="choose2IPack">Wähle zwei Icon Packs</string>
+    <string name="excludeAppfilterLines">Entferne &lt;appfilter&gt; &lt;/appfilter&gt; von appfilter</string>
 </resources>

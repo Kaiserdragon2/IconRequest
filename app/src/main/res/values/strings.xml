@@ -63,6 +63,7 @@
     <string name="IconPack2" translatable="false">IconPack2</string>
     <string name="All">All</string>
     <string name="choose2IPack">Choose two icon packs</string>
+    <string name="excludeAppfilterLines">Exclude &lt;appfilter&gt; &lt;/appfilter&gt; from appfilter</string>
 
 
 </resources>

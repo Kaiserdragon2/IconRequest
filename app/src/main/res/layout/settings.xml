@@ -148,6 +148,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/MainNoLaunch" />
+            <CheckBox
+                android:id="@+id/exclude_appfilter_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/excludeAppfilterLines" />
 
         </LinearLayout>
     </ScrollView>

@@ -2,6 +2,7 @@ package de.kaiserdragon.iconrequest.helper;
 
 import static de.kaiserdragon.iconrequest.BuildConfig.DEBUG;
 import static de.kaiserdragon.iconrequest.helper.CommonHelper.makeToast;
+import static de.kaiserdragon.iconrequest.helper.SettingsHelper.loadDataBool;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -124,6 +125,8 @@ public class ShareHelper {
         ByteArrayOutputStream BaOs = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(BaOs);
 
+        boolean excludeAppfilterLines = loadDataBool("exclude_appfilter_line",context);
+
         ArrayList<AppInfo> arrayList = adapter.getAllSelected();
         if (arrayList.isEmpty()) {
             // no apps are selected
@@ -135,7 +138,7 @@ public class ShareHelper {
         StringBuilder stringBuilderXML = new StringBuilder();
         stringBuilderEmail.append(context.getString(R.string.request_email_text));
         ArrayList<String> LabelList = new ArrayList<>();
-        stringBuilderXML.append("<appfilter>\n\n");
+        if (!excludeAppfilterLines) stringBuilderXML.append("<appfilter>\n\n");
         // process selected apps
         for (int i = 0; i < arrayList.size(); i++) {
             //if (arrayList.get(i).selected) {
@@ -143,6 +146,7 @@ public class ShareHelper {
             if (DEBUG) Log.i(TAG, "iconName: " + iconName);
             if (!updateOnly) {
                 //if a name is a duplicate rename 1 so nothing gets replaced while saving
+                //check if icon is in an arraylist if not add else rename and check again
                 int n = 0;
                 while (LabelList.contains(iconName)) {
                     n++;
@@ -165,12 +169,12 @@ public class ShareHelper {
 
             }
             if (DEBUG) Log.i(TAG, "iconName: " + iconName);
-            //check if icon is in an arraylist if not add else rename and check again
+            if (i != 0) stringBuilderXML.append("\n\n");
             stringBuilderEmail.append(arrayList.get(i).label).append("\n");
-            stringBuilderXML.append("\t<!-- ").append(arrayList.get(i).label).append(" -->\n\t<item component=\"ComponentInfo{").append(arrayList.get(i).getCode()).append("}\" drawable=\"").append(iconName).append("\"/>").append("\n\n");
-
+            if (!(arrayList.size()<=1 && excludeAppfilterLines)) stringBuilderXML.append("\t<!-- ").append(arrayList.get(i).label).append(" -->\n\t");
+            stringBuilderXML.append("<item component=\"ComponentInfo{").append(arrayList.get(i).getCode()).append("}\" drawable=\"").append(iconName).append("\"/>");
         }
-        stringBuilderXML.append("</appfilter>");
+        if (!excludeAppfilterLines) stringBuilderXML.append("\n\n</appfilter>");
         // }
         SimpleDateFormat date = new SimpleDateFormat("ddMMyyyy_HHmmss", Locale.US);
         String zipName = date.format(new Date());
