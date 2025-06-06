@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -54,21 +56,29 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
     private String iconPack2PackageName;
     private MenuItem IconPack1;
     private MenuItem IconPack2;
+    private ProgressBar SelectedApps;
+    private TextView ProgressText;
 
     @Override
-    public void onAppSelected(String packageName, String label) {
+    public void onAppSelected(String packageName, String label, Boolean iPackMode) {
         //IPackSelect(packageName);
-        Log.i(TAG, "onAppSelected: " + packageName);
-        switch (adapter.getSelectedItemCount()) {
-            case 1:
-                IconPack1.setTitle(label);
-                iconPack1PackageName = packageName;
-                break;
-            case 2:
-                IconPack2.setTitle(label);
-                iconPack2PackageName = packageName;
-                switcherLoad.showNext();
-                startCompareIconPacksDifference();
+        if (iPackMode) {
+            Log.i(TAG, "onAppSelected: " + packageName);
+            switch (adapter.getSelectedItemCount()) {
+                case 1:
+                    IconPack1.setTitle(label);
+                    iconPack1PackageName = packageName;
+                    break;
+                case 2:
+                    IconPack2.setTitle(label);
+                    iconPack2PackageName = packageName;
+                    switcherLoad.showNext();
+                    startCompareIconPacksDifference();
+            }
+        } else {
+            SelectedApps.setMax(adapter.AdapterSize());
+            SelectedApps.setProgress(adapter.getSelectedItemCount());
+            ProgressText.setText(String.format(Locale.ENGLISH,"%d Selected", adapter.getSelectedItemCount()));
         }
     }
 
@@ -105,6 +115,8 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        SelectedApps = findViewById(R.id.progressBarSelectedApps);
+        ProgressText = findViewById(R.id.Apps_Selected);
 
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
@@ -146,8 +158,12 @@ public class CompareActivity extends AppCompatActivity implements OnAppSelectedL
             }
             runOnUiThread(() -> {
                 findViewById(R.id.text_iPack_chooser).setVisibility(View.GONE);
+
                 if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
+                }else{
+                    SelectedApps.setVisibility(View.VISIBLE);
+                    ProgressText.setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();

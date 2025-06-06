@@ -1,5 +1,7 @@
 package de.kaiserdragon.iconrequest;
 
+import static de.kaiserdragon.iconrequest.helper.CommonHelper.makeToast;
+
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -29,13 +31,13 @@ public class AppViewHolder extends RecyclerView.ViewHolder {
         imageView = v.findViewById(R.id.icon_view);
         apkIconView = v.findViewById(R.id.Icon2_view);
         checkBox = v.findViewById(R.id.SwitcherChecked);
+        listener.onAppSelected("app.packageName", "app.getLabel()",false);
 
         v.setOnClickListener(v1 -> {
             int position = getAdapterPosition();
             AppInfo app = appList.get(position);
             app.setSelected(!app.isSelected());
-            if (iPackMode)
-                listener.onAppSelected(app.packageName, app.getLabel());
+            listener.onAppSelected(app.packageName, app.getLabel(),iPackMode);
             Animation aniIn = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_1);
             Animation aniOut = AnimationUtils.loadAnimation(checkBox.getContext(), R.anim.request_flip_in_half_2);
             checkBox.setInAnimation(aniIn);

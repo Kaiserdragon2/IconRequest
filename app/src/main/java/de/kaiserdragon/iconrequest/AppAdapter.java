@@ -1,5 +1,6 @@
 package de.kaiserdragon.iconrequest;
 
+import static de.kaiserdragon.iconrequest.helper.CommonHelper.makeToast;
 import static de.kaiserdragon.iconrequest.helper.DrawableHelper.getBitmapFromDrawable;
 
 import android.app.Activity;

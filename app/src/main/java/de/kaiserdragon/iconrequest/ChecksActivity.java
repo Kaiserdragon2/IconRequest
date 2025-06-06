@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,13 +44,20 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
     //private ActivityResultLauncher<Intent> activityResultLauncher;
     private RecyclerView recyclerView;
     private AppAdapter adapter;
+    private ProgressBar SelectedApps;
+    private TextView ProgressText;
 
     @Override
-    public void onAppSelected(String packageName, String label) {
-
-        Log.i(TAG, "onAppSelected: " + packageName);
-        switcherLoad.showNext();
-        startChecks(packageName);
+    public void onAppSelected(String packageName, String label, Boolean iPackMode) {
+        if (iPackMode) {
+            Log.i(TAG, "onAppSelected: " + packageName);
+            switcherLoad.showNext();
+            startChecks(packageName);
+        } else {
+            SelectedApps.setMax(adapter.AdapterSize());
+            SelectedApps.setProgress(adapter.getSelectedItemCount());
+            ProgressText.setText(String.format(Locale.ENGLISH,"%d Selected", adapter.getSelectedItemCount()));
+        }
     }
 
     @Override
@@ -82,6 +92,8 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        SelectedApps = findViewById(R.id.progressBarSelectedApps);
+        ProgressText = findViewById(R.id.Apps_Selected);
 
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
@@ -125,8 +137,12 @@ public class ChecksActivity extends AppCompatActivity implements OnAppSelectedLi
                 findViewById(R.id.text_iPack_chooser).setVisibility(View.GONE);
                 if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
+                }else{
+                    SelectedApps.setVisibility(View.VISIBLE);
+                    ProgressText.setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
+
                 switcherLoad.showNext();
             });
         });

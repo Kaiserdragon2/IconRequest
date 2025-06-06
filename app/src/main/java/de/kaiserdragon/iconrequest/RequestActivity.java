@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import androidx.activity.OnBackPressedCallback;
@@ -22,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,6 +51,8 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
     private RecyclerView recyclerView;
     private AppAdapter adapter;
     private ZipData zip;
+    private ProgressBar SelectedApps;
+    private TextView ProgressText;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
@@ -56,8 +61,14 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
     }
 
     @Override
-    public void onAppSelected(String packageName, String label) {
-        IPackSelect(packageName);
+    public void onAppSelected(String packageName, String label, Boolean iPackMode) {
+        if(iPackMode) {
+            IPackSelect(packageName);
+        } else {
+            SelectedApps.setMax(adapter.AdapterSize());
+            SelectedApps.setProgress(adapter.getSelectedItemCount());
+            ProgressText.setText(String.format(Locale.ENGLISH,"%d Selected", adapter.getSelectedItemCount()));
+        }
     }
 
     @Override
@@ -92,6 +103,10 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        SelectedApps = findViewById(R.id.progressBarSelectedApps);
+        ProgressText = findViewById(R.id.Apps_Selected);
+
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.execute(() -> {
             Looper.prepare();
@@ -106,6 +121,8 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
             runOnUiThread(() -> {
                 if (!OnlyNew && !SecondIcon || Shortcut) {
                     findViewById(R.id.text_iPack_chooser).setVisibility(View.GONE);
+                    SelectedApps.setVisibility(View.VISIBLE);
+                    ProgressText.setVisibility(View.VISIBLE);
                 }
                 if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
@@ -142,6 +159,9 @@ public class RequestActivity extends AppCompatActivity implements OnAppSelectedL
                 invalidateOptionsMenu();
                 if (adapter.AdapterSize() < 1) {
                     findViewById(R.id.Nothing).setVisibility(View.VISIBLE);
+                }else {
+                    SelectedApps.setVisibility(View.VISIBLE);
+                    ProgressText.setVisibility(View.VISIBLE);
                 }
                 recyclerView.setAdapter(adapter);
                 switcherLoad.showNext();
