@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#5AA43E</color>
-    <color name="primaryVariant">#1B5E20</color>
-    <color name="secondary">#FBC02D</color>
-    <color name="secondaryVariant">#FFA000</color>
-    <color name="onPrimary">@color/black</color>
-    <color name="onSecondary">@color/black</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
+    <color name="backgroundDark">#FF3C6939</color>
+    <color name="backgroundLight">#FFA1D399</color>
 </resources>

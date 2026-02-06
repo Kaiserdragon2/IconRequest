@@ -1,66 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+            <intent>
+                <action android:name="org.adw.launcher.THEMES" />
+            </intent>
+            <intent>
+                <action android:name="com.novalauncher.THEME" />
+            </intent>
+        <intent>
+            <action android:name="com.gau.go.launcherex.theme" />
         </intent>
     </queries>
     <application
-        android:name=".ZipData"
-        android:allowBackup="false"
-        android:fullBackupContent="false"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:supportsRtl="true"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.IconRequest">
+
         <activity
-            android:name="de.kaiserdragon.iconrequest.RequestActivity"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.kaiserdragon.iconrequest.MainActivity" />
-        </activity>
-        <activity
-            android:name="de.kaiserdragon.iconrequest.ChecksActivity"
-            android:theme="@style/AppTheme"
-            android:exported="false">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.kaiserdragon.iconrequest.MainActivity" />
-        </activity>
-        <activity
-            android:name="de.kaiserdragon.iconrequest.CompareActivity"
-            android:theme="@style/AppTheme"
-            android:exported="false">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.kaiserdragon.iconrequest.MainActivity" />
-        </activity>
-        <activity
-            android:name="de.kaiserdragon.iconrequest.SettingActivity"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.kaiserdragon.iconrequest.MainActivity" />
-        </activity>
-        <activity
-            android:name="de.kaiserdragon.iconrequest.MainActivity"
-            android:exported="true">
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.fileProvider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data
