@@ -40,5 +40,4 @@ adaptive-icon-bitmap = { group = "com.github.sarsamurmu", name = "AdaptiveIconBi
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-# This is the magic plugin for Kotlin 2.0+ that replaces the old compiler extension version
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

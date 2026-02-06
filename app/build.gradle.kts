@@ -47,6 +47,10 @@ android {
 base {
         archivesName = "IconRequest-v${android.defaultConfig.versionName}"
 }
+composeCompiler {
+    // This stops the task that is looking for the missing mapping artifact
+    includeComposeMappingFile.set(false)
+}
 
 dependencies {
     implementation(libs.androidx.core.ktx)
