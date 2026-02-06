@@ -7,6 +7,6 @@ You can also compare Icon Packs and perform some checks on them.
 - share request with compatible apps
 - copy only the component info to your clipboard
 - share the component info over other apps
-- choose an installed icon pack from your device
-	- show only icons that aren't in this icon pack
-	- show a second icon beside the standard icon from this icon pack
+- filter icons by iconpack
+- perform basic checks on an iconpack
+- compare iconpacks

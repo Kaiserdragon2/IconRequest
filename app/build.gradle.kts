@@ -14,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 32
-        versionName = "2.6.0"
+        versionName = "2.8.0"
     }
 
     dependenciesInfo {

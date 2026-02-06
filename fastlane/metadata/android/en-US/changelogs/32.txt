@@ -1,0 +1,3 @@
+Full rewrite to kotlin.
+New UI
+Combined functions for checks.
