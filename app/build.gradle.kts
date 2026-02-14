@@ -51,6 +51,32 @@ composeCompiler {
     // This stops the task that is looking for the missing mapping artifact
     includeComposeMappingFile.set(false)
 }
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        val versionName = android.defaultConfig.versionName
+        val apkName = "IconRequest-v$versionName.apk"
+
+        // Create a custom task to copy and rename the output
+        tasks.register<Copy>("renameReleaseApk") {
+            // Get the actual APK produced by the build
+            from(variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.APK))
+
+            // Set the destination (the standard output folder)
+            into(layout.buildDirectory.dir("outputs/apk/release"))
+
+            // Apply the rename
+            rename { apkName }
+
+            // Ensure we don't copy the metadata JSON, just the APK
+            include("*.apk")
+        }
+
+        // Link this task to the assembleRelease task
+        tasks.named("assemble").configure {
+            finalizedBy("renameReleaseApk")
+        }
+    }
+}
 
 dependencies {
     implementation(libs.androidx.core.ktx)

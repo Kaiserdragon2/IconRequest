@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
+import android.content.res.XmlResourceParser
 import android.util.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
@@ -182,6 +183,61 @@ class IconPackManager(private val context: Context) {
             Log.e("IconPackManager", "Failed to parse for comparison", e)
         }
         return mapping
+    }
+
+    fun getAppFilterFromAssets(packageName: String): String? {
+        return try {
+            val packContext = context.createPackageContext(packageName, 0)
+            packContext.assets.open("appfilter.xml").bufferedReader().use { it.readText() }
+        } catch (e: Exception) { null }
+    }
+
+    fun getAppFilterFromRaw(packageName: String): String? {
+        return try {
+            val packContext = context.createPackageContext(packageName, 0)
+            val res = packContext.resources
+            val rawId = res.getIdentifier("appfilter", "raw", packageName)
+            if (rawId != 0) res.openRawResource(rawId).bufferedReader().use { it.readText()} else null
+        } catch (e: Exception) { null }
+    }
+
+    fun getAppFilterFromBinary(packageName: String): String? {
+        return try {
+            val packContext = context.createPackageContext(packageName, 0)
+            val res = packContext.resources
+            val xmlId = res.getIdentifier("appfilter", "xml", packageName)
+            if (xmlId != 0) reconstructXmlFromBinary(res.getXml(xmlId)) else null
+        } catch (e: Exception) { null }
+    }
+
+    fun getDrawable(packageName: String): String? {
+        return try {
+            val packContext = context.createPackageContext(packageName, 0)
+            val res = packContext.resources
+            val xmlId = res.getIdentifier("drawable", "xml", packageName)
+            if (xmlId != 0) reconstructXmlFromBinary(res.getXml(xmlId)) else null
+        } catch (e: Exception) { null }
+    }
+
+    private fun reconstructXmlFromBinary(xpp: XmlResourceParser): String {
+        val sb = StringBuilder()
+        sb.appendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+        sb.appendLine("<resources>")
+
+        var eventType = xpp.eventType
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.START_TAG && xpp.name != "resources") {
+                sb.append("    <${xpp.name} ")
+                for (i in 0 until xpp.attributeCount) {
+                    sb.append("${xpp.getAttributeName(i)}=\"${xpp.getAttributeValue(i)}\" ")
+                }
+                sb.appendLine("/>")
+            }
+            eventType = xpp.next()
+        }
+
+        sb.append("</resources>")
+        return sb.toString()
     }
 
     fun getUniqueDrawableCount(iconPackPackage: String): Int {

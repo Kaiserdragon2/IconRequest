@@ -22,11 +22,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.FolderZip
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -91,10 +96,34 @@ fun IconPackHealthScreen(
                 },
                 actions = {
 
-                    // Add the Share Button here
+                    var showMenu by remember { mutableStateOf(false) }
+
                     if (currentReport != null) {
-                        IconButton(onClick = { viewModel.shareReport(context) }) {
-                            Icon(imageVector = Icons.Default.Share, contentDescription = "Share")
+                        Box {
+                            IconButton(onClick = { showMenu = !showMenu }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Share Health Report") },
+                                    leadingIcon = { Icon(Icons.Default.Share, null) },
+                                    onClick = {
+                                        showMenu = false
+                                        viewModel.shareReport(context)
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Export Diagnostic ZIP") },
+                                    leadingIcon = { Icon(Icons.Default.FolderZip, null) }, // Use Icons.Default.Zip if available
+                                    onClick = {
+                                        showMenu = false
+                                        viewModel.shareComprehensiveReport(context)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
