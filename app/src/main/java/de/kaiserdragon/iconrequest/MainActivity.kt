@@ -26,9 +26,12 @@ import de.kaiserdragon.iconrequest.ui.Screen
 import de.kaiserdragon.iconrequest.ui.iconcomparison.IconComparisonScreen
 import de.kaiserdragon.iconrequest.ui.iconcomparison.IconComparisonViewModel
 import de.kaiserdragon.iconrequest.ui.iconcomparison.IconComparisonViewModelFactory
+import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModel
+import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModelFactory
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconPackHealthScreen
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconPackHealthViewModel
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconPackHealthViewModelFactory
+import de.kaiserdragon.iconrequest.ui.iconpreview.IconGridPreviewScreen
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestScreen
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestViewModel
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestViewModelFactory
@@ -98,6 +101,9 @@ class MainActivity : ComponentActivity() {
                                         Screen.Compare.createRoute(packA, packB)
                                     )
                                 },
+                                onNavigateToPreview = { packageName ->
+                                    navController.navigate(Screen.IconPreview.createRoute(packageName))
+                                },
                                 viewModel = iconViewModel
                             )
                         }
@@ -126,6 +132,22 @@ class MainActivity : ComponentActivity() {
                                 onBack = {
                                     navController.popBackStack()
                                 }
+                            )
+                        }
+                        composable(
+                            route = Screen.IconPreview.route,
+                            arguments = listOf(navArgument("packageName") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val packageName = backStackEntry.arguments?.getString("packageName") ?: ""
+
+                            val iconGridPreviewModel: IconGridPreviewViewModel = viewModel(
+                                factory = IconGridPreviewViewModelFactory(iconPackManager)
+                            )
+
+                            IconGridPreviewScreen(
+                                packageName = packageName,
+                                viewModel = iconGridPreviewModel,
+                                onBack = { navController.popBackStack() }
                             )
                         }
                         composable(

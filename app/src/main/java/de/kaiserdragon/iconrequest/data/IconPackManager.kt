@@ -7,7 +7,13 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
+import android.graphics.drawable.AdaptiveIconDrawable
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Log
+import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.drawable.toBitmap
+import androidx.palette.graphics.Palette
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 
@@ -38,6 +44,28 @@ class IconPackManager(private val context: Context) {
                 isSelected = false
             )
         }
+    }
+
+    fun getContext(): Context {
+        return context
+    }
+
+    fun extractColorsFromDrawable(drawable: Drawable): Pair<Color, Color> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
+            // Extract background color
+            val bgBitmap = drawable.background.toBitmap(100, 100)
+            val bgPalette = Palette.from(bgBitmap).generate()
+            val bgColor = Color(bgPalette.getDominantColor(android.graphics.Color.WHITE))
+
+            // Extract foreground color
+            val fgBitmap = drawable.foreground.toBitmap(100, 100)
+            val fgPalette = Palette.from(fgBitmap).generate()
+            // We look for a vibrant color that isn't the background color
+            val fgColor = Color(fgPalette.getVibrantColor(bgPalette.getDominantColor(android.graphics.Color.BLACK)))
+
+            return fgColor to bgColor
+        }
+        return Color.Unspecified to Color.Unspecified
     }
 
     // Parses the appfilter.xml from the chosen icon pack APK

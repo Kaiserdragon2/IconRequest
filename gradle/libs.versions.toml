@@ -16,6 +16,9 @@ material = "1.13.0"
 datastorePreferences = "1.2.0"
 coreSplashscreen = "1.2.0"
 adaptiveIconBitmap = "1.0.2"
+material3 = "1.4.0"
+uiGraphics = "1.10.2"
+paletteKtx = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +39,9 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 adaptive-icon-bitmap = { group = "com.github.sarsamurmu", name = "AdaptiveIconBitmap", version.ref = "adaptiveIconBitmap" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

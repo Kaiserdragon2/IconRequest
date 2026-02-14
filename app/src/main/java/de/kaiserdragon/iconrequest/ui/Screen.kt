@@ -12,4 +12,8 @@ sealed class Screen(val route: String) {
     object Compare : Screen("compare/{packA}/{packB}") {
         fun createRoute(packA: String, packB: String) = "compare/$packA/$packB"
     }
+
+    object IconPreview : Screen("icon_preview/{packageName}") {
+        fun createRoute(packageName: String) = "icon_preview/$packageName"
+    }
 }

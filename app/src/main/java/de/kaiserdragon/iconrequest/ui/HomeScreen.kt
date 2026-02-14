@@ -21,8 +21,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Compare
+import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,6 +60,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToHealth: (String) -> Unit,
     onNavigateToComparison: (String, String) -> Unit,
+    onNavigateToPreview: (String) -> Unit,
     viewModel: IconRequestViewModel
 ) {
     var showPackDialog by remember { mutableStateOf(false) }
@@ -67,6 +70,7 @@ fun HomeScreen(
             null
         )
     }
+    var showPreviewDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val iconPacks by viewModel.installedIconPacks.collectAsState()
     val context = LocalContext.current
@@ -225,6 +229,32 @@ fun HomeScreen(
                 )
 
             }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Health Check Card
+                HomeToolCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Icon Preview",
+                    description = "Preview icons from an icon pack",
+                    icon = Icons.Default.Preview,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    onClick = {showPreviewDialog = true}
+                )
+
+                // Comparison Card
+                HomeToolCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Placeholder",
+                    description = "Todo",
+                    icon = Icons.Default.Construction,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    onClick = {}
+                )
+
+            }
         }
     }
 
@@ -240,6 +270,20 @@ fun HomeScreen(
             onPackSelected = { pack ->
                 if (pack != null) onNavigateToHealth(pack.packageName)
                 showPackDialog = false
+            }
+        )
+    }
+
+    if (showPreviewDialog) {
+        IconPackPickerDialog(
+            iconPacks = iconPacks,
+            title = "Select Pack to Preview",
+            showResetOption = false,
+            showSystemOption = false,
+            onDismiss = { showPreviewDialog = false },
+            onPackSelected = { pack ->
+                if (pack != null) onNavigateToPreview(pack.packageName)
+                showPreviewDialog = false
             }
         )
     }
