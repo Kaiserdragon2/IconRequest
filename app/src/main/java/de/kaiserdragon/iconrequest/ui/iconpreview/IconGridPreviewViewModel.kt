@@ -1,13 +1,18 @@
 package de.kaiserdragon.iconrequest.ui.iconpackhealth
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.color.utilities.Hct
+import com.google.android.material.color.utilities.SchemeTonalSpot
 import de.kaiserdragon.iconrequest.data.IconPackManager
 import de.kaiserdragon.iconrequest.ui.IconShape
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
+
 
 class IconGridPreviewViewModel(private val iconPackManager: IconPackManager) : ViewModel() {
     private val _iconList = MutableStateFlow<List<String>>(emptyList())
@@ -68,6 +74,54 @@ class IconGridPreviewViewModel(private val iconPackManager: IconPackManager) : V
             _isRefreshing.value = false
         }
     }
+
+
+    @SuppressLint("RestrictedApi")
+    fun generateSchemeFromSeed(seed: Color, dark: Boolean): ColorScheme {
+        val hct = Hct.fromInt(seed.toArgb())
+        // TonalSpot is the standard Material 3 look
+        val scheme = SchemeTonalSpot(hct, dark, 0.0)
+
+        return ColorScheme(
+            primary = Color(scheme.primary),
+            onPrimary = Color(scheme.onPrimary),
+            primaryContainer = Color(scheme.primaryContainer),
+            onPrimaryContainer = Color(scheme.onPrimaryContainer),
+            inversePrimary = Color(scheme.inversePrimary),
+            secondary = Color(scheme.secondary),
+            onSecondary = Color(scheme.onSecondary),
+            secondaryContainer = Color(scheme.secondaryContainer),
+            onSecondaryContainer = Color(scheme.onSecondaryContainer),
+            tertiary = Color(scheme.tertiary),
+            onTertiary = Color(scheme.onTertiary),
+            tertiaryContainer = Color(scheme.tertiaryContainer),
+            onTertiaryContainer = Color(scheme.onTertiaryContainer),
+            background = Color(scheme.background),
+            onBackground = Color(scheme.onBackground),
+            surface = Color(scheme.surface),
+            onSurface = Color(scheme.onSurface),
+            surfaceVariant = Color(scheme.surfaceVariant),
+            onSurfaceVariant = Color(scheme.onSurfaceVariant),
+            surfaceTint = Color(scheme.primary),
+            inverseSurface = Color(scheme.inverseSurface),
+            inverseOnSurface = Color(scheme.inverseOnSurface),
+            error = Color(scheme.error),
+            onError = Color(scheme.onError),
+            errorContainer = Color(scheme.errorContainer),
+            onErrorContainer = Color(scheme.onErrorContainer),
+            outline = Color(scheme.outline),
+            outlineVariant = Color(scheme.outlineVariant),
+            scrim = Color(scheme.scrim),
+            surfaceBright = Color(scheme.surfaceBright),
+            surfaceDim = Color(scheme.surfaceDim),
+            surfaceContainer = Color(scheme.surfaceContainer),
+            surfaceContainerHigh = Color(scheme.surfaceContainerHigh),
+            surfaceContainerHighest = Color(scheme.surfaceContainerHighest),
+            surfaceContainerLow = Color(scheme.surfaceContainerLow),
+            surfaceContainerLowest = Color(scheme.surfaceContainerLowest),
+        )
+    }
+
 
     private fun fetchDrawableNames(packageName: String): List<String> {
         val iconNames = mutableSetOf<String>()
