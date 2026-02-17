@@ -65,7 +65,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -73,6 +72,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import coil.request.Parameters
 import de.kaiserdragon.iconrequest.ui.IconShape
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModel
 
@@ -289,28 +289,40 @@ fun SettingsBottomSheet(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            // Inside SettingsBottomSheet
             Text("Icon Shape", style = MaterialTheme.typography.labelLarge)
+            Spacer(Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()), // Allow horizontal scrolling
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                IconShape.entries.forEach { shape ->
+                IconShape.entries.forEach { shapeEntry ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { viewModel.updateShape(shape) }
+                            .clickable { viewModel.updateShape(shapeEntry) }
                             .padding(8.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(getShape(shape))
-                                .background(if (selectedShape == shape) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                                .size(56.dp) // Slightly larger for detail
+                                .clip(shapeEntry.shape)
+                                .background(
+                                    if (selectedShape == shapeEntry) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                .border(
+                                    width = 1.5.dp,
+                                    color = if (selectedShape == shapeEntry) Color.Transparent
+                                    else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                    shape = shapeEntry.shape
+                                )
                         )
-                        Text(shape.label, style = MaterialTheme.typography.bodySmall)
+                        Text(shapeEntry.label, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -323,10 +335,9 @@ fun IconCard(
     iconName: String,
     packageName: String,
     iconPackContext: Context,
-    shape: IconShape
+    shapeEntry: IconShape
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val currentShape = getShape(shape)
 
     val themedDrawable = remember(iconName, colorScheme,iconPackContext) {
         try {
@@ -365,7 +376,7 @@ fun IconCard(
                 modifier = Modifier
                     .size(64.dp)
                     // SHAPE INJECTION: We apply the mask here in the UI layer
-                    .clip(currentShape),
+                    .clip(shapeEntry.shape),
                     //.background(colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
@@ -412,12 +423,4 @@ fun IconCard(
            )
         }
     }
-}
-
-@Composable
-fun getShape(shape: IconShape) = when (shape) {
-    IconShape.Square -> RectangleShape
-    IconShape.Circle -> CircleShape
-    IconShape.Squircle -> RoundedCornerShape(25.dp)
-    IconShape.RoundedSquare -> RoundedCornerShape(8.dp)
 }

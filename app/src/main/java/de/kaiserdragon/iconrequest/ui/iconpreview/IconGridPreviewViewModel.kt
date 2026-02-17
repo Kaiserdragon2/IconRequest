@@ -31,7 +31,7 @@ class IconGridPreviewViewModel(private val iconPackManager: IconPackManager) : V
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
-    private val _selectedShape = MutableStateFlow(IconShape.Circle)
+    private val _selectedShape = MutableStateFlow(IconShape.Square)
     val selectedShape: StateFlow<IconShape> = _selectedShape.asStateFlow()
     // Inside IconGridPreviewViewModel
     private val _isDarkMode = MutableStateFlow(true)
