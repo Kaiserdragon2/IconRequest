@@ -3,7 +3,6 @@ package de.kaiserdragon.iconrequest.ui.iconpreview
 import android.content.Context
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -77,7 +76,6 @@ import coil.compose.rememberAsyncImagePainter
 import de.kaiserdragon.iconrequest.ui.IconShape
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModel
 
-@RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IconGridPreviewScreen(
@@ -207,102 +205,102 @@ fun SettingsBottomSheet(
         Color(0xFF984061), Color(0xFF6B5E00), Color(0xFF005AC1)
     )
 
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            sheetState = sheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() },
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
         ) {
-            Column(
+            Text("Preview Settings", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(16.dp))
+
+            // Appearance Toggles
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                FilterChip(
+                    selected = isDarkMode,
+                    onClick = { viewModel.toggleDarkMode() },
+                    label = { Text("Dark Mode") },
+                    leadingIcon = {
+                        Icon(
+                            if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                            null
+                        )
+                    }
+                )
+                Spacer(Modifier.width(8.dp))
+                FilterChip(
+                    selected = useSystemDynamic,
+                    onClick = { viewModel.setUseSystemDynamic(!useSystemDynamic) },
+                    label = { Text("Custom Theme") }
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+            Text("Primary Color", style = MaterialTheme.typography.labelLarge)
+
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
+                    .horizontalScroll(rememberScrollState())
+                    .padding(vertical = 8.dp)
             ) {
-                Text("Preview Settings", style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(16.dp))
-
-                // Appearance Toggles
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    FilterChip(
-                        selected = isDarkMode,
-                        onClick = { viewModel.toggleDarkMode() },
-                        label = { Text("Dark Mode") },
-                        leadingIcon = {
-                            Icon(
-                                if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
-                                null
-                            )
-                        }
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    FilterChip(
-                        selected = useSystemDynamic,
-                        onClick = { viewModel.setUseSystemDynamic(!useSystemDynamic) },
-                        label = { Text("Custom Theme") }
-                    )
-                }
-
-                Spacer(Modifier.height(24.dp))
-                Text("Primary Color", style = MaterialTheme.typography.labelLarge)
-
-                Row(
-                    modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .padding(vertical = 8.dp)
-                ) {
-                    colorPresets.forEach { primary ->
-                        Box(
-                            modifier = Modifier
-                                .padding(end = 12.dp)
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(primary)
-                                .clickable {
-                                    viewModel.updateColors(
-                                        primary,
-                                        primary
-                                    )
-                                }
-                                .border(
-                                    width = if (viewModel.primaryColor.value == primary) 3.dp else 0.dp,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    shape = CircleShape
-                                ),contentAlignment = Alignment.Center
-                        ){
-                            if (currentPrimary == primary) {
-                                Icon(Icons.Default.Check, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                colorPresets.forEach { primary ->
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(primary)
+                            .clickable {
+                                viewModel.updateColors(
+                                    primary,
+                                    primary
+                                )
                             }
+                            .border(
+                                width = if (viewModel.primaryColor.value == primary) 3.dp else 0.dp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                shape = CircleShape
+                            ),contentAlignment = Alignment.Center
+                    ){
+                        if (currentPrimary == primary) {
+                            Icon(Icons.Default.Check, null, tint = Color.White, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
+            }
 
-                Spacer(Modifier.height(24.dp))
-                Text("Icon Shape", style = MaterialTheme.typography.labelLarge)
+            Spacer(Modifier.height(24.dp))
+            Text("Icon Shape", style = MaterialTheme.typography.labelLarge)
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    IconShape.values().forEach { shape ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconShape.entries.forEach { shape ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { viewModel.updateShape(shape) }
+                            .padding(8.dp)
+                    ) {
+                        Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { viewModel.updateShape(shape) }
-                                .padding(8.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(getShape(shape))
-                                    .background(if (selectedShape == shape) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
-                            )
-                            Text(shape.label, style = MaterialTheme.typography.bodySmall)
-                        }
+                                .size(48.dp)
+                                .clip(getShape(shape))
+                                .background(if (selectedShape == shape) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                        )
+                        Text(shape.label, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
         }
     }
+}
 
 @Composable
 fun IconCard(
@@ -351,11 +349,11 @@ fun IconCard(
                 modifier = Modifier
                     .size(64.dp)
                     // SHAPE INJECTION: We apply the mask here in the UI layer
-                    .clip(currentShape)
-                    .background(colorScheme.primaryContainer),
+                    .clip(currentShape),
+                    //.background(colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
-                when {
+               when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && themedDrawable is AdaptiveIconDrawable -> {
                         // Background Layer
                         Image(
@@ -373,16 +371,15 @@ fun IconCard(
                                 .scale(1.5f),
                             contentScale = ContentScale.FillBounds
                         )
-                    }
+                   }
 
                     themedDrawable != null -> {
                         Image(
                             painter = rememberAsyncImagePainter(themedDrawable),
                             contentDescription = iconName,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            contentScale = ContentScale.Fit
+                                .fillMaxSize(),
+                            contentScale = ContentScale.FillBounds
                         )
                     }
                 }
@@ -396,7 +393,7 @@ fun IconCard(
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
-            )
+           )
         }
     }
 }
