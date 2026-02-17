@@ -95,9 +95,25 @@ fun IconGridPreviewScreen(
 
     val context = LocalContext.current
 
-    val iconPackContext = remember(packageName) {
+    val iconPackContext = remember(packageName, isDarkMode) {
         try {
-            context.createPackageContext(packageName, 0)
+            val pkgContext = context.createPackageContext(packageName, 0)
+
+            // Create a new configuration based on the package context
+            val config = android.content.res.Configuration(pkgContext.resources.configuration)
+
+            // Force the UI Mode based on your ViewModel state
+            val nightMode = if (isDarkMode) {
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+            } else {
+                android.content.res.Configuration.UI_MODE_NIGHT_NO
+            }
+
+            // Apply the night mode while preserving other bit flags
+            config.uiMode = nightMode or (config.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK.inv())
+
+            // Return a context with the overridden configuration
+            pkgContext.createConfigurationContext(config)
         } catch (e: Exception) {
             context
         }
@@ -312,7 +328,7 @@ fun IconCard(
     val colorScheme = MaterialTheme.colorScheme
     val currentShape = getShape(shape)
 
-    val themedDrawable = remember(iconName, colorScheme) {
+    val themedDrawable = remember(iconName, colorScheme,iconPackContext) {
         try {
             val res = iconPackContext.resources
             val id = res.getIdentifier(iconName, "drawable", packageName)
