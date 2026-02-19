@@ -1,12 +1,16 @@
 package de.kaiserdragon.iconrequest.ui.iconpreview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Build
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,6 +50,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -64,15 +70,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import coil.compose.rememberAsyncImagePainter
 import coil.request.Parameters
+import com.google.android.material.color.utilities.Hct
 import de.kaiserdragon.iconrequest.ui.IconShape
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModel
 
@@ -92,6 +106,8 @@ fun IconGridPreviewScreen(
     val useSystemDynamic by viewModel.useSystemDynamic.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+    val contrast by viewModel.contrast.collectAsState()
+    val themeStyle by viewModel.themeStyle.collectAsState()
 
     val context = LocalContext.current
 
@@ -119,11 +135,14 @@ fun IconGridPreviewScreen(
         }
     }
 
-    val targetColorScheme = remember(useSystemDynamic, isDarkMode, primaryColor) {
+    val targetColorScheme = remember(useSystemDynamic, isDarkMode, primaryColor,contrast,themeStyle) {
         if (!useSystemDynamic) {
             if (isDarkMode) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         } else {
-            viewModel.generateSchemeFromSeed(primaryColor, isDarkMode)
+            // Use the new HCT-based generation
+            viewModel.generateScheme(primaryColor, contrast,isDarkMode,
+                themeStyle
+            )
         }
     }
 
@@ -202,6 +221,7 @@ fun IconGridPreviewScreen(
     }
 }
 
+@SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsBottomSheet(
@@ -213,13 +233,19 @@ fun SettingsBottomSheet(
     val isDarkMode by viewModel.isDarkMode.collectAsState()
     val useSystemDynamic by viewModel.useSystemDynamic.collectAsState()
     val currentPrimary by viewModel.primaryColor.collectAsState()
+    val contrast by viewModel.contrast.collectAsState()
+    var showColorWheel by remember { mutableStateOf(false) }
+    val themeStyle by viewModel.themeStyle.collectAsState()
 
-    val colorPresets = listOf(
-        Color(0xFF6750A4), Color(0xFF386A20), Color(0xFF0061A4),
-        Color(0xFFBA1A1A), Color(0xFF006874), Color(0xFF7D5260),
-        Color(0xFF825500), Color(0xFF006D3B), Color(0xFF435893),
-        Color(0xFF984061), Color(0xFF6B5E00), Color(0xFF005AC1)
-    )
+    val colorPresets = remember {
+        listOf(
+            Color(0xFFFFEB3B), // Yellow
+            Color(0xFF4CAF50), // Green
+            Color(0xFF2196F3), // Blue
+            Color(0xFFF44336), // Red
+            Color(0xFF9C27B0)  // Purple
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -231,73 +257,112 @@ fun SettingsBottomSheet(
                 .fillMaxWidth()
                 .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
         ) {
-            Text("Preview Settings", style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(16.dp))
-
-            // Appearance Toggles
             Row(verticalAlignment = Alignment.CenterVertically) {
                 FilterChip(
-                    selected = isDarkMode,
+                    selected = isDarkMode != viewModel.initialDarkMode,
                     onClick = { viewModel.toggleDarkMode() },
-                    label = { Text("Dark Mode") },
+                    label = {
+                        Text(if (isDarkMode) "Dark Mode" else "Light Mode")
+                    },
                     leadingIcon = {
                         Icon(
                             if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
-                            null
+                            contentDescription = null
                         )
                     }
                 )
                 Spacer(Modifier.width(8.dp))
                 FilterChip(
-                    selected = useSystemDynamic,
+                    selected = (useSystemDynamic),
                     onClick = { viewModel.setUseSystemDynamic(!useSystemDynamic) },
                     label = { Text("Custom Theme") }
                 )
             }
 
-            Spacer(Modifier.height(24.dp))
-            Text("Primary Color", style = MaterialTheme.typography.labelLarge)
+            if (useSystemDynamic) {
+                Text("Theme Style", style = MaterialTheme.typography.labelLarge)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconGridPreviewViewModel.ThemeStyle.entries.forEach { style ->
+                        FilterChip(
+                            selected = themeStyle == style,
+                            onClick = { viewModel.setThemeStyle(style) },
+                            label = { Text(style.name.replace("_", " ").lowercase().capitalize()) }
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Seed Color", style = MaterialTheme.typography.labelLarge)
+                    IconButton(onClick = { showColorWheel = !showColorWheel }) {
+                        Icon(
+                            imageVector = Icons.Default.Palette,
+                            contentDescription = "Custom Color",
+                            tint = if (showColorWheel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
 
-            Row(
-                modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(vertical = 8.dp)
-            ) {
-                colorPresets.forEach { primary ->
-                    Box(
+                if (showColorWheel) {
+                    ColorPickerFull(
+                        selectedColor = currentPrimary,
+                        contrast = contrast,
+                        onColorChanged = { viewModel.updateColors(it, it) },
+                        onContrastChanged = { viewModel.updateContrast(it) }
+                    )
+                } else {
+                    Row(
                         modifier = Modifier
-                            .padding(end = 12.dp)
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(primary)
-                            .clickable {
-                                viewModel.updateColors(
-                                    primary,
-                                    primary
-                                )
+                            .horizontalScroll(rememberScrollState())
+                    )
+                    {
+                        colorPresets.forEach { presetColor ->
+                            val isSelected = currentPrimary == presetColor
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 12.dp)
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(presetColor)
+                                    .clickable {
+                                        // Update via standard Color
+                                        viewModel.updateColors(presetColor, presetColor)
+                                    }
+                                    .border(
+                                        width = if (isSelected) 3.dp else 0.dp,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        shape = CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (isSelected) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        null,
+                                        tint = viewModel.getContrastColor(currentPrimary),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
-                            .border(
-                                width = if (viewModel.primaryColor.value == primary) 3.dp else 0.dp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                shape = CircleShape
-                            ),contentAlignment = Alignment.Center
-                    ){
-                        if (currentPrimary == primary) {
-                            Icon(Icons.Default.Check, null, tint = Color.White, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
             }
-
-            // Inside SettingsBottomSheet
-            Text("Icon Shape", style = MaterialTheme.typography.labelLarge)
             Spacer(Modifier.height(8.dp))
-
+            Text("Icon Shape", style = MaterialTheme.typography.labelLarge)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()), // Allow horizontal scrolling
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 IconShape.entries.forEach { shapeEntry ->
                     Column(
@@ -305,7 +370,7 @@ fun SettingsBottomSheet(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .clickable { viewModel.updateShape(shapeEntry) }
-                            .padding(8.dp)
+                            .padding(end = 8.dp, top = 8.dp)
                     ) {
                         Box(
                             modifier = Modifier
@@ -345,9 +410,7 @@ fun IconCard(
             val id = res.getIdentifier(iconName, "drawable", packageName)
 
             if (id != 0) {
-                // Use the iconPackContext theme for initial load
-                val drawable = res.getDrawable(id, iconPackContext.theme)
-
+               val drawable = ResourcesCompat.getDrawable(res,id,iconPackContext.theme)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
                     // Inject the generated theme colors directly into the layers
                     drawable.background.mutate().setTint(colorScheme.primaryContainer.toArgb())
@@ -375,9 +438,7 @@ fun IconCard(
             Box(
                 modifier = Modifier
                     .size(64.dp)
-                    // SHAPE INJECTION: We apply the mask here in the UI layer
                     .clip(shapeEntry.shape),
-                    //.background(colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                when {
@@ -421,6 +482,125 @@ fun IconCard(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
            )
+        }
+    }
+}
+@Composable
+fun ColorWheel(
+    selectedColor: Color,
+    onColorChanged: (Color) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val hsv = remember(selectedColor) {
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(selectedColor.toArgb(), hsv)
+        hsv
+    }
+
+    Box(modifier = modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                fun updateColor(offset: Offset) {
+                    val centerX = size.width / 2f
+                    val centerY = size.height / 2f
+                    val x = offset.x - centerX
+                    val y = offset.y - centerY
+                    var angle = Math.toDegrees(Math.atan2(y.toDouble(), x.toDouble())).toFloat()
+                    val hue = (angle + 360f) % 360f
+                    onColorChanged(Color.hsv(hue, hsv[1], hsv[2]))
+                }
+
+                detectDragGestures { change, _ ->
+                    updateColor(change.position)
+                }
+            }
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    val centerX = size.width / 2f
+                    val centerY = size.height / 2f
+                    val x = offset.x - centerX
+                    val y = offset.y - centerY
+                    val angle = Math.toDegrees(Math.atan2(y.toDouble(), x.toDouble())).toFloat()
+                    val hue = (angle + 360f) % 360f
+                    onColorChanged(Color.hsv(hue, hsv[1], hsv[2]))
+                }
+            }
+        ) {
+            val radius = size.minDimension / 2f
+            val strokeWidth = 32.dp.toPx()
+            val innerRadius = radius - strokeWidth / 2
+            drawCircle(
+                brush = Brush.sweepGradient(
+                    colors = listOf(
+                        Color.Red, Color.Yellow, Color.Green,
+                        Color.Cyan, Color.Blue, Color.Magenta, Color.Red
+                    ),
+                    center = center
+                ),
+                radius = innerRadius,
+                style = Stroke(width = strokeWidth)
+            )
+            val angleRad = Math.toRadians(hsv[0].toDouble()).toFloat()
+            val indicatorX = center.x + innerRadius * Math.cos(angleRad.toDouble()).toFloat()
+            val indicatorY = center.y + innerRadius * Math.sin(angleRad.toDouble()).toFloat()
+            val indicatorPos = Offset(indicatorX, indicatorY)
+            drawCircle(
+                color = Color.Black.copy(alpha = 0.2f),
+                radius = 15.dp.toPx(),
+                center = indicatorPos
+            )
+            drawCircle(
+                color = Color.White,
+                radius = 13.dp.toPx(),
+                center = indicatorPos
+            )
+            drawCircle(
+                color = selectedColor,
+                radius = 9.dp.toPx(),
+                center = indicatorPos
+            )
+        }
+    }
+}
+@Composable
+fun ColorPickerFull(
+    selectedColor: Color,
+    contrast: Float,
+    onColorChanged: (Color) -> Unit,
+    onContrastChanged: (Float) -> Unit
+) {
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        ColorWheel(
+            selectedColor = selectedColor,
+            onColorChanged = onColorChanged,
+            modifier = Modifier.size(200.dp).padding(2.dp)
+        )
+        Text(
+            text = "Seed: #${Integer.toHexString(selectedColor.toArgb()).uppercase()}",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "Contrast: ${if (contrast > 0) "+" else ""}${String.format("%.1f", contrast)}",
+            style = MaterialTheme.typography.labelSmall
+        )
+        Slider(
+            value = contrast,
+            onValueChange = onContrastChanged,
+            valueRange = -1f..1f,
+            steps = 19,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Soft", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text("Standard", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text("High", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
     }
 }

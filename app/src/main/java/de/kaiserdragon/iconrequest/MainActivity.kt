@@ -35,6 +35,7 @@ import de.kaiserdragon.iconrequest.ui.iconpreview.IconGridPreviewScreen
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestScreen
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestViewModel
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestViewModelFactory
+import de.kaiserdragon.iconrequest.ui.settings.AppThemeSetting
 import de.kaiserdragon.iconrequest.ui.settings.SettingsScreen
 import de.kaiserdragon.iconrequest.ui.settings.SettingsViewModel
 import de.kaiserdragon.iconrequest.ui.settings.SettingsViewModelFactory
@@ -140,8 +141,22 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val packageName = backStackEntry.arguments?.getString("packageName") ?: ""
 
+                            val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+
+                            val resolvedDarkMode = when (themeSetting) {
+                                AppThemeSetting.Dark,
+                                AppThemeSetting.DarkMediumContrast,
+                                AppThemeSetting.DarkHighContrast -> true
+
+                                AppThemeSetting.Light,
+                                AppThemeSetting.LightMediumContrast,
+                                AppThemeSetting.LightHighContrast -> false
+
+                                AppThemeSetting.System -> isSystemDark
+                            }
+
                             val iconGridPreviewModel: IconGridPreviewViewModel = viewModel(
-                                factory = IconGridPreviewViewModelFactory(iconPackManager)
+                                factory = IconGridPreviewViewModelFactory(iconPackManager,resolvedDarkMode)
                             )
 
                             IconGridPreviewScreen(
