@@ -82,7 +82,8 @@ class IconRequestExporter(private val context: Context) {
     private fun generateZipData(
         selectedApps: List<AppInfo>,
         outputStream: OutputStream,
-        excludeTags: Boolean = false
+        excludeTags: Boolean = false,
+        excludeNames: Boolean = false,
     ) {
         ZipOutputStream(outputStream).use { zipOut ->
             val usedNames = mutableMapOf<String, Int>()
@@ -100,7 +101,7 @@ class IconRequestExporter(private val context: Context) {
             }
 
             // Step 2: Generate appfilter.xml using the synced names
-            val appFilterContent = buildAppFilterString(appEntries, excludeTags)
+            val appFilterContent = buildAppFilterString(appEntries, excludeTags, excludeNames)
             addToZip(zipOut, "appfilter.xml", appFilterContent.toByteArray())
 
             // Step 3: Add Icons using the exact same synced names
@@ -132,13 +133,19 @@ class IconRequestExporter(private val context: Context) {
 
     fun buildAppFilterString(
         entries: List<Pair<AppInfo, String>>,
-        excludeTags: Boolean
+        excludeTags: Boolean,
+        excludeNames: Boolean
     ): String {
         val builder = StringBuilder()
         if (!excludeTags) {
             builder.append("<resources>\n")
         }
         entries.forEach { (app, drawableName) ->
+            if (!excludeNames) {
+                builder.append(
+                    "  <!-- ${app.name} -->\n"
+                )
+            }
             builder.append(
                 "  <item component=\"ComponentInfo{${app.packageName}/${app.activityName}}\" drawable=\"$drawableName\" />\n"
             )

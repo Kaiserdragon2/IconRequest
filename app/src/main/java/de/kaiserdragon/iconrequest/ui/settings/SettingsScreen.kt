@@ -53,6 +53,7 @@ fun SettingsScreen(
     var showDialog by remember { mutableStateOf(false) }
     val useDynamicColors by settingsViewModel.useDynamicColors.collectAsState()
     val excludeResourcesTag by settingsViewModel.excludeResourcesTag.collectAsState()
+    val excludeNamesTag by settingsViewModel.excludeNamesTag.collectAsState()
 
     Scaffold(
         topBar = {
@@ -138,6 +139,31 @@ fun SettingsScreen(
                     Switch(
                         checked = excludeResourcesTag,
                         onCheckedChange = { settingsViewModel.setExcludeResourcesTag(it) }
+                    )
+                }
+            )
+            ListItem(
+                modifier = Modifier.height(IntrinsicSize.Min),
+                headlineContent = { Text("Name Tag Export") },
+                supportingContent = { Text("Exclude <!-- Name --> tags when copying/sharing \nLong press share button to invert behavior") },
+                leadingContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight() // Fill the height determined by the text
+                            .wrapContentWidth(), // Only take as much width as the icon needs
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Code,
+                            contentDescription = null
+                        )
+                    }
+
+                },
+                trailingContent = {
+                    Switch(
+                        checked = excludeNamesTag,
+                        onCheckedChange = { settingsViewModel.setExcludeNamesTag(it) }
                     )
                 }
             )

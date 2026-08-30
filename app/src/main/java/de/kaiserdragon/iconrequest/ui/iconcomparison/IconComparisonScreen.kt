@@ -232,6 +232,7 @@ fun IconComparisonScreen(
                                 showMenu = false; viewModel.copyToClipboard(
                                 context,
                                 excludeTags,
+                                true,
                                 packAPackage,
                                 packBPackage
                             )
@@ -244,6 +245,7 @@ fun IconComparisonScreen(
                                 showMenu = false; viewModel.shareAsText(
                                 context,
                                 excludeTags,
+                                true,
                                 packAPackage,
                                 packBPackage
                             )

@@ -15,6 +15,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -39,6 +41,7 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -52,6 +55,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -63,6 +68,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -72,9 +78,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -85,10 +89,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import coil.compose.rememberAsyncImagePainter
-import coil.request.Parameters
-import com.google.android.material.color.utilities.Hct
 import de.kaiserdragon.iconrequest.ui.IconShape
-import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,33 +109,26 @@ fun IconGridPreviewScreen(
     val sheetState = rememberModalBottomSheetState()
     val contrast by viewModel.contrast.collectAsState()
     val themeStyle by viewModel.themeStyle.collectAsState()
+    val foregroundRole by viewModel.foregroundColorRole.collectAsState()
+    val backgroundRole by viewModel.backgroundColorRole.collectAsState()
 
     val context = LocalContext.current
 
     val iconPackContext = remember(packageName, isDarkMode) {
         try {
             val pkgContext = context.createPackageContext(packageName, 0)
-
-            // Create a new configuration based on the package context
             val config = android.content.res.Configuration(pkgContext.resources.configuration)
-
-            // Force the UI Mode based on your ViewModel state
             val nightMode = if (isDarkMode) {
                 android.content.res.Configuration.UI_MODE_NIGHT_YES
             } else {
                 android.content.res.Configuration.UI_MODE_NIGHT_NO
             }
-
-            // Apply the night mode while preserving other bit flags
             config.uiMode = nightMode or (config.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK.inv())
-
-            // Return a context with the overridden configuration
             pkgContext.createConfigurationContext(config)
         } catch (e: Exception) {
             context
         }
     }
-
     val targetColorScheme = remember(useSystemDynamic, isDarkMode, primaryColor,contrast,themeStyle) {
         if (!useSystemDynamic) {
             if (isDarkMode) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -145,19 +139,15 @@ fun IconGridPreviewScreen(
             )
         }
     }
-
-    // Filter icons based on search
     val filteredIcons = remember(searchQuery, allIcons) {
         if (searchQuery.isEmpty()) allIcons
         else allIcons.filter { it.contains(searchQuery, ignoreCase = true) }
     }
     MaterialTheme(colorScheme = targetColorScheme) {
-
         Surface {
             LaunchedEffect(packageName) {
                 viewModel.loadIconPreview(packageName)
             }
-
             Scaffold(
                 topBar = {
                     Column {
@@ -204,7 +194,15 @@ fun IconGridPreviewScreen(
                         contentPadding = PaddingValues(8.dp)
                     ) {
                         items(filteredIcons, key = { it }) { iconName ->
-                            IconCard(iconName, packageName, iconPackContext, selectedShape)
+                            IconCard(
+                                viewModel,
+                                iconName,
+                                packageName,
+                                iconPackContext,
+                                selectedShape,
+                                foregroundRole,
+                                backgroundRole
+                            )
                         }
                     }
 
@@ -288,7 +286,7 @@ fun SettingsBottomSheet(
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    IconGridPreviewViewModel.ThemeStyle.entries.forEach { style ->
+                    ThemeStyle.entries.forEach { style ->
                         FilterChip(
                             selected = themeStyle == style,
                             onClick = { viewModel.setThemeStyle(style) },
@@ -355,6 +353,23 @@ fun SettingsBottomSheet(
                         }
                     }
                 }
+                Spacer(Modifier.height(8.dp))
+                var showLayerOverlay by remember { mutableStateOf(false) }
+                Button(
+                    onClick = { showLayerOverlay = true },
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Palette, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Customize Layer Colors")
+                }
+                if (showLayerOverlay) {
+                    IconColorOverlay(
+                        viewModel = viewModel,
+                        onDismiss = { showLayerOverlay = false }
+                    )
+                }
             }
             Spacer(Modifier.height(8.dp))
             Text("Icon Shape", style = MaterialTheme.typography.labelLarge)
@@ -395,26 +410,149 @@ fun SettingsBottomSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IconColorOverlay(
+    viewModel: IconGridPreviewViewModel,
+    onDismiss: () -> Unit
+) {
+    var activeLayerTab by remember { mutableIntStateOf(0) } // 0 = Foreground, 1 = Background
+    val foregroundRole by viewModel.foregroundColorRole.collectAsState()
+    val backgroundRole by viewModel.backgroundColorRole.collectAsState()
+    val colorScheme = MaterialTheme.colorScheme
+
+    // Pick a random icon from the list for the preview
+    val allIcons by viewModel.iconList.collectAsState()
+    val previewIcon = remember { allIcons.randomOrNull() ?: "" }
+
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // --- Header & Close ---
+                TopAppBar(
+                    title = { Text("Layer Lab") },
+                    navigationIcon = {
+                        IconButton(onClick = onDismiss) {
+                            Icon(Icons.Default.Check, contentDescription = "Done")
+                        }
+                    }
+                )
+
+                // --- 1. Live Preview Section ---
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // We use a simplified version of your IconCard logic here
+                        IconPreviewLarge(
+                            viewModel = viewModel,
+                            iconName = previewIcon,
+                            foregroundRole = foregroundRole,
+                            backgroundRole = backgroundRole
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text("Live Preview", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+
+                // --- 2. Main Layer Tabs (Foreground vs Background) ---
+                TabRow(selectedTabIndex = activeLayerTab) {
+                    Tab(
+                        selected = activeLayerTab == 0,
+                        onClick = { activeLayerTab = 0 },
+                        text = { Text("Foreground") }
+                    )
+                    Tab(
+                        selected = activeLayerTab == 1,
+                        onClick = { activeLayerTab = 1 },
+                        text = { Text("Background") }
+                    )
+                }
+
+                // --- 3. Sub-Category Selector (Theme, System, Fixed) ---
+                val currentRole = if (activeLayerTab == 0) foregroundRole else backgroundRole
+                val onRoleChange: (ColorRole) -> Unit = {
+                    if (activeLayerTab == 0) viewModel.setForegroundColorRole(it)
+                    else viewModel.setBackgroundColorRole(it)
+                }
+
+                Box(modifier = Modifier.padding(16.dp)) {
+                    ColorRolePicker(
+                        selectedRole = currentRole,
+                        onRoleSelected = onRoleChange
+                    )
+                }
+            }
+        }
+    }
+}
+@Composable
+fun IconPreviewLarge(
+    viewModel: IconGridPreviewViewModel,
+    iconName: String,
+    foregroundRole: ColorRole,
+    backgroundRole: ColorRole
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val fgColor = with(viewModel) { foregroundRole.toColor(colorScheme) }
+    val bgColor = with(viewModel) { backgroundRole.toColor(colorScheme) }
+    val shape by viewModel.selectedShape.collectAsState()
+
+    // Simplified preview box
+    Box(
+        modifier = Modifier
+            .size(120.dp)
+            .clip(shape.shape)
+            .background(bgColor),
+        contentAlignment = Alignment.Center
+    ) {
+        // Here you would put your Image logic with the foreground tint
+        // For the sake of the preview, we show the foreground role label
+        Text(
+            text = "FG",
+            color = fgColor,
+            style = MaterialTheme.typography.headlineLarge
+        )
+    }
+}
 @Composable
 fun IconCard(
+    viewModel: IconGridPreviewViewModel,
     iconName: String,
     packageName: String,
     iconPackContext: Context,
-    shapeEntry: IconShape
+    shapeEntry: IconShape,
+    foregroundRole: ColorRole,
+    backgroundRole: ColorRole
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val useSystemDynamic by viewModel.useSystemDynamic.collectAsState()
 
-    val themedDrawable = remember(iconName, colorScheme,iconPackContext) {
+    // Resolve the actual colors based on user selection
+    val fgColor = with(viewModel) { foregroundRole.toColor(colorScheme) }
+    val bgColor = with(viewModel) { backgroundRole.toColor(colorScheme) }
+
+    val themedDrawable = remember(iconName, colorScheme,iconPackContext,fgColor,bgColor) {
         try {
             val res = iconPackContext.resources
             val id = res.getIdentifier(iconName, "drawable", packageName)
 
             if (id != 0) {
                val drawable = ResourcesCompat.getDrawable(res,id,iconPackContext.theme)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable && useSystemDynamic) {
                     // Inject the generated theme colors directly into the layers
-                    drawable.background.mutate().setTint(colorScheme.primaryContainer.toArgb())
-                    drawable.foreground.mutate().setTint(colorScheme.primary.toArgb())
+                    drawable.background.mutate().setTint(bgColor.toArgb())
+                    drawable.foreground.mutate().setTint(fgColor.toArgb())
                 }
                 drawable
             } else null
@@ -485,84 +623,7 @@ fun IconCard(
         }
     }
 }
-@Composable
-fun ColorWheel(
-    selectedColor: Color,
-    onColorChanged: (Color) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val hsv = remember(selectedColor) {
-        val hsv = FloatArray(3)
-        android.graphics.Color.colorToHSV(selectedColor.toArgb(), hsv)
-        hsv
-    }
 
-    Box(modifier = modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                fun updateColor(offset: Offset) {
-                    val centerX = size.width / 2f
-                    val centerY = size.height / 2f
-                    val x = offset.x - centerX
-                    val y = offset.y - centerY
-                    var angle = Math.toDegrees(Math.atan2(y.toDouble(), x.toDouble())).toFloat()
-                    val hue = (angle + 360f) % 360f
-                    onColorChanged(Color.hsv(hue, hsv[1], hsv[2]))
-                }
-
-                detectDragGestures { change, _ ->
-                    updateColor(change.position)
-                }
-            }
-            .pointerInput(Unit) {
-                detectTapGestures { offset ->
-                    val centerX = size.width / 2f
-                    val centerY = size.height / 2f
-                    val x = offset.x - centerX
-                    val y = offset.y - centerY
-                    val angle = Math.toDegrees(Math.atan2(y.toDouble(), x.toDouble())).toFloat()
-                    val hue = (angle + 360f) % 360f
-                    onColorChanged(Color.hsv(hue, hsv[1], hsv[2]))
-                }
-            }
-        ) {
-            val radius = size.minDimension / 2f
-            val strokeWidth = 32.dp.toPx()
-            val innerRadius = radius - strokeWidth / 2
-            drawCircle(
-                brush = Brush.sweepGradient(
-                    colors = listOf(
-                        Color.Red, Color.Yellow, Color.Green,
-                        Color.Cyan, Color.Blue, Color.Magenta, Color.Red
-                    ),
-                    center = center
-                ),
-                radius = innerRadius,
-                style = Stroke(width = strokeWidth)
-            )
-            val angleRad = Math.toRadians(hsv[0].toDouble()).toFloat()
-            val indicatorX = center.x + innerRadius * Math.cos(angleRad.toDouble()).toFloat()
-            val indicatorY = center.y + innerRadius * Math.sin(angleRad.toDouble()).toFloat()
-            val indicatorPos = Offset(indicatorX, indicatorY)
-            drawCircle(
-                color = Color.Black.copy(alpha = 0.2f),
-                radius = 15.dp.toPx(),
-                center = indicatorPos
-            )
-            drawCircle(
-                color = Color.White,
-                radius = 13.dp.toPx(),
-                center = indicatorPos
-            )
-            drawCircle(
-                color = selectedColor,
-                radius = 9.dp.toPx(),
-                center = indicatorPos
-            )
-        }
-    }
-}
 @Composable
 fun ColorPickerFull(
     selectedColor: Color,
@@ -604,3 +665,4 @@ fun ColorPickerFull(
         }
     }
 }
+

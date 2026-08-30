@@ -1,17 +1,21 @@
 package de.kaiserdragon.iconrequest.ui.iconrequest
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -103,6 +107,7 @@ fun IconRequestScreen(
     val iconPacks by viewModel.installedIconPacks.collectAsState()
     val selectedFilter by viewModel.selectedFilterPack.collectAsState()
     val excludeTags by settingsViewModel.excludeResourcesTag.collectAsState()
+    val excludeNames by settingsViewModel.excludeNamesTag.collectAsState()
 
     LaunchedEffect(isSearchActive) {
         if (isSearchActive) {
@@ -230,23 +235,25 @@ fun IconRequestScreen(
                                 onClick = { showMenu = false; viewModel.saveZipToDevice(context) }
                             )
                             HorizontalDivider()// Visual separator
-                            DropdownMenuItem(
-                                text = { Text("Copy AppFilter Text") },
-                                leadingIcon = { Icon(Icons.Default.ContentCopy, null) },
-                                onClick = {
+                            CustomDropdownItem(
+                                text = "Copy AppFilter Text",
+                                icon = { Icon(Icons.Default.ContentCopy, null) },
+                                onClick = { invert ->
                                     showMenu = false; viewModel.copyToClipboard(
                                     context,
-                                    excludeTags
+                                    excludeTags,
+                                    excludeNames != invert
                                 )
                                 }
                             )
-                            DropdownMenuItem(
-                                text = { Text("Share Text Only") },
-                                leadingIcon = { Icon(Icons.Default.Description, null) },
-                                onClick = {
+                            CustomDropdownItem(
+                                text = "Share Text Only",
+                                icon = { Icon(Icons.Default.Description, null) },
+                                onClick = { invert ->
                                     showMenu = false; viewModel.shareAsText(
                                     context,
-                                    excludeTags
+                                    excludeTags,
+                                    excludeNames != invert
                                 )
                                 }
                             )
@@ -301,6 +308,35 @@ fun IconRequestScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CustomDropdownItem(
+    text: String,
+    icon: @Composable () -> Unit,
+    onClick: (invert: Boolean) -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = { onClick(false) },      // Normal click: regular exclusion
+                onLongClick = { onClick(true) }    // Long press: inverted behavior
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icon()
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = text, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }

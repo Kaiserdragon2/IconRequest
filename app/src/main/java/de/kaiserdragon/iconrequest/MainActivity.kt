@@ -26,12 +26,12 @@ import de.kaiserdragon.iconrequest.ui.Screen
 import de.kaiserdragon.iconrequest.ui.iconcomparison.IconComparisonScreen
 import de.kaiserdragon.iconrequest.ui.iconcomparison.IconComparisonViewModel
 import de.kaiserdragon.iconrequest.ui.iconcomparison.IconComparisonViewModelFactory
-import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModel
-import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconGridPreviewViewModelFactory
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconPackHealthScreen
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconPackHealthViewModel
 import de.kaiserdragon.iconrequest.ui.iconpackhealth.IconPackHealthViewModelFactory
 import de.kaiserdragon.iconrequest.ui.iconpreview.IconGridPreviewScreen
+import de.kaiserdragon.iconrequest.ui.iconpreview.IconGridPreviewViewModel
+import de.kaiserdragon.iconrequest.ui.iconpreview.IconGridPreviewViewModelFactory
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestScreen
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestViewModel
 import de.kaiserdragon.iconrequest.ui.iconrequest.IconRequestViewModelFactory
@@ -156,7 +156,10 @@ class MainActivity : ComponentActivity() {
                             }
 
                             val iconGridPreviewModel: IconGridPreviewViewModel = viewModel(
-                                factory = IconGridPreviewViewModelFactory(iconPackManager,resolvedDarkMode)
+                                factory = IconGridPreviewViewModelFactory(
+                                    iconPackManager,
+                                    resolvedDarkMode
+                                )
                             )
 
                             IconGridPreviewScreen(

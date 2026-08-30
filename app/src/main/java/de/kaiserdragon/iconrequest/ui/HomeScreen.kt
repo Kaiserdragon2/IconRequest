@@ -234,7 +234,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Health Check Card
+                // Preview card
                 HomeToolCard(
                     modifier = Modifier.weight(1f),
                     title = "Icon Preview",
@@ -243,17 +243,6 @@ fun HomeScreen(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     onClick = {showPreviewDialog = true}
                 )
-
-                // Comparison Card
-                HomeToolCard(
-                    modifier = Modifier.weight(1f),
-                    title = "Placeholder",
-                    description = "Todo",
-                    icon = Icons.Default.Construction,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    onClick = {}
-                )
-
             }
         }
     }

@@ -249,24 +249,24 @@ class IconComparisonViewModel(
         }
     }
 
-    fun copyToClipboard(context: Context, excludeTags: Boolean, packA: String, packB: String) {
+    fun copyToClipboard(context: Context, excludeTags: Boolean, excludeNames: Boolean, packA: String, packB: String) {
         val selectedApps = getSelectedAppInfos(context, packA, packB)
         if (selectedApps.isEmpty()) return
 
         val appEntries = selectedApps.map { it to iconRequestExporter.getDrawableName(it) }
-        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags)
+        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags, excludeNames)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("AppFilter", text))
         Toast.makeText(context, "AppFilter copied", Toast.LENGTH_SHORT).show()
     }
 
-    fun shareAsText(context: Context, excludeTags: Boolean, packA: String, packB: String) {
+    fun shareAsText(context: Context, excludeTags: Boolean, excludeNames: Boolean, packA: String, packB: String) {
         val selectedApps = getSelectedAppInfos(context, packA, packB)
         if (selectedApps.isEmpty()) return
 
         val appEntries = selectedApps.map { it to iconRequestExporter.getDrawableName(it) }
-        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags)
+        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags, excludeNames)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"

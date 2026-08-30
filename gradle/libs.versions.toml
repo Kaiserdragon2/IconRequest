@@ -1,24 +1,25 @@
 [versions]
-agp = "9.0.1"
-kotlin = "2.3.0"
-coreKtx = "1.17.0"
+agp = "9.3.2"
+kotlin = "2.4.10"
+coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.3"
-composeBom = "2026.01.01"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.08.00"
 coil = "2.7.0"
-navigationCompose = "2.9.7"
-lifecycleViewmodelKtx = "2.10.0"
-lifecycleViewmodelCompose = "2.10.0"
-material = "1.13.0"
-datastorePreferences = "1.2.0"
+navigationCompose = "2.10.0"
+lifecycleViewmodelKtx = "2.11.0"
+lifecycleViewmodelCompose = "2.11.0"
+material = "1.14.0"
+datastorePreferences = "1.2.1"
 coreSplashscreen = "1.2.0"
 adaptiveIconBitmap = "1.0.2"
 material3 = "1.4.0"
-uiGraphics = "1.10.2"
+uiGraphics = "1.12.0"
 paletteKtx = "1.0.0"
+foundation = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,7 @@ adaptive-icon-bitmap = { group = "com.github.sarsamurmu", name = "AdaptiveIconBi
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

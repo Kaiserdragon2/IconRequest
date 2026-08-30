@@ -34,6 +34,10 @@ class SettingsViewModel(context: Context) : ViewModel() {
         MutableStateFlow(prefs.getBoolean("exclude_resource_key", false))
     val excludeResourcesTag = _excludeResourcesTag.asStateFlow()
 
+    private val _excludeNamesTag =
+        MutableStateFlow(prefs.getBoolean("exclude_names_key", false))
+    val excludeNamesTag = _excludeNamesTag.asStateFlow()
+
     // NEW: Show System Apps
     private val _showSystemApps = MutableStateFlow(prefs.getBoolean("show_system_apps_key", false))
     val showSystemApps = _showSystemApps.asStateFlow()
@@ -56,6 +60,12 @@ class SettingsViewModel(context: Context) : ViewModel() {
         _excludeResourcesTag.value = exclude
         // Fixed: Used correct key here
         prefs.edit { putBoolean("exclude_resource_key", exclude) }
+    }
+
+    fun setExcludeNamesTag(exclude: Boolean) {
+        _excludeNamesTag.value = exclude
+        // Fixed: Used correct key here
+        prefs.edit { putBoolean("exclude_names_key", exclude) }
     }
 
     fun setShowSystemApps(enabled: Boolean) {

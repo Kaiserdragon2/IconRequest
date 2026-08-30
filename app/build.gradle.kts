@@ -6,13 +6,13 @@ plugins {
 android {
     namespace = "de.kaiserdragon.iconrequest"
     compileSdk {
-        version = release(36)
+        version = release(37)
     }
 
     defaultConfig {
         applicationId = "de.kaiserdragon.iconrequest"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 32
         versionName = "2.8.0"
     }
@@ -27,6 +27,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -58,6 +59,7 @@ androidComponents {
 
         // Create a custom task to copy and rename the output
         tasks.register<Copy>("renameReleaseApk") {
+            description = "Rename release apk file"
             // Get the actual APK produced by the build
             from(variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.APK))
 
@@ -99,4 +101,5 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.palette.ktx)
+    implementation(libs.androidx.compose.foundation)
 }

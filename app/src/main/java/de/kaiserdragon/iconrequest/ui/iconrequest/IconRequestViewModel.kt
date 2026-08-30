@@ -164,7 +164,7 @@ class IconRequestViewModel(
         }
     }
 
-    fun copyToClipboard(context: Context, excludeTags: Boolean) {
+    fun copyToClipboard(context: Context, excludeTags: Boolean, excludeNames: Boolean) {
         val selectedApps = _appList.value.filter { it.isSelected }
         if (selectedApps.isEmpty()) return
         val appEntries = mutableListOf<Pair<AppInfo, String>>()
@@ -172,7 +172,7 @@ class IconRequestViewModel(
             val baseName = iconRequestExporter.getDrawableName(app)
             appEntries.add(app to baseName)
         }
-        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags)
+        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags, excludeNames)
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("AppFilter", text)
         clipboard.setPrimaryClip(clip)
@@ -181,7 +181,7 @@ class IconRequestViewModel(
         Toast.makeText(context, "AppFilter copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
-    fun shareAsText(context: Context, excludeTags: Boolean) {
+    fun shareAsText(context: Context, excludeTags: Boolean, excludeNames: Boolean) {
         val selectedApps = _appList.value.filter { it.isSelected }
         if (selectedApps.isEmpty()) return
         val appEntries = mutableListOf<Pair<AppInfo, String>>()
@@ -189,7 +189,7 @@ class IconRequestViewModel(
             val baseName = iconRequestExporter.getDrawableName(app)
             appEntries.add(app to baseName)
         }
-        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags)
+        val text = iconRequestExporter.buildAppFilterString(appEntries, excludeTags, excludeNames)
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, text)
